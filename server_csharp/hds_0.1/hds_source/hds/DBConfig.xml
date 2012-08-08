@@ -1,0 +1,7 @@
+<DBConfig>
+	<serverHost>localhost</serverHost>
+	<serverPort>3036</serverPort>
+	<databaseName>reality</databaseName>
+	<databaseUser>root</databaseUser>
+	<databasePassword></databasePassword>
+</DBConfig>

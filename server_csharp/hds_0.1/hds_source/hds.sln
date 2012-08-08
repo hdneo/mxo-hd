@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hardline Dreams MxO server", "hds\Hardline Dreams MxO server.csproj", "{F0E0C963-9349-4770-A5E4-40A80B5C685D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F0E0C963-9349-4770-A5E4-40A80B5C685D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0E0C963-9349-4770-A5E4-40A80B5C685D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0E0C963-9349-4770-A5E4-40A80B5C685D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0E0C963-9349-4770-A5E4-40A80B5C685D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = hds\Hardline Dreams MxO server.csproj
+	EndGlobalSection
+EndGlobal

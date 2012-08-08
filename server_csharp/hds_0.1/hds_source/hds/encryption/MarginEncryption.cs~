@@ -1,0 +1,98 @@
+
+using System;
+
+namespace hds
+{
+	
+	
+	public class MarginEncryption
+	{
+		
+		private byte[] TF_Key = { 0x6C, 0xAB, 0x8E, 0xCC, 0xE7, 0x3C, 0x22, 0x47, 0xDB, 0xEB, 0xDE, 0x1A, 0xA8, 0xE7, 0x5F, 0xB8 };
+        	private byte[] IV = { 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30 };
+		
+		MxoTwofish tf;
+		MxoRSA rsa;
+		Crc32 crc32;
+		
+		TimeUtils tu;
+		NumericalUtils nu;
+		
+		ArrayUtils au;
+		
+		
+		public MarginEncryption()
+		{
+			tf = new MxoTwofish();
+			rsa = new MxoRSA();
+			crc32 = new Crc32();
+			tu = new TimeUtils();
+			nu = new NumericalUtils();
+			
+			au = new ArrayUtils();
+		}
+		
+		public byte[] encrypt(byte[] packet){
+			
+			// Get timestamp 
+			byte[] timestamp = tu.getUnixTime();
+
+
+			// get size
+			int psize = packet.Length;
+			byte[] size = nu.uint16ToByteArray((UInt16)psize,1);
+
+			//showPacket(size, " Size ");
+
+			// final Packet
+			
+			DynamicArray temp = new DynamicArray(psize);
+			temp.append(size);
+			temp.append(timestamp);
+			temp.append(packet);
+			
+            
+			// compute CRC32
+			byte crc32pax = crc32.checksumB(temp.getBytes(),1);         
+
+
+			// Padding
+			int totalLength = temp.getSize() + 4;
+			int padding = 16 - (totalLength % 16);
+
+				for (i = 0; i < padding; i++)
+			{
+			temp.append((byte)padding);
+			}
+
+			tf.setIV(IV);
+			tf.setKey(TF_Key);
+
+			// We init with 2 more than needed, so no memory reservation is done on dyn array
+			DynamicArray finalPlainData = new DynamicArray(temp.getSize()+6);
+			
+			finalPlainData.append(crc32pax);
+			finalPlainData.append(temp.getBytes());
+			
+			temp = null; // Cleaning the house
+           
+			
+			byte[] encryptedData = new byte[finalPlainData.getSize()];
+			tf.encrypt(finalPlainData.getBytes(),encryptedData);
+			
+            
+			finalPlainData = null; // Cleaning the house (2)
+			
+			// add IV before the results
+            
+			DynamicArray response = new DynamicArray(encryptedData.Length+16);
+			response.append(IV);
+			response.append(encryptedData);
+
+			// Display HEX Values after Encryption
+			return response.getBytes();
+		}
+		
+		
+	}
+}

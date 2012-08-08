@@ -1,0 +1,381 @@
+
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+
+namespace hds
+{
+	public class MarginClient{
+		
+		private int hashID;
+		private TcpClient tcpClient;
+		private bool working;
+		private MarginEncryption crypto;
+		private StringUtils su;
+		
+		public MarginClient(int hashID){
+			this.hashID = hashID;
+			working = true;
+			crypto = new MarginEncryption();
+			su = new StringUtils();
+		}
+		
+		public int getID(){
+			return hashID;
+		}
+		
+		public void passiveClose(){
+			this.working = false;
+		}
+		
+		public void forceClose(){
+			this.tcpClient.Close();
+		}
+		
+		
+		public void HandleClientComm(object client){
+  			tcpClient = (TcpClient)client;
+  			NetworkStream clientStream = tcpClient.GetStream();
+			
+			// Define a auth server processor per thread
+						
+  			byte[] message = new byte[2048];
+  			int bytesRead;
+			
+			Console.WriteLine("Margin client Connected.");
+  			
+	
+			// Receive TCP auth packets from the connected client.
+			while (working){
+    			bytesRead = 0;
+
+	    		try{ 
+					bytesRead = clientStream.Read(message, 0, 2048);
+				}
+				catch{ break; }
+	
+	    		if (bytesRead == 0)
+	            	break;
+				
+				// Parse the received packet data
+				try{
+    				processPacket(message,bytesRead);
+									
+					//clientStream.Write(response,0,response.Length);
+					
+				}catch(MarginException marEx){
+					Console.WriteLine(marEx);
+					break;
+				}
+				
+  			}
+
+  			Console.WriteLine("Margin thread closing");
+  			tcpClient.Close();
+		}	
+		
+		private byte[] processPacket(byte[] message,int bytesRead){
+			byte[] res = new byte[4];
+			
+			return res;
+		}
+
+		
+		public void packetHandler(byte[] packet, NetworkStream client )
+        {
+            bool encrypted = true;
+            byte opcode = packet[2];
+            byte[] data = { };
+            if (opcode == 0x01)
+            {
+                // Packet is unencrypted
+                encrypted = false;
+                data = packet;
+            }
+
+            if (encrypted == true)
+            {
+                byte[] encryptedPacket = { };
+                if (packet[0] >= 0x80)
+                {
+                    // try to readjust the packet for one byte if the lenght is too long
+                    // just a crappy way
+                    encryptedPacket = new byte[packet.Length-1];
+                    Array.Copy(packet, 1, encryptedPacket, 0, packet.Length - 1);
+                }
+                else
+                {
+                    encryptedPacket = packet;
+                }
+                // Get the IV from encrypted Packet and set it in cipherman for encryption
+                byte[] decrypted = crypto.decryptMargin(encryptedPacket);
+                // Just 2 zero bytes for opcode handling later (As we use third byte for both state, encrypted or not
+                byte[] spacer = { 0x00, 0x00 };
+
+                DynamicArray din = new DynamicArray(spacer.Length+decrypted.Length);
+		din.append(spacer);
+		din.append(decrypted);
+				
+                data = din.getBytes(); 
+
+            }else{
+                data = packet;
+            }
+
+            opcode = data[2];
+            showPacket(data, "received ");
+            switch (opcode)
+            {
+                case 0x01:
+                    certConnectRequest(packet, client);
+                break;
+
+                case 0x03:
+                    certConnectReply(packet, client);
+                break;
+
+                case 0x06:
+                    connectChallenge(packet, client);
+                break;
+
+                case 0x08:
+                    ConnectChallengeResponse(packet, client);
+                break;
+
+                case 0x0f:
+                    loadCharacter(packet, client);
+                break;
+            }
+        }
+
+        public void loadCharacter(byte[] packet, NetworkStream client)
+        {
+            
+            byte[] response1 = su.stringToByte("100000000028A9020000000100010000");
+            byte[] encryptedResponse1 = crypto.encryptMargin(response1);
+            sendTCPVariableLenPacket(encryptedResponse1, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response2 = su.stringToByte("100000000028A90200000002000210009E0409000000650000006F0000006900000005000000000000006600000002000000300100004C617572656E7A0000000000000000000000000000000000000000000000000046697368626F726E65000000000000000000000000000000000000000000000057656E6E2064752064696520526F74652050696C6C65206E696D6D7374202C20626C656962737420647520696D2057756E6465726C616E64202C20756E64206963682066FC687265206469636820696E2064696520746965667374656E2074696566656E20646573204B616E696E6368656E6261756D732E0A0D0A0D416E64207468652050617468206F66204D6F72706865757A20697320626F726E2E2E2E0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000286BEEE7CBC01201000000000000000000000000000000000000000000000101010100000000034F0000000200520000000100540000000100");
+            byte[] encryptedResponse2 = crypto.encryptMargin(response2);
+            sendTCPVariableLenPacket(encryptedResponse2, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response3 = su.stringToByte("100000000028A90200000003000310000000");
+            byte[] encryptedResponse3 = crypto.encryptMargin(response3);
+            sendTCPVariableLenPacket(encryptedResponse3, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response4 = su.stringToByte("100000000028A90200000004000410000000");
+            byte[] encryptedResponse4 = crypto.encryptMargin(response4);
+            sendTCPVariableLenPacket(encryptedResponse4, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response5 = su.stringToByte("100000000028A90200000005000810001E00013000000001310000000180000000018100000001980000000199000000");
+            byte[] encryptedResponse5 = crypto.encryptMargin(response5);
+            sendTCPVariableLenPacket(encryptedResponse5, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response6 = su.stringToByte("100000000028A90200000006000910000000");
+            byte[] encryptedResponse6 = crypto.encryptMargin(response6);
+            sendTCPVariableLenPacket(encryptedResponse6, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response7 = su.stringToByte("100000000028A90200000007000A10000000");
+            byte[] encryptedResponse7 = crypto.encryptMargin(response7);
+            sendTCPVariableLenPacket(encryptedResponse7, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response8 = su.stringToByte("100000000028A90200000008000B10000000");
+            byte[] encryptedResponse8 = crypto.encryptMargin(response8);
+            sendTCPVariableLenPacket(encryptedResponse8, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response9 = su.stringToByte("100000000028A90200000009000510007E0000130200000000001C0177A700000000001C02EC0400000000001C03890300000000001404050A00000000001405F704000000000024064295000000000014075F0900000000000009A6010000000000440A080A00000000003863DB0400000000001C64471A00000000001C66F41800000000001C68EA04000000000014");
+            byte[] encryptedResponse9 = crypto.encryptMargin(response9);
+            sendTCPVariableLenPacket(encryptedResponse9, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response10 = su.stringToByte("100000000028A9020000000A000610000000");
+            byte[] encryptedResponse10 = crypto.encryptMargin(response10);
+            sendTCPVariableLenPacket(encryptedResponse10, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response11 = su.stringToByte("100000000028A9020000000B00071000DE00000005080080010005C40180020000E40280030000080280040000140380050000180380060005B40080070000E400800800003401800900059400800A00006C00800B0000E002800C00006403800D00009000800E0080530E840F0080550E84100000A40180110001D001801200003C02801300004402801400012C00801500012800801600012C1180170001301180180001341180190005B000801A0000A000801B0000A400801C0001D000801D0000C800801E0000D400801F0000C400802000001C0580210000520E84220005B80F80230005C00F80240000550E84");
+            byte[] encryptedResponse11 = crypto.encryptMargin(response11);
+            sendTCPVariableLenPacket(encryptedResponse11, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response12 = su.stringToByte("100000000028A9020000000C000E10000000");
+            byte[] encryptedResponse12 = crypto.encryptMargin(response12);
+            sendTCPVariableLenPacket(encryptedResponse12, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response13 = su.stringToByte("100000000028A9020000000D000F10000000");
+            byte[] encryptedResponse13 = crypto.encryptMargin(response13);
+            sendTCPVariableLenPacket(encryptedResponse13, client);
+            System.Threading.Thread.Sleep(50);
+
+            byte[] response14 = su.stringToByte("100000000028A9020010270E010D100052008018684A546865206461746120636C7573746572732066726F6D20746865206167656E7420737061776E7320686176652061206368616E6365206F6620636F6E7461696E696E6720616E20464D2D31353030");
+            byte[] encryptedResponse14 = crypto.encryptMargin(response14);
+            sendTCPVariableLenPacket(encryptedResponse14, client);
+            System.Threading.Thread.Sleep(1000);
+            EstablishUDPSessionReply(packet, client);
+            
+        }
+
+        public void EstablishUDPSessionReply(byte[] packet, NetworkStream client)
+        {
+            byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00 };
+            byte[] encryptedResponse = crypto.encryptMargin(response);
+            sendTCPVariableLenPacket(encryptedResponse, client);
+        }
+
+        public void ConnectChallengeResponse(byte[] packet, NetworkStream client)
+        {
+            // just accept the packet everytime
+            // it seems that it have a 16 byte blob which could be encrypted but dunno if we will ever need it again
+            byte[] response = {0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3e, 0x17, 0x26, 0x70, 0x0f, 0x00, 0x03, 0x00, 0x0c, 0x00, 0x07, 0x00, 0xa9, 0x00 };
+            byte[] encryptedResponse = crypto.encryptMargin(response);
+            sendTCPVariableLenPacket(encryptedResponse, client);
+        }
+
+        public void connectChallenge(byte[] packet, NetworkStream client)
+        {
+
+            byte[] response = { 0x07, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x01, 0x00 };
+            byte[] encryptedResponse = crypto.encryptMargin(response);
+            sendTCPVariableLenPacket(encryptedResponse, client);
+        }
+
+        public void certConnectReply(byte[] packet, NetworkStream client)
+        {
+            // Just send the response
+            byte[] response = { 0x04, 0x00, 0x00, 0x00, 0x00 };
+            byte[] encryptedResponse = crypto.encryptMargin(response);
+            sendTCPVariableLenPacket(encryptedResponse, client);
+
+        }
+
+        public void certConnectRequest(byte[] packet, NetworkStream client)
+        {
+            int firstnum = BitConverter.ToInt16(packet, 3);
+            int authstart = BitConverter.ToInt16(packet, 5);
+            if (firstnum != 3)
+            {
+                showMarginDebug("FirstNum is not 3, it is" + firstnum);
+                
+            }
+
+            if (authstart != 310)
+            {
+                showMarginDebug("AuthStart is not 0x3601");
+                
+            }
+
+            // Get the Signatur 
+            byte[] signatur = new byte[128];
+            Array.Copy(packet, 7, signatur, 0, 128);
+            // ToDO MD5 Signatur and verify it with RSA to check if everything is correct
+
+            // Get the signedData
+            byte[] signedData = new byte[packet.Length - 135];
+            Array.Copy(packet, 135, signedData, 0, packet.Length - 135);
+            int userid = BitConverter.ToInt32(signedData, 1);
+
+            showMarginDebug("UserID is :" + userid);
+            // Stripout Exponent and Modulus
+
+            byte[] exponent = {0x00, 0x00, 0x00, 0x11};
+            byte[] modulus = new byte[96];
+            
+            Array.Copy(signedData, 82, modulus, 0, 96);
+            crypto.showPacket(exponent, "Users Exponent");
+            crypto.showPacket(modulus, "Users Modulus");
+            // Init our encryptor with users modulus and exponent
+            crypto.setUserPubKey(exponent, modulus);
+            // build the final packet, it consists of 1 byte 0x00 + twofish key for world and margin + encryptIV
+
+            byte[] encryptMeResponse = new byte[33];
+            encryptMeResponse[0] = 0x00;
+            Array.Copy(crypto.TF_Key, 0, encryptMeResponse, 1, crypto.TF_Key.Length);
+            Array.Copy(crypto.IV, 0, encryptMeResponse, 17, crypto.IV.Length);
+
+            crypto.showPacket(encryptMeResponse, "RSA PAcket before encryption");
+            byte[] encryptedShit = { };
+            encryptedShit = crypto.encryptUsersPublic(encryptMeResponse);
+
+            byte[] blobSize = BitConverter.GetBytes(encryptedShit.Length);
+
+            byte[] header = { 0x02, 0x03, 0x00 };
+            // Write final packet
+            MemoryStream ms = new MemoryStream();
+            ms.Write(header, 0, header.Length);
+            ms.Write(blobSize, 0, 2);
+            ms.Write(encryptedShit, 0, encryptedShit.Length);
+
+            byte[] preparedTCPPacket = ms.ToArray();
+
+            sendTCPVariableLenPacket(preparedTCPPacket, client);
+            
+            
+
+        }
+
+        public void sendTCPVariableLenPacket(byte[] packet, NetworkStream client)
+        {
+
+
+            byte[] size = { };
+            byte[] bytesize = { };
+
+            if (packet.Length > 127)
+            {
+                showMarginDebug("Size is long");
+                int packetsize = packet.Length + 0x8000;
+                size = BitConverter.GetBytes(packetsize);
+                bytesize = new byte[2];
+                Array.Copy(size, 0, bytesize, 0, 2);
+                Array.Reverse(bytesize);
+                crypto.showPacket(bytesize, "Long size");
+                
+
+            }
+            else
+            {
+                showMarginDebug("Size is small");
+                size = BitConverter.GetBytes(packet.Length);
+                bytesize = new byte[1];
+                Array.Copy(size, 0, bytesize, 0, 1);
+                
+            }
+            showMarginDebug("Leave size if");
+            byte[] finalPacket = new byte[packet.Length+size.Length];
+
+            MemoryStream ms = new MemoryStream();
+            ms.Write(bytesize, 0, bytesize.Length);
+            ms.Write(packet, 0, packet.Length);
+            finalPacket = ms.ToArray();
+            ms.Close();
+            crypto.showPacket(finalPacket, "Response");
+            
+            client.Write(finalPacket, 0, finalPacket.Length);
+            client.Flush();
+        }
+
+        private void showMarginDebug(string message)
+        {
+
+            Console.WriteLine("[Margin]" + message);
+        }
+		
+		private void showPacket(byte[] packet, string type)
+        {
+            Console.WriteLine("Show " + type + " Packet :\n" + su.bytesToString(packet));
+        }
+		
+		
+	}
+	
+}

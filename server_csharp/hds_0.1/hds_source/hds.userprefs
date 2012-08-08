@@ -1,0 +1,53 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workbench ActiveDocument="hds/margin/MarginClient.cs" ctype="Workbench">
+    <Files>
+      <File FileName="hds/margin/MarginClient.cs" Line="285" Column="1" />
+      <File FileName="hds/auth/AuthDBAccess.cs" Line="9" Column="27" />
+      <File FileName="hds/margin/MarginDBAccess.cs" Line="25" Column="3" />
+      <File FileName="hds/world/plugins/initialPackets/InitialPacketCreator.cs" Line="59" Column="21" />
+      <File FileName="hds/world/plugins/initialPackets/InitialPacketsLoader.cs" Line="66" Column="33" />
+      <File FileName="hds/margin/MarginSocket.cs" Line="71" Column="4" />
+      <File FileName="hds/world/WorldSocket.cs" Line="111" Column="6" />
+      <File FileName="hds/world/WorldDbAccess.cs" Line="26" Column="22" />
+      <File FileName="hds/utils/NumericalUtils.cs" Line="105" Column="25" />
+      <File FileName="hds/Main.cs" Line="53" Column="19" />
+      <File FileName="hds/world/WorldClient.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Hardline Dreams MxO server" expanded="True">
+            <Node name="margin" expanded="True">
+              <Node name="MarginClient.cs" selected="True" />
+            </Node>
+            <Node name="tests" expanded="True" />
+            <Node name="utils" expanded="True" />
+            <Node name="world" expanded="True">
+              <Node name="plugins" expanded="True">
+                <Node name="chatSelf" expanded="True">
+                  <Node name="chatCommands" expanded="True" />
+                </Node>
+                <Node name="echo" expanded="True" />
+                <Node name="initialPackets" expanded="True" />
+                <Node name="replay" expanded="True" />
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="ClassPad">
+        <State expanded="True" selected="True">
+          <Node name="Hardline Dreams MxO server" expanded="True" />
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" ctype="Workspace" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches ctype="PinnedWatchStore" />
+</Properties>
