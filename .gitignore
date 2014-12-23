@@ -26,8 +26,8 @@
 *.unsuccessfulbuild
 ipch/
 [Oo]bj/
-[Bb]in
-[Dd]ebug*/
+#[Bb]in
+#[Dd]ebug*/
 [Rr]elease*/
 Ankh.NoLoad
 
@@ -39,3 +39,5 @@ Ankh.NoLoad
 _ReSharper*/
 *.resharper
 [Tt]est[Rr]esul
+/hds/bin/Debug/data/staticObjects.*
+/hds/bin/Debug/data/mxo_data.s3db

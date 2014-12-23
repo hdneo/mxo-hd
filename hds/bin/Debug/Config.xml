@@ -1,0 +1,17 @@
+<HardlineDreams>
+	<DBConfig>
+		<serverHost>localhost</serverHost>
+		<serverPort>3036</serverPort>
+		<databaseName>reality_hd</databaseName>
+		<databaseUser>reality</databaseUser>
+		<databasePassword>reality</databasePassword>
+		<motd>Hardline Dreams server welcomes you boy!</motd>
+		<dbType>mysql</dbType>
+	</DBConfig>
+
+	<ServerConfig>
+		<adminConsoleEnabled>On</adminConsoleEnabled>
+        <ServerType>cr1</ServerType>
+	</ServerConfig>
+	
+</HardlineDreams>
