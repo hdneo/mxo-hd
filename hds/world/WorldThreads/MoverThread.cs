@@ -25,7 +25,7 @@ namespace hds
 
                     if (thismob.getIsSpawned() == true)
                     {
-                        //thismob.doTick();
+                        thismob.doTick();
                     }
 
                 }

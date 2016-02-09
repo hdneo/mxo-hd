@@ -198,6 +198,7 @@ namespace hds
             {
                 Socket recvSocket = (Socket)iar.AsyncState;
                 EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
+               
                 int msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
                 byte[] finalMessage = new byte[msgLen];
                 ArrayUtils.fastCopy(buffer, finalMessage, msgLen);

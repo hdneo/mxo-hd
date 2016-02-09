@@ -1,2 +1,36 @@
 district_id;district;handle;level;hpM;hpC;rsi;x_pos;y_pos;z_pos;rotation;is_defeated;is_lootable
-1;slums;Blackwoods;5;500;500;B3010058;16999;495;1498;0;false;false
+1;slums;WinterFrost;6;800;800;12030004;24499;495;-1498;0;false;false
+1;slums;Trainman;5;500;500;AD040004;24499;495;-1498;0;false;false
+1;slums;Blackwoods;5;500;500;B3010058;24499;495;-1498;0;false;false
+1;slums;WinterHelper;5;500;500;CF0200B0;24499;0;-1498;0;false;false
+1;slums;Smithling;5;500;500;B8040004;24499;495;-1498;0;false;false
+1;slums;Blackwoods;5;500;500;B3010058;24499;495;-1498;0;false;false
+1;slums;Blackwoods;5;500;500;B3010058;24499;495;-1698;0;false;false
+1;slums;Blackwoods;5;500;500;B3010058;24499;495;-1498;0;false;false
+1;slums;Blackwoods;5;500;500;B3010058;24499;495;-1698;0;false;false
+3;it;Test MOB IT;30;2500;2500;B3010058;23379;495;4699;0;false;false
+2;dt;Chisel Stalwart;36;950;950;370A0058;-101699;1300;6499;0;false;false
+2;dt;Chisel Defender;36;1425;1425;380A0058;-101699;1300;6499;0;false;false
+2;dt;Chisel Greenware;37;975;975;390A0058;-101699;1300;6499;0;false;false
+2;dt;Chisel Brawler;36;1900;1900;3A0A0058;-101699;1300;6499;0;false;false
+2;dt;Chisel Brawler;40;2100;2100;3A0A0058;-101699;1300;6499;0;false;false
+2;dt;Sleeper Private;31;825;825;400A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Sergeant;31;1237;1237;410A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Lieutenant;31;1650;1650;420A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Sapper;35;925;925;400A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Gunner;35;1337;1337;430A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Pioneer;35;1850;1850;430A0058;-78899;100;-31100;0;false;false
+2;dt;Seven;36;1900;1900;430A0058;-78899;100;-31100;0;false;false
+2;dt;Sleeper Pioneer (Roof);35;1850;1850;430A0058;-75099;3300;-30600;0;false;false
+2;dt;Pit Viper Venom;34;900;900;c0060058;-89662;95;-49725;219;false;false
+2;dt;Pit Viper Fingerling;31;825;825;c0060058;-87297;116;-71441;234;false;false;
+2;dt;Pit Viper Fingerling;31;825;825;c0060058;-87750;104;-66464;8;false;false
+2;dt;Pit Viper Sleeper;33;875;875;c0060058;-85960;95;-75623;78;false;false
+2;dt;Corporate Security Pawn;47;1225;1225;4b0b0058;-17861;694;97233;238;false;false
+2;dt;Corporate Security Pawn;47;1225;1225;4c0b0058;-13762;694;90975;175;false;false
+2;dt;Corporate Security Rook;47;1837;1837;4d0b0058;-13853;694;96700;241;false;false
+2;dt;White Security Constable;38;1500;1500;700a0058;-64745;694;-11475;71;false;false
+2;dt;Shade Wisp;36;950;950;640a0058;-34838;1295;42712;7;false;false
+2;dt;Shade Wisp;36;950;950;630a0058;-27541;1894;38355;210;false;false
+
+

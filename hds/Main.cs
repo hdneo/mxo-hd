@@ -22,12 +22,6 @@ namespace hds{
                 Store.margin = new MarginSocket();
                 Store.world = new WorldSocket();
                 Store.worldThreads = new WorldThreads();
-                
-                // Start
-				Store.auth.startServer();
-				Store.margin.startServer();
-				Store.world.startServer();
-                
 
                 Store.config = new ServerConfig("Config.xml");
                 Store.config.LoadDbParams();
@@ -64,10 +58,15 @@ namespace hds{
 					ConsoleSocket adminConsole = new ConsoleSocket();
 					adminConsole.startServer();	
 				}
-				
-				
-				// Check if execution keeps going after starting
-				Output.WriteLine("Im'running :D");
+
+
+                // Now everything should be loaded - START THE ENGINES!!!
+                Store.auth.startServer();
+                Store.margin.startServer();
+                Store.world.startServer();
+
+                // Check if execution keeps going after starting
+                Output.WriteLine("Im'running :D");
 				
 
 				// Capture Ctrl C key to clean and then end the program

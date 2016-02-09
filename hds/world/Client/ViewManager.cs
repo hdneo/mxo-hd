@@ -22,6 +22,22 @@ namespace hds
             return newView;
         }
 
+        public ClientView getViewById(UInt16 viewId)
+        {
+            ClientView view = null;
+            view = views.Find(delegate(ClientView cv) { return cv.ViewID == viewId; });
+            return view;
+        }
+
+        public void removeViewByViewId(UInt16 viewId)
+        {
+            ClientView view = getViewById(viewId);
+            if (view != null)
+            {
+                views.Remove(view);
+            }
+        }
+
         // This method should check if client has a view for a GoID 
         // If not it adds it to his List of Views and response the ClientView Object
         public ClientView getViewForEntityAndGo(UInt64 entityId, UInt32 goID)

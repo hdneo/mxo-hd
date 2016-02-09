@@ -15,8 +15,8 @@ namespace hds
         public void processIncreaseCash(UInt16 amount, UInt16 type){
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = { 0x80, 0xe4 };
-            long newCash = Store.currentClient.playerData.getCash() + (long)amount;
-            Store.currentClient.playerData.setCash(newCash);
+            long newCash = Store.currentClient.playerData.getInfo() + (long)amount;
+            Store.currentClient.playerData.setInfo(newCash);
 
             Store.dbManager.WorldDbHandler.savePlayer();
 
@@ -35,8 +35,8 @@ namespace hds
 
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = { 0x80, 0xe4 };
-            long newCash = Store.currentClient.playerData.getCash() - (long)amount;
-            Store.currentClient.playerData.setCash(newCash);
+            long newCash = Store.currentClient.playerData.getInfo() - (long)amount;
+            Store.currentClient.playerData.setInfo(newCash);
 
             Store.dbManager.WorldDbHandler.savePlayer();
 
@@ -204,18 +204,6 @@ namespace hds
             din.append(0x41);
             din.append(0x00);
 
-        }
-
-        public void processMood(ref byte[] packet)
-        {
-            byte moodByte = packet[0];
-            byte[] moodPak = { 0x02, 0x00, 0x01, 0x01, 0x00, moodByte, 0x00, 0x00 };
-
-            Output.writeToLogForConsole("PROCESS CHANGE MOOD PAK : " + StringUtils.bytesToString_NS(moodPak));
-
-            //ToDo: Announce to other Players (and find packet for it) and save this in playerObject for new players
-            // Create the Packet answer 
-            Store.currentClient.messageQueue.addObjectMessage(moodPak, false);
         }
 
 

@@ -164,7 +164,7 @@ namespace hds.databases{
 
         public void updateLocationByHL(UInt16 district, UInt16 hardline){
 
-            string sqlQuery = "SELECT DH.X,DH.Y,DH.Z,DH.ROT, DIS.key FROM data_hardlines AS DH, districts as DIS WHERE DH.DistrictId = '" + district.ToString() + "' AND DH.HardLineId = '" + hardline.ToString() + "' AND DH.DistrictId=DIS.id ";
+            string sqlQuery = "SELECT DH.X,DH.Y,DH.Z,DH.ROT,DIS.key,DH.DistrictId FROM data_hardlines AS DH, districts as DIS WHERE DH.DistrictId = '" + district.ToString() + "' AND DH.HardLineId = '" + hardline.ToString() + "' AND DH.DistrictId=DIS.id ";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             dr = queryExecuter.ExecuteReader();
@@ -176,6 +176,7 @@ namespace hds.databases{
                 string disKey = dr.GetString(4);
                 Output.WriteLine("USER DIS IS NOW " + disKey);
                 Store.currentClient.playerData.setDistrict(disKey);
+                Store.currentClient.playerData.setDistrictId((uint)dr.GetInt16(5));
                 Store.currentClient.playerInstance.Position.setValue(NumericalUtils.doublesToLtVector3d(x, y, z));
                 //Store.currentClient.playerInstance.YawInterval.setValue((byte)dr.GetDecimal(3));
             }
@@ -186,7 +187,7 @@ namespace hds.databases{
 		public void setPlayerValues(){
 
             UInt32 charID = Store.currentClient.playerData.getCharID();
-			string sqlQuery="Select handle,x,y,z,rotation,healthC,healthM,innerStrC,innerStrM,level,profession,alignment,pvpflag,firstName,lastName,exp,cash,district,districtId from characters where charId='"+charID+"'";
+			string sqlQuery="Select handle,x,y,z,rotation,healthC,healthM,innerStrC,innerStrM,level,profession,alignment,pvpflag,firstName,lastName,exp,cash,district,districtId,factionId,crewId from characters where charId='"+charID+"'";
 			queryExecuter= conn.CreateCommand();
 			queryExecuter.CommandText = sqlQuery;					
 			dr= queryExecuter.ExecuteReader();
@@ -218,11 +219,13 @@ namespace hds.databases{
 				Store.currentClient.playerInstance.RealLastName.setValue(dr.GetString(14));
 				
 				Store.currentClient.playerData.setExperience((long)dr.GetDecimal(15));
-				Store.currentClient.playerData.setCash((long)dr.GetDecimal(16));
+				Store.currentClient.playerData.setInfo((long)dr.GetDecimal(16));
 				Store.currentClient.playerData.setDistrict(dr.GetString(17));
                 Store.currentClient.playerData.setDistrictId((uint)dr.GetInt16(18));
-			
-			}
+                Store.currentClient.playerInstance.FactionID.setValue((uint)dr.GetInt16(19));
+                Store.currentClient.playerInstance.CrewID.setValue((uint)dr.GetInt16(20));
+
+            }
 			
 			dr.Close();
 			

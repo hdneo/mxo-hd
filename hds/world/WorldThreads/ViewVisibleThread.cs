@@ -66,12 +66,12 @@ namespace hds
                                     double playerZ = 0;
                                      NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX, ref playerY, ref playerZ);
                                     Maths mathUtils = new Maths();
-                                    bool mobIsInCircle = mathUtils.IsInCircle((float)playerX,(float)playerZ,(float)thismob.getXPos(),(float)thismob.getZPos(),500);
+                                    bool mobIsInCircle = mathUtils.IsInCircle((float)playerX,(float)playerZ,(float)thismob.getXPos(),(float)thismob.getZPos(),5000);
                                     
                                     // ToDo: Check if mob is in circle of player (radian some value that is in a middle range for example 300m)
 
                                     // Create
-                                    if (mobView.viewCreated == false && thismob.getDistrictName() == thisclient.playerData.getDistrict() && thisclient.playerData.getOnWorld() && mobIsInCircle)
+                                    if (mobView.viewCreated == false && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld() && mobIsInCircle)
                                     {
 
                                         ServerPackets mobPak = new ServerPackets();
@@ -79,16 +79,20 @@ namespace hds
                                     }
 
                                     // Update Mob
-                                    if (mobView.viewCreated == true && thismob.getDistrictName() == thisclient.playerData.getDistrict() && thisclient.playerData.getOnWorld())
+                                    if (mobView.viewCreated == true && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld())
                                     {
                                         // ToDo: We need to involve the Statuslist here and we need to move them finaly
                                         updateMob(thisclient, ref thismob, mobView);
                                     }
 
                                     // Mob moves outside - should delete it
-                                    if (mobView.viewCreated == true && !mobIsInCircle && thismob.getDistrictName() == thisclient.playerData.getDistrict())
+                                    if (mobView.viewCreated == true && !mobIsInCircle && thismob.getDistrict() == thisclient.playerData.getDistrictId())
                                     {
                                         // ToDo: delete mob
+                                        ServerPackets packets = new ServerPackets();
+                                        packets.sendDeleteViewPacket(thisclient, mobView.ViewID);
+                                        thisclient.viewMan.removeViewByViewId(mobView.ViewID);
+
                                     }
                                 }
 

@@ -126,10 +126,10 @@ namespace hds
             themob.Level.setValue(this.getLevel());
             themob.NPCRank.setValue(1);
             themob.RSIDescription.setValue(StringUtils.hexStringToBytes(this.getRsiHex()));
-            themob.MoreInfoID.setValue(StringUtils.hexStringToBytes("302300c6")); // ToDo: Make dynamic
+            themob.MoreInfoID.setValue(StringUtils.hexStringToBytes(this.getRsiHex())); // ToDo: Make dynamic
             themob.StopFollowActiveTracker.setValue((byte)0x01);
             themob.ScriptCounter.setValue(1);
-            themob.Description.setValue(StringUtils.hexStringToBytes("1500004e")); // ToDo: Make dynamic
+            themob.Description.setValue(StringUtils.hexStringToBytes(this.getRsiHex())); // ToDo: Make dynamic
             themob.CombatantMode.setValue((byte)0x22);
             themob.Position.setValue(NumericalUtils.doublesToLtVector3d(this.getXPos(), this.getYPos(), this.getZPos()));
             themob.YawInterval.setValue((byte)this.getRotation());

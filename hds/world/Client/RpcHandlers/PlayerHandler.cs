@@ -18,6 +18,29 @@ namespace hds
             //Store.currentClient.playerData.setPss(0x7f);
         }
 
+        public void processMood(ref byte[] packet)
+        {
+            byte moodByte = packet[0];
+            ServerPackets server = new ServerPackets();
+            //ToDo: Announce to other Players (and find packet for it) and save this in playerObject for new players
+            server.sendMoodChange(Store.currentClient, moodByte);
+        }
+
+        public void processEmote(ref byte[] packet)
+        {
+            byte[] emoteBytes = new byte[4];
+            emoteBytes[0] = packet[0];
+            emoteBytes[1] = packet[1];
+            emoteBytes[2] = packet[2];
+            emoteBytes[3] = packet[3];
+
+            byte emoteByte = packet[0];
+            UInt32 emoteKey = NumericalUtils.ByteArrayToUint32(emoteBytes, 0);
+            
+            ServerPackets server = new ServerPackets();
+            server.sendEmotePerform(Store.currentClient, emoteKey);
+        }
+
         public void processSpawn()
         {
 
@@ -40,12 +63,20 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Winter1");
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky1"); // Test our skies
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2");
 
+            packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
+            packets.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
+
+            /*
             long exp = Store.currentClient.playerData.getExperience();
-            long cash = Store.currentClient.playerData.getCash();
+            long cash = Store.currentClient.playerData.getInfo();
             string expStr = "80e1" + StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray((UInt32)exp, 1)) + "00000000";
             string cashStr = "80df" + StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray((UInt32)cash, 1)) + "00000000";
+            */
 
             // There are for testing - need to change this later to load from ClientObject / DB 
             UInt16 focus = 24;
@@ -54,6 +85,14 @@ namespace hds
             UInt16 perception = 27;
             UInt16 reason = 28;
 
+            
+            packets.sendAttribute(Store.currentClient, focus, 0x4e);
+            packets.sendAttribute(Store.currentClient, perception, 0x4f);
+            packets.sendAttribute(Store.currentClient, reason, 0x51);
+            packets.sendAttribute(Store.currentClient, belief, 0x52);
+            packets.sendAttribute(Store.currentClient, vitality, 0x54);
+            
+            /*
             string focusRPC = "80ad4e" + StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray(focus, 0)) + "000802";
             string beliefRPC = "80ad52" + StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray(belief, 0)) + "000802";
             string vitalityRPC = "80ad54" + StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray(vitality, 0)) + "000802";
@@ -61,13 +100,12 @@ namespace hds
             string reasonRPC = "80ad51" + StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray(reason, 0)) + "000802";
 
             
-            Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(expStr));
-            Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(cashStr));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(focusRPC)); // Focus 
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(beliefRPC)); // Belief
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(vitalityRPC)); // Vitality
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(perceptionRPC)); // Perception
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(reasonRPC)); // Reason
+            */
             //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("808615A0070000000000000000000000000000000000000000210000000000230000000000"));
             // Disable later
             /*

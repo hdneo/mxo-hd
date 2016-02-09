@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -13,7 +13,7 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -54,6 +54,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -112,6 +113,7 @@
     <Compile Include="monolith\LtTypes.cs" />
     <Compile Include="resources\Data\AbilityItem.cs" />
     <Compile Include="resources\Data\ClothingItem.cs" />
+    <Compile Include="resources\Data\EmoteItem.cs" />
     <Compile Include="resources\Data\StaticObject.cs" />
     <Compile Include="resources\Data\VendorItem.cs" />
     <Compile Include="Main.cs" />
@@ -144,6 +146,7 @@
     <Compile Include="world\Client\Network\MessageQueue.cs" />
     <Compile Include="world\Client\Network\SequencedMessage.cs" />
     <Compile Include="world\Client\Network\WorldPacket.cs" />
+    <Compile Include="world\Client\RpcHandlers\FCHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\MissionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\RegionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\TeamHandler.cs" />
@@ -166,6 +169,7 @@
     <Compile Include="world\Scripting\ScriptLoader.cs" />
     <Compile Include="world\Scripting\ScriptManager.cs" />
     <Compile Include="world\ServerPackets\ChatCommandPackets.cs" />
+    <Compile Include="world\ServerPackets\FCPackets.cs" />
     <Compile Include="world\ServerPackets\InventoryPackets.cs" />
     <Compile Include="world\ServerPackets\MarketplacePackets.cs" />
     <Compile Include="world\ServerPackets\MissionPackets.cs" />

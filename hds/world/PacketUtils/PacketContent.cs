@@ -86,6 +86,24 @@ namespace hds
             packet.append(0x00);
         }
 
+        public void addStringWithFixedSized(string value,int size)
+        {
+            packet.append(StringUtils.stringToBytes(value));
+            int paddingSize = size - value.Length;
+            int currentSize = value.Length;
+            if (paddingSize > 0)
+            {
+                // we need to add "0x00" bytes until its full
+                while (currentSize <= paddingSize)
+                {
+                    packet.append(0x00);
+                    currentSize++;
+                }
+            }
+
+
+        }
+
         public void addSizedString(string value)
         {
             packet.append(NumericalUtils.uint16ToByteArray((UInt16)value.Length, 1));

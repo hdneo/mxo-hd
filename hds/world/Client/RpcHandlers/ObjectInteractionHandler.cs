@@ -34,31 +34,13 @@ namespace hds{
         }
 
         public void processOpenDoor(StaticWorldObject door)
-        {
-            
-            /* Example Packet
-             *  02 
-                03 
-                01 00 
-                08 a0 01 
-                08 00 f0 34 
-                be 
-                cd ab 
-                03 84 00 
-                00 00 00 f3 04 35 bf 00 
-                00 00 00 f3 04 35 3f 41 
-                00 00 00 00 80 a6 f0 c0 
-                00 00 00 00 00 20 62 40 
-                00 00 00 00 00 b3 d0 40 
-                34 08 00 00 12 00 00 00 00 
-             */
-            Store.currentClient.playerData.newViewIdCounter++; // It is just for a test Later we will change this to have a List with Views and Object IDs
+        {            
+            UInt16 typeId = NumericalUtils.ByteArrayToUint16(door.type, 1);
             byte[] masterViewId = { 0x01, 0x00 };
-            
-            byte[] typeId = StringUtils.hexStringToBytes("8502");
             byte[] seperator = { 0xcd, 0xab };
+            Store.currentClient.playerData.newViewIdCounter++; // It is just for a test Later we will change this to have a List with Views and Object IDs
+
             byte[] disarmDifficultyMaybe = { 0x03, 0x84 };
-            byte[] newViewId = {0x22, 0x00};
             byte[] endViewID = { 0x00, 0x00 };
 
 
@@ -66,28 +48,64 @@ namespace hds{
             UInt16 randSpawncounter = (UInt16)rand.Next(15, 254);
 
             byte[] spawnCounter = NumericalUtils.uint16ToByteArrayShort(randSpawncounter);
+            Output.WriteLine("[DOOR]POS X : " + door.pos_x.ToString() + " POS Y: " + door.pos_y.ToString() + " POS Z: " + door.pos_z.ToString() + ", TypeId: " + StringUtils.bytesToString_NS(door.type));
 
+            switch (typeId)
+            {
+                case 417:
+                case 419:
+                    // ToDo: Packet Format for Elevator
+                    // 02 03 01 00 
+                    // 08 
+                    // a3 01 
+                    // 6b 01 f0 3d be 
+                    // cd ab 03 88 00 00 00 00 ff ff 7f 3f 00 00 00 00 f3 04 35 33 
+                    // 22 00 00 00 00 40 f4 fb 40 00 00 00 00 00 90 75 40 00 00 00 00 00 40 af 40 ff ff ff ff 19 00 00
+                    // 11 00 01 00 04 61 97 e1 47 f0 bf 2d 44 de 30 35 45 00 00
+                    PacketContent content = new PacketContent();
+                    content.addByteArray(masterViewId);
+                    content.addByte(0x08);
+                    content.addByteArray(door.type);
+                    content.addByteArray(NumericalUtils.uint32ToByteArray(door.mxoId, 1));
+                    content.addByteArray(spawnCounter); // Spawn Object Counter
+                    content.addByteArray(seperator);
+                    content.addByte(0x03); // Number of Attributes to parse (3)
+                    content.addByte(0x88); // GROUP 1 - more groups ON, Attribute 4 (305,Orientation,LTQuaternion,16) SET (10001000) 
+                    content.addByteArray(StringUtils.hexStringToBytes(door.quat)); // ToDo: replace it later with the real LTQuaternion
+                    content.addByte(0x22); // GROUP 2 - more groups OFF, Attribute 2,6  SET (00100010) 
+                    content.addDoubleLtVector3d(door.pos_x, door.pos_y, door.pos_z);
+                    content.addByteArray(new byte[]{ 0xff,0xff,0xff,0xff});
+                    content.addByteArray(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.newViewIdCounter, 1));
+                    content.addByteArray(endViewID);
+                    content.addByte(0x00);
+                    Store.currentClient.messageQueue.addObjectMessage(content.returnFinalPacket(), false);
+                    break;
+                case 2506:
+                    // ToDo: Packet Format for Elevator
+                    
+                    
+                    break;  
+                default:
 
-            PacketContent content = new PacketContent();
-            content.addByteArray(masterViewId);
-            content.addByte(0x08);
-            content.addByteArray(door.type);
-            content.addByteArray(NumericalUtils.uint32ToByteArray(door.mxoId, 1));
-            content.addByteArray(spawnCounter); // Spawn Object Counter
-            content.addByteArray(seperator);
-            content.addByteArray(disarmDifficultyMaybe);
-            content.addByte(0x00); // isZionAligned?
-            //content.addByteArray(StringUtils.hexStringToBytes(door.quat));
-            content.addByteArray(StringUtils.hexStringToBytes("0000000000803F000000000000000041"));
-            //content.addByteArray(NumericalUtils.doubleToByteArray(door.rot,1));
-            content.addDoubleLtVector3d(door.pos_x,door.pos_y,door.pos_z);
-            content.addByteArray(StringUtils.hexStringToBytes("34080000"));
-            content.addByteArray(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.newViewIdCounter,1));
-            content.addByteArray(endViewID);
-            content.addByte(0x00);
+                    PacketContent contentDefault = new PacketContent();
+                    contentDefault.addByteArray(masterViewId);
+                    contentDefault.addByte(0x08);
+                    contentDefault.addByteArray(door.type);
+                    contentDefault.addByteArray(NumericalUtils.uint32ToByteArray(door.mxoId, 1));
+                    contentDefault.addByteArray(spawnCounter); // Spawn Object Counter
+                    contentDefault.addByteArray(seperator);
+                    contentDefault.addByteArray(disarmDifficultyMaybe);
+                    contentDefault.addByte(0x00); // isZionAligned?
+                    contentDefault.addByteArray(StringUtils.hexStringToBytes("0000000000803F000000000000000041")); // ToDo: replace it later with the real values from the object
+                    contentDefault.addDoubleLtVector3d(door.pos_x, door.pos_y, door.pos_z);
+                    contentDefault.addByteArray(StringUtils.hexStringToBytes("34080000"));
+                    contentDefault.addByteArray(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.newViewIdCounter, 1));
+                    contentDefault.addByteArray(endViewID);
+                    contentDefault.addByte(0x00);
+                    Store.currentClient.messageQueue.addObjectMessage(contentDefault.returnFinalPacket(), false);
+                    break;
 
-            Output.WriteLine("[DOOR]POS X : " + door.pos_x.ToString() + " POS Y: " + door.pos_y.ToString() + " POS Z: " + door.pos_z.ToString() + ", TypeId: " + StringUtils.bytesToString_NS(door.type) );
-            Store.currentClient.messageQueue.addObjectMessage(content.returnFinalPacket(), false);
+            }
             
 
         }
@@ -115,6 +133,7 @@ namespace hds{
 
             DataLoader objectLoader = DataLoader.getInstance();
             StaticWorldObject objectValues = objectLoader.getObjectValues(NumericalUtils.ByteArrayToUint32(objectID, 1));
+            
 
             // create a new System message but fill it in the switch block
 
@@ -124,9 +143,11 @@ namespace hds{
                     Output.writeToLogForConsole("[OI HELPER] INTERACT WITH DOOR | Object ID :" + id + " Sector ID : " + numericSectorId);
 
                     // just a test
-                    if (objectValues != null)
+                    
+                    if (objectValues != null && objectValues.type!=null)
                     {
-                        Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("[OI HELPER] Door StrType: !" + objectValues.strType + " with Type ID " + StringUtils.bytesToString_NS(objectValues.type), Store.currentClient));
+                        GameObjectItem item = objectLoader.getGameObjectItemById(NumericalUtils.ByteArrayToUint16(objectValues.type,1));
+                        Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("[OI HELPER] Door StrType: !" + item.getName() + " with Type ID " + StringUtils.bytesToString_NS(objectValues.type), Store.currentClient));
                         this.processOpenDoor(objectValues);
                     }
                     

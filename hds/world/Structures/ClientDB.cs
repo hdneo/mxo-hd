@@ -25,6 +25,28 @@ namespace hds.world.Structures
                        261202500, 278280000, 296082500, 314625000
         };
 
+        
+
+        public static Dictionary<uint,byte> EmoteListDict = new Dictionary<uint,byte>() {
+            {0xe6020058, 0x1 }, // /beckon
+            {0x9b010058, 0x2 }, // /bigwave
+            {0xe7020058, 0x3 }, // /bow
+            {0x0d00003a, 0x4 }, // /clap
+            {0x1000003a, 0x5 }, // /crossarms
+            {0x1100003a, 0x6 }, // /nod
+            {0x570d0058, 0x7 }, // /agree
+            {0x590d0058, 0x8 }, // /yes
+            {0x1600003a, 0x9 }, // /orangutan
+            {0x10050004, 0xa }, // /point
+            {0xd1020058, 0xb }, // /pointback
+            {0x1300003a, 0xc }, // /pointleft
+            {0x1400003a, 0xd }, // /pointright
+           
+        };
+            
+        
+
+
 
         // Animations 
         public enum AnimationList : uint
@@ -83,23 +105,21 @@ namespace hds.world.Structures
             ABILPROGRAMLAUNCHA1 = 0x32,
             COMBATATTACKERRANDOMSCRAMBLE = 0x33,
             FREEATTACKMELEESOLDIR = 0x34,
-            FREEATTACKMELEESPY = 0x35
+            FREEATTACKMELEESPY = 0x35,
+            FREEATTACKMELEEHACKER = 0x36,
+            FREEATTACKRIFLE = 0x37,
+            FREEATTACKPISTOL = 0x38,
+            FREEATTACKWEAPONSUBM = 0x39,
+            FREEATTACKWEAPONDUALPISTOL = 0x3a,
+            FREEATTACKWEAPONDUALSUBM = 0x3b,
+            STRAFERUNL = 0x3c,
+            STRAFERUNR = 0x3d
 
             /*
              * From http://mxoemu.info/mxoanim/action.txt
              * ToDo: Build a real AnimationList :)
-            
-             
-                34 "FreeAttackMeleeSoldier" 
-                35 "FreeAttackMeleeSpy" 
-                36 "FreeAttackMeleeHacker" 
-                37 "FreeAttackWeaponRifle" 
-                38 "FreeAttackWeaponPistol" 
-                39 "FreeAttackWeaponSubM" 
-                3a "FreeAttackWeaponDualPistol" 
-                3b "FreeAttackWeaponDualSubM" 
-                3c "StrafeRunL" 
-                3d "StrafeRunR" 
+                
+                
                 3e "RunFEnd" 
                 3f "Resurrect" 
                 40 "FreeAttackWeaponSMKnifeThrow" 

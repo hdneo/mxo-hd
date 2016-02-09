@@ -68,7 +68,19 @@ namespace hds{
             case (int)RPCRequestHeader.CLIENT_HANDLE_MISSION_INVITE:
                 new TeamHandler().processTeamInviteAnswer(ref rpcData);
                 break;
-            // Abilitys
+
+                // Faction and Crews
+                case (int)RPCRequestHeader.CLIENT_FACTION_INFO:
+                    new FCHandler().processLoadFactionName(ref rpcData);
+                    // ToDo: implement response with following format : 
+                    // size + 80 f5 + uint32 factionId + String(40 size? unusual...)
+                    // Example: 30 80 f5 11 ba 00 00 48 79 50 6e 30 74 69 5a 65 44 20 4d 69 4e 64 5a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+                break;
+
+                // Abilitys
+           case (int)RPCRequestHeader.CLIENT_UPGRADE_ABILITY_LEVEL:
+                // ToDo: Research and implement^^
+                break;
             case (int)RPCRequestHeader.CLIENT_ABILITY_HANDLER:
                 new AbilityHandler().processAbility(ref rpcData);
                 break;
@@ -129,14 +141,18 @@ namespace hds{
 
             // Emote and Mood Helpers
             case (int)RPCRequestHeader.CLIENT_CHANGE_MOOD:
-                new PlayerHelper().processMood(ref rpcData);
+                new PlayerHandler().processMood(ref rpcData);
+                break;
+
+            case (int)RPCRequestHeader.CLIENT_EMOTE:
+                new PlayerHandler().processEmote(ref rpcData);
                 break;
 
             case (int)RPCRequestHeader.CLIENT_REGION_LOADED:
+            new RegionHandler().processRegionLoaded(ref rpcData);
+            //new PlayerInitHelper().processRegionSettings();
+            break;
 
-                new RegionHandler().processRegionLoaded(ref rpcData);
-                //new PlayerInitHelper().processRegionSettings();
-                break;
 
             default:
 				//PASS :D

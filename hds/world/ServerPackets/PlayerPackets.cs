@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using hds.databases;
 using hds.shared;
+using hds.world.Structures;
 
 namespace hds
 {
@@ -20,6 +21,107 @@ namespace hds
             pak.addUint16(viewIdToDelete, 1);
             pak.addByte(0x00);
 
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.flushQueue();
+
+        }
+
+        public void sendEmotePerform(WorldClient client, UInt32 emoteID)
+        {
+            double x = 0; double y = 0; double z = 0;
+            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
+            int rotation = (int)Store.currentClient.playerInstance.YawInterval.getValue()[0];
+            float xPos = (float)x;
+            float yPos = (float)y;
+            float zPos = (float)z;
+
+            /*
+            byte sampleEmoteMsg[] =
+            {
+                0x03, 0x02, 0x00, 0x01, 0x28, 0xAA, 0x40, 0x00, 0x25, 0x01, 0x00, 0x00, 0x10, 0xBB, 0xBB, 0xBB,
+                0xBB, 0xCC, 0xCC, 0xCC, 0xCC, 0xDD, 0xDD, 0xDD, 0xDD, 0x2A, 0x9F, 0x1E, 0x20, 0x00, 0x00,
+            };*/
+
+            // Example REsponse for /rolldice  02 03 02 00 01 28 01 40 00 25 <ID> 00 00 10 cd a7 65 c7 00 00 be 42 33 ff 72 46 b9 51 32 22 00 00
+            // Example REsponse for /rolldice  02 03 02 00 01 28 01 40 00 25 5c 00 00 10 cd a7 65 c7 00 00 be 42 33 ff 72 46 b9 51 32 22 00 00
+            // Example Response for ClapEmote: 02 03 02 00 01 28 06 40 00 25 04 00 00 10 34 49 84 c7 00 00 be 42 27 a4 7f 46 b3 a6 5e 18 00 00 
+            // Python Example self.emotePacket="\x02\x03\x02\x00\x01\x28<emoteNum>\x40\x00\x25<emoteID>\x00\x00\x10<coordX><coordY><coordZ>\x2a\x9f\x1e\x20\x00\x00"
+            //                                 02 03 02 00 01 28 01 40 00 25 01 00 00 ea 33 47 00 00 be 42 80 55 bd c7 b9 51 32 22 00 00 
+
+
+            // ToDo: parse list and get the fucking id from uint
+            DataLoader objectLoader = DataLoader.getInstance();
+            byte emoteByte = new byte();
+            emoteByte = objectLoader.findEmoteByLongId(emoteID);
+            
+
+            if(emoteByte>0)
+            {
+                byte[] emotePak = { 0x01, 0x28, 0x01, 0x40, 0x00, 0x25, emoteByte, 0x00, 0x00, 0x10 };
+                PacketContent pak = new PacketContent();
+                pak.addUint16(2, 1);
+                pak.addByteArray(emotePak);
+                pak.addFloatLtVector3f(xPos, yPos, zPos);
+                pak.addHexBytes("b9513222"); // We dont know what they are - maybe rotation ?
+                pak.addByte(0x00);
+                //pak.addByteArray(client.playerInstance.Position.getValue());
+                client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+                client.flushQueue();
+            }
+            
+
+        }
+
+        public void sendMoodChange(WorldClient client, byte moodByte)
+        {
+            byte[] moodPak = { 0x02, 0x00, 0x01, 0x01, 0x00, moodByte, 0x00, 0x00 };
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2, 1);
+            pak.addByte(0x02);
+            pak.addByteArray(moodPak);
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.flushQueue();
+
+        }
+
+        public void sendAttribute(WorldClient client, UInt16 attributeValue, byte type)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_ATTRIBUTE, 0);
+            pak.addByte(type);
+            pak.addUint16(attributeValue, 0);
+            pak.addHexBytes("000802");
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        public void sendEXPCurrent(WorldClient client, UInt32 exp)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP, 0);
+            pak.addUint32(exp, 1);
+            pak.addHexBytes("00000000");
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        public void sendInfoCurrent(WorldClient client, UInt32 info)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_INFO, 0);
+            pak.addUint32(info, 1);
+            pak.addHexBytes("00000000");
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        // Updates the Inner Strenght Value
+        public void sendISCurrent(WorldClient client, UInt16 innerStrengthValue )
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2, 1);
+            pak.addByte(0x02);
+            pak.addByteArray(new byte[]{0x80,0x80,0x80});
+            pak.addByte(0x10);
+            pak.addUint16(innerStrengthValue,1);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             client.flushQueue();
 
@@ -51,20 +153,6 @@ namespace hds
                     client.messageQueue.addRpcMessage(pak.returnFinalPacket());
                 }
             }
-            // Packet 3080D708003C00008E2600534F452B4D584F2B566563746F722D486F7374696C652B52756E6E696E6757696C6433303500
-            // 2A80D708003C00008E2000534F452B4D584F2B566563746F722D486F7374696C652B656E74696C73617200 <- Entilsar (has charId 2f d8 01 in Margin)
-            /*
-            PacketContent pakTest = new PacketContent();
-            pakTest.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS, 0);
-            pakTest.addHexBytes("0800");
-            pakTest.addByte(0x3b); // Online Flag: 0x3c is offline, 0x3b is online
-            pakTest.addHexBytes("0000");
-            pakTest.addByte(0x8e); // Another unknown flag ...mxosource made it wrong lol
-            pakTest.addSizedTerminatedString("SOE+MXO+MyFriend");
-
-            client.messageQueue.addRpcMessage(pakTest.returnFinalPacket());
-            client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80D708003C00008a2600534F452B4D584F2B566563746F722D486F7374696C652B52756E6E696E6757696C6433303500"));
-             */
         }
 
         public void sendPlayerAnimation(WorldClient client, String hexAnimation)

@@ -294,9 +294,9 @@ namespace hds{
             byte[] messageSizeHex = NumericalUtils.uint16ToByteArray(messageSize, 1);
             byte[] hexContents = StringUtils.hexStringToBytes("00000000000000000024000000000000000000000000000000000000000000000000");
 
-            
-            
-            din.append(0x29); // Response header
+
+
+            din.append((byte)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE); // Response header
             din.append(typeByte);
             din.append(hexContents);
             din.append(messageSizeHex);

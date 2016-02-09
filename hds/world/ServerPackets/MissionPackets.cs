@@ -38,6 +38,7 @@ namespace hds
             possibleMissions.Add("Assassination");
             possibleMissions.Add("Hack the Duality");
             possibleMissions.Add("Welcome to 2015");
+            possibleMissions.Add("Party like '99");
 
             UInt16 i = 0;
             foreach (string mission in possibleMissions)
@@ -89,30 +90,36 @@ namespace hds
             PacketContent pak2 = new PacketContent();
             pak2.addHexBytes("80A33000030078001A000000030000003C000010EF4600007FC30020E4C50088DB4600007FC300E0ABC500000000000032015768696C65206F7665727420636F6E666C696374207365727665732069747320707572706F73652C20736F6D6574696D65732061206D6F726520737562746C6520617070726F6163682069732072657175697265642E20496E207468697320636173652C20616E20617373617373696E6174696F6E2E0D0A0D0A496E206F7264657220746F2072656163682042656E67742C20796F752077696C6C206669727374206E65656420746F206163717569726520612063657274696E2044617461204469736B207468617420686F6C64");
 
-            PacketContent pak3 = new PacketContent();
-            pak3.addHexBytes("23809E00000000000026DB40000000008078C1400000000000F8B1C00100000022018007");
-
+            // This tells the location 
             PacketContent pak4 = new PacketContent();
-            pak4.addHexBytes("23809E01000000000026DB40000000008078C140000000000050B4C00100000027018007");
+            pak4.addHexBytes("809E00000000000026DB40000000008078C1400000000000F8B1C00100000022018007");
 
             PacketContent pak5 = new PacketContent();
-            pak5.addHexBytes("2D80A0000600002500476574207468652044617461204469736B2066726F6D20746865206D61696E6672616D6500");
+            pak5.addHexBytes("80A0000600002500476574207468652044617461204469736B2066726F6D20746865206D61696E6672616D6500");
 
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             client.messageQueue.addRpcMessage(pak2.returnFinalPacket());
-            client.messageQueue.addRpcMessage(pak3.returnFinalPacket());
             client.messageQueue.addRpcMessage(pak4.returnFinalPacket());
+            
             client.messageQueue.addRpcMessage(pak5.returnFinalPacket());
+            /*
+            PacketContent pakWayPoint = new PacketContent();
+            pakWayPoint.addHexBytes("01000213001200020C9DE1B8D747F0BF2D443752BA450000");
+            client.messageQueue.addObjectMessage(pakWayPoint.returnFinalPacket(),false);
+            */
             client.flushQueue();
+
         }
 
-        public void sendMissionDecline(WorldClient client)
+        public void sendMissionAbort(WorldClient client)
         {
             PacketContent pak = new PacketContent();
-            pak.addHexBytes("80A203000000002A0000000000000000000000000000000000030A80E5E7CBC012020000000A80E4A3447A0002000000");
+            pak.addHexBytes("80a20800000000b4658db5000000000000000000000000000000");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             client.flushQueue();
         }
+
+
 
         public void sendMissionDownloadMap()
         {

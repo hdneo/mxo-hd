@@ -31,6 +31,7 @@ namespace hds
 
         // Ability Handlers
         CLIENT_ABILITY_LOADER = 0xae,
+        CLIENT_UPGRADE_ABILITY_LEVEL = 0xb7,
         CLIENT_DISABLE_BUFF = 0xB6, //(0x80b6 is full)
 
         CLIENT_LOOT_ALL = 0x117, // CR2 ?
@@ -66,6 +67,9 @@ namespace hds
         CLIENT_ANIMATION_START = 0x33,
         CLIENT_ANIMATION_STOP = 0x34,
 
+        // Faction and crew
+        CLIENT_FACTION_INFO = 0xf4,
+
 
     }
 
@@ -78,8 +82,11 @@ namespace hds
         SERVER_FLASH_TRAFFIC = 0x81a9,
 
         // Player
+        SERVER_PLAYER_ATTRIBUTE = 0x80b2,
         SERVER_MANAGE_BONUS = 0xbc,
         SERVER_JACKOUT_FINISH = 0x80fe,
+        SERVER_PLAYER_EXP   = 0x80e5,
+        SERVER_PLAYER_INFO  = 0x80e4,
 
         // Friendlist
         SERVER_FRIENDLIST_STATUS = 0x80D7,
@@ -91,9 +98,13 @@ namespace hds
         SERVER_MISSION_SET_OBJECTIVE = 0x80a0,
         SERVER_MISSION_SET_NAME = 0x809c,
         SERVER_MISION_INFO_RESPONSE = 0x8099,
+        SERVER_MISION_LOCATION_POSITION = 0x809E,
         SERVER_LOOT_WINDOW_RESPONSE = 0x8119,
         SERVER_TEAM_CREATE        = 0x808d,
         SERVER_TEAM_INVITE_MEMBER = 0x808f,
+
+        // Abilitys
+        SERVER_CAST_BAR_ABILITY = 0x80ac,
 
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,
@@ -102,6 +113,9 @@ namespace hds
         // Marketplace
         SERVER_LOAD_MARKERPLACE = 0x8125,
         SERVER_VENDOR_OPEN = 0x810d,
+
+        // Crew & Faction
+        SERVER_FACTION_NAME_RESPONSE = 0x80f5,
 
     }
 

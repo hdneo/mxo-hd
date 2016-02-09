@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
+using System.Threading;
 
 using hds.shared;
 
@@ -9,68 +10,78 @@ namespace hds
 {
     public class AbilityHandler{
 
-
+        public AbilityItem currentAbility;
         public void processAbility(ref byte[] packet)
         {
             byte[] ability = {packet[0], packet[1]};
+            byte[] targetView = { packet[2], packet[3] };
             UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(ability, 1);
-            string AbilityName;
+
+            UInt16 viewId = 0;
+            viewId = NumericalUtils.ByteArrayToUint16(targetView, 1);
+
 
             // load the ability name from a list to see if we match the right ability
             DataLoader AbilityLoader = DataLoader.getInstance();
-            AbilityName = AbilityLoader.getAbilityNameByID(AbilityID);
-            //Output.WriteLine("Ability ID is " + AbilityID.ToString() + " and the name is " + AbilityName);
+            this.currentAbility = AbilityLoader.getAbilityByID(AbilityID);
 
             // lets create a message for the client - we will later execute the right AbilityScript for it 
 
-            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability ID is " + AbilityID.ToString() + " and the name is " + AbilityName, "BROADCAST", Store.currentClient));
-            this.processBarCreation(AbilityID);
-            this.processAbilityScript(AbilityID);
+            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() + " and Target ViewId Is " + viewId, "BROADCAST", Store.currentClient));
+            ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
+            // ToDo: do something with the entity (or queue a fx hit animation or something lol)      
+            ServerPackets pak = new ServerPackets();
+            pak.sendCastAbilityBar(AbilityID, this.currentAbility.getCastingTime());
+
+            this.processAbilityScript(this.currentAbility);
 
             
         }
 
-        public void processAbilityScript(UInt16 abilityID)
+        public void processAbilityScript(AbilityItem abilityItem)
         {
             // Lets just test
             //this.processBarCreation(abilityID);
-            this.processSelfAnimation(abilityID);
-            this.processCharacterAnimationSelf(abilityID);
+            this.processSelfAnimation(abilityItem.getAbilityID());
+            this.processCharacterAnimationSelf(abilityItem.getAbilityID());
+            // Test Is
+            ServerPackets pak = new ServerPackets();
+            pak.sendISCurrent(Store.currentClient, 50);
+        }
+
+        public void abilityAnimateTheTarget(object e)
+        {
+            ServerPackets pak = new ServerPackets();
+            UInt32 targetAnim = this.currentAbility.getActivationFX();
+            if (targetAnim == 0)
+            {
+                targetAnim = this.currentAbility.getAbilityExecutionFX();
+            }
+            pak.sendCastAbilityOnEntityId(2, targetAnim);
         }
 
         public void processCharacterAnimationSelf(UInt16 abilityID)
         {
             ServerPackets pak = new ServerPackets();
-            pak.sendPlayerAnimation(Store.currentClient, "500b");
-            // send 02 03 02 00 01 02 23 00 00;
-            /*
-            byte[] viewID = { 0x02, 0x00 };
-            byte[] animId = { 0x31 };  // see movementAnims.tx - its for codes something (0x31)
+            // 2904 0429 = Hacker_VirusLaunch_A
+            // 2a04 042a = Hacker_VirusLaunch_D
+            // see movementAnims.tx - its for codes something (0x31)
+            if (currentAbility.getAbilityExecutionFX() > 0)
+            {
+                pak.sendCastAbilityOnEntityId(2, currentAbility.getAbilityExecutionFX());
+            }
+            if (currentAbility.getCastingTime() > 0)
+            {
+                // Cast 
+                pak.sendPlayerAnimation(Store.currentClient, "2904");
 
-            // packet gen
-            DynamicArray din2 = new DynamicArray();
-            din2.append(viewID);
-            din2.append(0x01);
-            din2.append(0x02);
-            din2.append(animId);
-            din2.append(0x00);
-            Store.currentClient.messageQueue.addObjectMessage(din2.getBytes(),false);
-             * */
-        }
-
-        public void processBarCreation(UInt16 abilityID)
-        {
-            byte[] barResponseHeader = {0x80, 0xa7};
-            byte[] barResponseTimer  = {0x00, 0x40};
-
-            DynamicArray din = new DynamicArray();
-            din.append(barResponseHeader);
-            din.append(NumericalUtils.uint16ToByteArray(abilityID, 1));
-            din.append(StringUtils.hexStringToBytes("000000000000000000000000")); // Execution Time Bar 
-            din.append(barResponseTimer); // Ticks ? Or Time how long bar should execute
+                // And Time a "Damage" or "Buff" Animation
+                int castingTime = (int)this.currentAbility.getCastingTime() * 1000;
+                Timer damageTimer = new Timer(new TimerCallback(abilityAnimateTheTarget), this, castingTime, 0);
+            }
             
-            Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
         }
+
 
         public void processSelfAnimation(UInt16 abilityID)
         {
@@ -88,9 +99,9 @@ namespace hds
             
             byte[] animationId = NumericalUtils.uint32ToByteArray(randAnimID, 0);
             byte[] viewID = { 0x02, 0x00 };
-            Random rand = new Random();
-            ushort updateViewCounter = (ushort)rand.Next(3, 200);
-            byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(updateViewCounter);
+
+            Store.currentClient.playerData.spawnViewUpdateCounter++;
+            byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.spawnViewUpdateCounter);
 
             din.append(viewID);
             din.append(0x02);

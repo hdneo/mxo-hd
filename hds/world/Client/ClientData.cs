@@ -34,6 +34,7 @@ namespace hds
         public UInt16 currentTestRPC = 33015;  // 0-127 = DONE, all 0x81XX -> done ToDo: 127-256 and 80XX(didnt found higher) Needs to be removed (hell the only way to store the current value) Start Point is : 32769 / Brek Point 1 : 32827 | Break Point 2: 33056 (need later for Subway)
         public UInt32 lastClickedObjectId = 0; // Temp for Hardline ObjectID Tracking - call upload hardline before teleporting so we know the last clicked object ID and save it (if not isset) to the Hardline list to assing it
         public UInt16 newViewIdCounter = 7;
+        public UInt16 spawnViewUpdateCounter = 1; // maybe the wording is wrong - need to change this later
         private UInt16 jumpID = 36352;
 
         public bool waitForRPCShutDown = false;
@@ -52,7 +53,7 @@ namespace hds
         public void setupPlayerData()
         {
             // This init buffs, current skills, missions etc.
-            currentBuffs = new List<BuffSkill>();
+                currentBuffs = new List<BuffSkill>();
 
         }
 		
@@ -231,11 +232,11 @@ namespace hds
 			return this.exp;
 		}
 		
-		public void setCash(long _cash){
+		public void setInfo(long _cash){
 			this.cash = _cash;
 		}
 		
-		public long getCash(){
+		public long getInfo(){
 			return this.cash;
 		}
 		

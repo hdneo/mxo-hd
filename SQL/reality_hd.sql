@@ -1,22 +1,21 @@
-# --------------------------------------------------------
-# Host:                         81.20.134.144
-# Server version:               5.6.17
-# Server OS:                    Win64
-# HeidiSQL version:             6.0.0.3603
-# Date/time:                    2014-12-23 13:25:27
-# --------------------------------------------------------
+-- --------------------------------------------------------
+-- Host:                         vector.mxoemu.com
+-- Server Version:               5.6.17 - MySQL Community Server (GPL)
+-- Server Betriebssystem:        Win64
+-- HeidiSQL Version:             9.2.0.4947
+-- --------------------------------------------------------
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
-# Dumping database structure for reality_hd
+-- Exportiere Datenbank Struktur für reality_hd
 CREATE DATABASE IF NOT EXISTS `reality_hd` /*!40100 DEFAULT CHARACTER SET latin1 */;
 USE `reality_hd`;
 
 
-# Dumping structure for table reality_hd.buddylist
+-- Exportiere Struktur von Tabelle reality_hd.buddylist
 CREATE TABLE IF NOT EXISTS `buddylist` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `charId` int(11) NOT NULL,
@@ -26,14 +25,14 @@ CREATE TABLE IF NOT EXISTS `buddylist` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.buddylist: ~0 rows (approximately)
+-- Exportiere Daten aus Tabelle reality_hd.buddylist: ~0 rows (ungefähr)
 /*!40000 ALTER TABLE `buddylist` DISABLE KEYS */;
 INSERT INTO `buddylist` (`id`, `charId`, `friendId`, `is_ignored`, `deleted_at`) VALUES
 	(1, 3, 51, 0, NULL);
 /*!40000 ALTER TABLE `buddylist` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.characters
+-- Exportiere Struktur von Tabelle reality_hd.characters
 CREATE TABLE IF NOT EXISTS `characters` (
   `charId` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` int(11) unsigned NOT NULL,
@@ -66,25 +65,28 @@ CREATE TABLE IF NOT EXISTS `characters` (
   `repZion` int(11) NOT NULL,
   `district` varchar(256) NOT NULL DEFAULT 'slums',
   `districtId` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT 'Default must be changed to 0 (tutorial) later',
+  `factionId` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `crewId` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `is_deleted` int(11) NOT NULL DEFAULT '0',
   `is_online` tinyint(4) NOT NULL DEFAULT '0',
   `created` datetime NOT NULL,
   PRIMARY KEY (`charId`),
   KEY `handle` (`handle`)
-) ENGINE=MyISAM AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.characters: 5 rows
+-- Exportiere Daten aus Tabelle reality_hd.characters: 6 rows
 /*!40000 ALTER TABLE `characters` DISABLE KEYS */;
-INSERT INTO `characters` (`charId`, `userId`, `worldId`, `status`, `handle`, `firstName`, `lastName`, `background`, `x`, `y`, `z`, `rotation`, `healthC`, `healthM`, `innerStrC`, `innerStrM`, `level`, `profession`, `alignment`, `pvpflag`, `exp`, `cash`, `repMero`, `repMachine`, `repNiobe`, `repEPN`, `repCYPH`, `repGM`, `repZion`, `district`, `districtId`, `is_deleted`, `is_online`, `created`) VALUES
-	(2, 28, 1, 0, 'mrCoder', 'Mr', 'Coder', 'Likes cookies', 13634, 95, 1916, 0, 500, 500, 200, 200, 21, 2, 0, 0, 5000000, 0, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, '0000-00-00 00:00:00'),
-	(3, 28, 1, 0, 'TheLevelOne', 'Testing', 'Chat', 'Just testing', 39216, 95, -21475, 208, 500, 100, 200, 200, 10, 2, 1, 0, 500000, 100000, 20, -50, -10, -5, -100, 200, 10, 'slums', 1, 0, 0, '0000-00-00 00:00:00'),
-	(4, 28, 1, 0, 'SexyGal', 'Sexy', 'Gal', 'This is a sexy gal boyz', -6127, 1894, 1428, 38, 500, 1500, 200, 200, 17, 8, 1, 0, 1337, 987654321, 0, 0, 0, 0, 0, 0, 0, 'downtown', 2, 0, 0, '0000-00-00 00:00:00'),
-	(52, 28, 1, 0, 'tester2', '', '', '', 17043, 495, 2398, 167, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 1, 0, '2013-04-04 17:10:15'),
-	(51, 28, 1, 0, 'tester', '', '', '', 17043, 495, 2398, 139, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 1, 0, '2013-04-04 17:07:47');
+INSERT INTO `characters` (`charId`, `userId`, `worldId`, `status`, `handle`, `firstName`, `lastName`, `background`, `x`, `y`, `z`, `rotation`, `healthC`, `healthM`, `innerStrC`, `innerStrM`, `level`, `profession`, `alignment`, `pvpflag`, `exp`, `cash`, `repMero`, `repMachine`, `repNiobe`, `repEPN`, `repCYPH`, `repGM`, `repZion`, `district`, `districtId`, `factionId`, `crewId`, `is_deleted`, `is_online`, `created`) VALUES
+	(2, 28, 1, 0, 'TheNeo', 'Mr', 'Neo', 'Has all shit loaded for Development', 42077, 495, -132839, 0, 500, 500, 200, 200, 50, 2, 0, 0, 314625000, 987654321, 0, 0, 0, 0, 0, 0, 100, 'slums', 1, 0, 0, 0, 0, '0000-00-00 00:00:00'),
+	(3, 28, 1, 0, 'TheLevelOne', 'Testing', 'Chat', 'Just testing', 40412, 95, -116916, 219, 500, 500, 200, 200, 20, 2, 1, 0, 19350000, 100000, 20, -50, -10, -5, -100, 200, 10, 'slums', 1, 0, 0, 0, 0, '0000-00-00 00:00:00'),
+	(4, 28, 1, 0, 'SexyGal', 'Sexy', 'Gal', 'This is a sexy gal boyz', -6127, 1894, 1428, 38, 500, 1500, 200, 200, 17, 8, 1, 0, 1337, 987654321, 0, 0, 0, 0, 0, 0, 0, 'downtown', 2, 0, 0, 0, 0, '0000-00-00 00:00:00'),
+	(52, 28, 1, 0, 'tester2', '', '', '', 17043, 495, 2398, 167, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 1, 0, '2013-04-04 17:10:15'),
+	(51, 28, 1, 0, 'tester', '', '', '', 17043, 495, 2398, 139, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 1, 0, '2013-04-04 17:07:47'),
+	(53, 33, 1, 0, 'TheSecondTester', 'Testing', 'Chat', 'Just testing', 25329, 495, -1706, 195, 500, 100, 200, 200, 10, 2, 1, 0, 500000, 100000, 20, -50, -10, -5, -100, 200, 10, 'slums', 1, 0, 0, 0, 0, '0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `characters` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.char_abilities
+-- Exportiere Struktur von Tabelle reality_hd.char_abilities
 CREATE TABLE IF NOT EXISTS `char_abilities` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `char_id` int(10) unsigned NOT NULL,
@@ -97,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `char_abilities` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=129 DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.char_abilities: ~81 rows (approximately)
+-- Exportiere Daten aus Tabelle reality_hd.char_abilities: ~81 rows (ungefähr)
 /*!40000 ALTER TABLE `char_abilities` DISABLE KEYS */;
 INSERT INTO `char_abilities` (`id`, `char_id`, `slot`, `ability_id`, `level`, `is_loaded`, `ability_name`, `added`) VALUES
 	(1, 3, 0, -2147481600, 50, 1, 'Awaken', '2012-01-11 15:23:32'),
@@ -184,7 +186,7 @@ INSERT INTO `char_abilities` (`id`, `char_id`, `slot`, `ability_id`, `level`, `i
 /*!40000 ALTER TABLE `char_abilities` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.char_hardlines
+-- Exportiere Struktur von Tabelle reality_hd.char_hardlines
 CREATE TABLE IF NOT EXISTS `char_hardlines` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `char_id` int(10) unsigned NOT NULL,
@@ -194,12 +196,12 @@ CREATE TABLE IF NOT EXISTS `char_hardlines` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.char_hardlines: ~0 rows (approximately)
+-- Exportiere Daten aus Tabelle reality_hd.char_hardlines: ~0 rows (ungefähr)
 /*!40000 ALTER TABLE `char_hardlines` DISABLE KEYS */;
 /*!40000 ALTER TABLE `char_hardlines` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.data_hardlines
+-- Exportiere Struktur von Tabelle reality_hd.data_hardlines
 CREATE TABLE IF NOT EXISTS `data_hardlines` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `HardLineId` smallint(6) unsigned NOT NULL,
@@ -214,17 +216,17 @@ CREATE TABLE IF NOT EXISTS `data_hardlines` (
   UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=139 DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.data_hardlines: 135 rows
+-- Exportiere Daten aus Tabelle reality_hd.data_hardlines: 135 rows
 /*!40000 ALTER TABLE `data_hardlines` DISABLE KEYS */;
 INSERT INTO `data_hardlines` (`Id`, `HardLineId`, `objectId`, `HardlineName`, `X`, `Y`, `Z`, `ROT`, `DistrictId`) VALUES
 	(2, 49, 0, 'MaraNorthWest', 7737.37, 95, 13801.5, 1.5708, 1),
 	(3, 152, 0, 'MaraCentral', 17043.1, 495, 2398.8, -3.14159, 1),
-	(6, 72, 422576871, 'Tagged By Tastee Wheat', 39216.4, 95, -21475.1, 2.03713, 1),
+	(6, 72, 0, 'Tagged By Tastee Wheat', 39216.4, 95, -21475.1, 2.03713, 1),
 	(7, 125, 706741522, 'Tagged By Tastee Wheat', 25640, -515, -35813, 0.294524, 1),
 	(8, 73, 0, 'Tagged By Tastee Wheat', 13211.7, 95, -37821.4, -2.72435, 2),
 	(9, 98, 0, 'Tagged By Tastee Wheat', 9844.79, 1295, 1314.42, -2.42983, 2),
 	(10, 48, 273679824, 'Tagged By chefmaster', -6415, 95, -7121.87, 1.93895, 1),
-	(11, 146, 1227889407, 'Tagged By Tastee Wheat', 52941.3, 495, 41981.6, -1.52171, 1),
+	(11, 146, 0, 'Tagged By Tastee Wheat', 52941.3, 495, 41981.6, -1.52171, 1),
 	(12, 113, 0, 'Tagged By TheThirdMan', -133308, 1295, -35477, 1.44808, 2),
 	(13, 129, 1213204213, 'Tagged By TheThirdMan', -2683.96, -705, 31556.3, 2.82252, 1),
 	(14, 120, 45090940, 'Tagged By IntegratedOne', 70083.9, 95, 44597.9, -0.269981, 1),
@@ -238,36 +240,36 @@ INSERT INTO `data_hardlines` (`Id`, `HardLineId`, `objectId`, `HardlineName`, `X
 	(22, 130, 1399850229, 'Tagged By Agent', 51820.8, 95, -42922, -1.00629, 1),
 	(23, 138, 184549608, 'Tagged By Superman111994', -30111, 95, -48204.8, 0, 1),
 	(24, 124, 1209008135, 'Tagged By SanMarco', 39584.6, 95, -80338.7, 2.57709, 1),
-	(25, 107, 326108784, 'Tagged By SanMarco', 63391.2, 95, -91925.9, 0.220893, 1),
+	(25, 107, 0, 'Tagged By SanMarco', 63391.2, 95, -91925.9, 0.220893, 1),
 	(26, 151, 765461497, 'Tagged By Agent', 67566.8, -105, -10164.6, -2.30711, 1),
 	(27, 132, 326108784, 'Tagged By SanMarco', 96190.5, 95, -85320.7, 3.01887, 1),
 	(28, 115, 556794156, 'Tagged By SanMarco', 15657.9, 495, -70054.5, 1.93895, 1),
 	(29, 112, 936378405, 'Tagged By SanMarco', 40267.9, 95, -116994, -0.859029, 1),
-	(30, 104, 829424899, 'Tagged By IntegratedOne', -17757.8, 95, -141682, 0.981748, 1),
+	(30, 104, 0, 'Tagged By IntegratedOne', -17757.8, 95, -141682, 0.981748, 1),
 	(31, 122, 1245709271, 'Tagged By SanMarco', 10377, 95, -110304, 2.67526, 1),
 	(32, 145, 0, 'Tagged By SanMarco', 55512.5, 85, -166913, -1.20264, 1),
-	(33, 149, 768606217, 'Tagged By SanMarco', 14659.5, 95, -143258, 2.35619, 1),
+	(33, 149, 0, 'Tagged By SanMarco', 14659.5, 95, -143258, 2.35619, 1),
 	(34, 113, 0, 'Tagged By SanMarco', 107619, -505, -149092, -0.0490874, 1),
 	(35, 148, 1436549170, 'Tagged By SanMarco', 79289.9, -505, -148965, 1.79169, 1),
-	(36, 111, 115343364, 'Tagged By SanMarco', 87635.3, 85, -117864, 1.42353, 1),
+	(36, 111, 0, 'Tagged By SanMarco', 87635.3, 85, -117864, 1.42353, 1),
 	(37, 119, 210763782, 'Tagged By Cookie', -36326, 95, -23953.1, 1.86532, 1),
 	(38, 109, 819986442, 'Tagged By SanMarco', 135175, 95, -103708, -0.93266, 1),
-	(39, 76, 888146049, 'Tagged By Cookie', -67862.5, 95, 16314.2, 0.269981, 1),
+	(39, 76, 0, 'Tagged By Cookie', -67862.5, 95, 16314.2, 0.269981, 1),
 	(40, 150, 497026940, 'Tagged By SanMarco', 111671, -505, -99321.3, 1.44808, 1),
 	(41, 153, 821035009, 'Tagged By SanMarco', 12184.8, -705, 59766, -1.61988, 1),
 	(42, 131, 20, 'Tagged By SanMarco', 100459, 95, 11859, 1.49717, 1),
 	(43, 142, 1435502632, 'Tagged By SanMarco', 94166.5, 95, 26721.2, -2.40528, 1),
 	(44, 121, 831520820, 'Tagged By SanMarco', 83610.7, 95, 57664.3, 2.99433, 1),
 	(45, 99, 53478188, 'Tagged By Cookie', -30434, -705, 20325.5, -0.981748, 1),
-	(46, 75, 1331694835, 'Tagged By Agent', -64467.5, -1105, -57980.9, 3.01887, 1),
-	(47, 105, 1486881174, 'Tagged By Cookie', -92910.8, -705, 40713.9, 1.76715, 1),
+	(46, 75, 0, 'Tagged By Agent', -64467.5, -1105, -57980.9, 3.01887, 1),
+	(47, 105, 0, 'Tagged By Cookie', -92910.8, -705, 40713.9, 1.76715, 1),
 	(48, 101, 506462220, 'Tagged By Superman111994', -70778.6, 95, -140154, 3.09251, 1),
 	(49, 106, 1181747457, 'Tagged By Agent', -18499.8, 95, -89853.4, -0.490874, 1),
-	(50, 133, 174068626, 'Tagged By Forez', 85775, 694.999, -14502.5, -1.81623, 1),
+	(50, 133, 648023732, 'Tagged By Forez', 85775, 694.999, -14502.5, -1.81623, 1),
 	(51, 144, 1039139603, 'Tagged By Forez', 115650, 694.999, 4825, -2.82252, 1),
 	(52, 12, 0, 'Tagged By Othinn', 11039.9, 95, 35967.4, 0.0490874, 3),
 	(53, 10, 0, 'Tagged By Othinn', 18310, -505, 15226.4, 0.809942, 3),
-	(54, 102, 1564478959, 'Tagged By jayce77', -86023.7, 95, -77894.1, 1.81623, 1),
+	(54, 102, 0, 'Tagged By jayce77', -86023.7, 95, -77894.1, 1.81623, 1),
 	(55, 82, 0, 'Tagged By Cyberkat', 14806.5, 1895, 72657.9, 1.52171, 2),
 	(56, 109, 0, 'Tagged By Cyberkat', 3936.42, 1295, 96578.1, 1.5708, 2),
 	(57, 31, 0, 'Tagged By Cyberkat', -10586.3, 1895, 58667, 0.760854, 2),
@@ -296,7 +298,7 @@ INSERT INTO `data_hardlines` (`Id`, `HardLineId`, `objectId`, `HardlineName`, `X
 	(80, 22, 361759850, 'Tagged By Agent', 47043.9, -1105, -53683.6, 1.20264, 3),
 	(81, 18, 0, 'Tagged By Agent', 24972, -505, 33362.3, -2.62618, 3),
 	(82, 3, 0, 'Tagged By Agent', 42116.9, -105, 57953, 2.94524, 3),
-	(83, 4, 0, 'Tagged By Agent', 31450.7, -505, 15775, 0.0736311, 3),
+	(83, 4, 364906923, 'Tagged By Agent', 31450.7, -505, 15775, 0.0736311, 3),
 	(84, 2, 0, 'Tagged By Agent', -37444.4, 95, 23659.1, 2.23348, 3),
 	(85, 8, 0, 'Tagged By Agent', -22193.8, 95, 32347.7, 3.04342, 3),
 	(86, 74, 0, 'Tagged By Flerba', 42659.2, 95, -2943.5, 0.908117, 2),
@@ -355,7 +357,7 @@ INSERT INTO `data_hardlines` (`Id`, `HardLineId`, `objectId`, `HardlineName`, `X
 /*!40000 ALTER TABLE `data_hardlines` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.districts
+-- Exportiere Struktur von Tabelle reality_hd.districts
 CREATE TABLE IF NOT EXISTS `districts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `key` text NOT NULL,
@@ -363,7 +365,7 @@ CREATE TABLE IF NOT EXISTS `districts` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=27 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.districts: 25 rows
+-- Exportiere Daten aus Tabelle reality_hd.districts: 25 rows
 /*!40000 ALTER TABLE `districts` DISABLE KEYS */;
 INSERT INTO `districts` (`id`, `key`, `path`) VALUES
 	(1, 'slums', 'resource/worlds/final_world/slums_barrens_full.metr'),
@@ -394,7 +396,7 @@ INSERT INTO `districts` (`id`, `key`, `path`) VALUES
 /*!40000 ALTER TABLE `districts` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.doors
+-- Exportiere Struktur von Tabelle reality_hd.doors
 CREATE TABLE IF NOT EXISTS `doors` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `doorid` int(11) unsigned NOT NULL,
@@ -411,332 +413,332 @@ CREATE TABLE IF NOT EXISTS `doors` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=13168 DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.doors: 319 rows
+-- Exportiere Daten aus Tabelle reality_hd.doors: 319 rows
 /*!40000 ALTER TABLE `doors` DISABLE KEYS */;
 INSERT INTO `doors` (`id`, `doorid`, `districtid`, `X`, `Y`, `Z`, `ROT`, `Open`, `OpenTime`, `DoorType`, `FirstUser`) VALUES
-	(12849, 900726787, 1, 119700, -505, -50636, 0, '', NULL, 0, 'TestCharacter'),
-	(12850, 211812355, 1, 115835, -505, -54298, 0, '', NULL, 1, 'TestCharacter'),
-	(12851, 211812359, 1, 115835, -505, -55088.3, 0, '', NULL, 1, 'TestCharacter'),
-	(12852, 211812358, 1, 115835, -505, -55292.1, 0, '', NULL, 1, 'TestCharacter'),
-	(12853, 211812353, 1, 115835, -505, -56699.3, 0, '', NULL, 1, 'TestCharacter'),
-	(12854, 211812357, 1, 115835, -505, -56882.4, 1.66897, '', NULL, 1, 'TestCharacter'),
-	(12855, 211812360, 1, 115835, -505, -57655, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12856, 211812369, 1, 114902, -505, -59165, 0.0981748, '', NULL, 1, 'TestCharacter'),
-	(12857, 211812977, 1, 114660, -505, -59882.2, 1.52171, '', NULL, 1, 'TestCharacter'),
-	(12858, 211812944, 1, 112660, -505, -61092.4, 1.64443, '', NULL, 1, 'TestCharacter'),
-	(12859, 211812362, 1, 113096, -505, -61740, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12860, 211812364, 1, 113292, -505, -61740, 0, '', NULL, 1, 'TestCharacter'),
-	(12861, 700448792, 1, 118297, 95, -75165, 0, '', NULL, 1, 'TestCharacter'),
-	(12862, 700450906, 1, 118504, 95, -77140, 0, '', NULL, 1, 'TestCharacter'),
-	(12863, 905969666, 1, 111902, 95, -70035, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12864, 905969665, 1, 111697, 95, -70035, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(12865, 905969668, 1, 111499, 95, -70035, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12866, 905973238, 1, 110711, 95, -69940, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12867, 905973486, 1, 109300, 95, -70060, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12868, 905969672, 1, 108106, 95, -70060, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12869, 905969669, 1, 108296, 95, -70060, 0, '', NULL, 1, 'TestCharacter'),
-	(12870, 905969671, 1, 108497, 95, -70059.9, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12871, 905975253, 1, 107900, 95, -70740, 0, '', NULL, 1, 'TestCharacter'),
-	(12872, 905974927, 1, 107940, 95, -71900.4, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12873, 905974938, 1, 108297, 95, -72340, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12874, 905974985, 1, 109504, 95, -72860, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12875, 905975006, 1, 109881, 95, -73340, 0, '', NULL, 1, 'TestCharacter'),
-	(12876, 905975027, 1, 110504, 95, -73340, 0, '', NULL, 1, 'TestCharacter'),
-	(12877, 905974982, 1, 109460, 95, -75499.3, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12878, 905974937, 1, 108298, 95, -74060, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12879, 905974926, 1, 108060, 95, -74509.2, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12880, 905975245, 1, 107260, 95, -74298.2, 1.66897, '', NULL, 1, 'TestCharacter'),
-	(12881, 905977077, 1, 106301, 95, -74540, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12882, 905977051, 1, 105702, 95, -74060, -3.06796, '', NULL, 1, 'TestCharacter'),
-	(12883, 905975246, 1, 107260, 95, -71501.9, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(12884, 905977031, 1, 105295, 95, -71940, 0, '', NULL, 1, 'TestCharacter'),
-	(12885, 905977011, 1, 104740, 95, -73303.2, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12886, 905977070, 1, 106140, 95, -73307.8, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12887, 905976998, 1, 104505, 95, -71460, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12888, 905977040, 1, 105502, 95, -71460, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12889, 1216348168, 1, 98103.8, 95, -80835, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(12890, 1216348164, 1, 97703.9, 95, -78260, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12891, 1216348162, 1, 97901.3, 95, -78260, 0, '', NULL, 1, 'TestCharacter'),
-	(12892, 1216348693, 1, 98340, 95, -78910.3, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12893, 1216348163, 1, 98701.1, 95, -78260, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12894, 1216348694, 1, 98340, 95, -79507.7, -1.66897, '', NULL, 1, 'TestCharacter'),
-	(12895, 1441792006, 1, 91801.2, 95, -78165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12896, 1441792007, 1, 91591.5, 95, -78165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12897, 1441792001, 1, 93208.4, 95, -78260, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12898, 1441792005, 1, 93401, 95, -78260, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12899, 1441792008, 1, 94197.4, 95, -78260, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12900, 1441792053, 1, 91800.6, 95, -80140, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12901, 1441792002, 1, 91595.7, 95, -80740, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12902, 1441792028, 1, 93840, 95, -80497.9, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12903, 1441792003, 1, 90805.6, 95, -78260, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(12904, 1441792012, 1, 89294.4, 95, -78165, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12905, 1441792011, 1, 89095.4, 95, -78166, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12906, 1441792136, 1, 88660, 95, -78496.4, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(12907, 1441792321, 1, 88295.3, 95, -79740, 0, '', NULL, 1, 'TestCharacter'),
-	(12908, 1441792010, 1, 89098.1, 95, -80740.1, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12909, 1375731745, 1, 90397.9, 95, -84165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12910, 1375733558, 1, 91196.9, 95, -85140, -0.0736311, '', NULL, 1, 'TestCharacter'),
-	(12911, 1375733562, 1, 90840, 95, -86509.7, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(12912, 1375731744, 1, 90390.3, 95, -86740, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12913, 1375731742, 1, 90190.2, 95, -86740, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12914, 1375733610, 1, 91201.9, 95, -86260, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(12915, 1375731750, 1, 89902.7, 95, -89165.1, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12916, 1375733963, 1, 90705.3, 95, -90140, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12917, 1375731749, 1, 89900.9, 95, -91740, 0, '', NULL, 1, 'TestCharacter'),
-	(12918, 1375731747, 1, 89695.9, 95, -91740, 0, '', NULL, 1, 'TestCharacter'),
-	(12919, 1375733967, 1, 90340, 95, -91499, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12920, 1375734005, 1, 90700.2, 95, -91260, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12921, 1375731751, 1, 90702.5, 95, -91740, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12922, 1375731735, 1, 92200.2, 95, -91835, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(12923, 1375731734, 1, 92404.9, 95, -91834, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12924, 1375733003, 1, 92840, 95, -91507.4, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12925, 1375733032, 1, 93196.3, 95, -91260, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12926, 1375732999, 1, 93205.9, 95, -90260, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(12927, 1375731733, 1, 92404.3, 95, -89260, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12928, 1375731722, 1, 94399.1, 95, -89165, 0.0736311, '', NULL, 1, 'TestCharacter'),
-	(12929, 1375732519, 1, 94396.9, 95, -89740, 0, '', NULL, 1, 'TestCharacter'),
-	(12930, 1375732510, 1, 94840, 95, -91506.2, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12931, 1375732555, 1, 95210.3, 95, -91260, 3.06796, '', NULL, 1, 'TestCharacter'),
-	(12932, 1375731725, 1, 94400.2, 95, -91740, 0.0981748, '', NULL, 1, 'TestCharacter'),
-	(12933, 1375731723, 1, 94197.4, 95, -91740, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12934, 1375731724, 1, 95198.7, 95, -91835, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12935, 900726786, 1, 98635, 95, -91302.2, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12936, 900727710, 1, 97859.8, 95, -89293.2, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(12937, 900727730, 1, 97060, 95, -88294.4, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(12938, 900727697, 1, 96298.1, 95, -89740, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12939, 900727689, 1, 96495.3, 95, -90340, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12940, 900727688, 1, 97499.6, 95, -90340, 0, '', NULL, 1, 'TestCharacter'),
-	(12941, 672137222, 1, 108965, 95, -83501.8, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12942, 672137223, 1, 108965, 95, -83707.1, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12943, 672137218, 1, 108965, 95, -83902.1, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12944, 672139294, 1, 109060, 95, -82695.6, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(12945, 672139299, 1, 109740, 95, -84094, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12946, 672139211, 1, 108940, 95, -81308.8, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(12947, 672137224, 1, 108940, 95, -80116.3, -1.69351, '', NULL, 1, 'TestCharacter'),
-	(12948, 672137221, 1, 108940, 95, -80294.6, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(12949, 672137220, 1, 108940, 95, -80486.7, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12950, 1427111938, 1, 121165, 95, -69103.6, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(12951, 1427111940, 1, 121165, 95, -71097, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12952, 1427111987, 1, 121740, 95, -69301.1, -1.66897, '', NULL, 1, 'TestCharacter'),
-	(12953, 1427111939, 1, 123740, 95, -68302.5, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12954, 1427111943, 1, 123740, 95, -69101, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12955, 1427111942, 1, 123740, 95, -69297.9, -1.64443, '', NULL, 1, 'TestCharacter'),
-	(12956, 1427111937, 1, 123740, 95, -70706, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12957, 1427111941, 1, 123740, 95, -70908.4, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(12958, 1427111944, 1, 123740, 95, -71700.4, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(12959, 1427111952, 1, 123335, 95, -67701.8, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12960, 1427111949, 1, 123335, 95, -66895.2, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(12961, 1427111945, 1, 123335, 95, -66688.6, 1.49717, '', NULL, 1, 'TestCharacter'),
-	(12962, 1427111950, 1, 123335, 95, -65307.5, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12963, 1427111951, 1, 123335, 95, -65096.4, 1.47262, '', NULL, 1, 'TestCharacter'),
-	(12964, 1427111947, 1, 123335, 95, -64296, 1.47262, '', NULL, 1, 'TestCharacter'),
-	(12965, 1427111946, 1, 120665, 95, -65102.9, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(12966, 1427111948, 1, 120665, 95, -67109.4, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12967, 700448791, 1, 120297, 95, -75165, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12968, 700448790, 1, 122302, 95, -75165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12969, 700448776, 1, 136301, 95, -75165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12970, 700448777, 1, 134302, 95, -75165, 0, '', NULL, 1, 'TestCharacter'),
-	(12971, 700449070, 1, 135697, 95, -77340, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12972, 700449219, 1, 135000, 95, -78308.4, -1.64443, '', NULL, 1, 'TestCharacter'),
-	(12973, 700449095, 1, 134940, -305, -76900.5, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(12974, 700449130, 1, 134292, -305, -77140.1, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(12975, 700449154, 1, 135490, -305, -78060, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(12976, 700449040, 1, 134698, 495, -76237.5, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(12977, 700449048, 1, 134290, 495, -76140.2, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12978, 700449021, 1, 135579, 495, -78492.8, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12979, 700449030, 1, 135313, 495, -78200, 3.06796, '', NULL, 1, 'TestCharacter'),
-	(12980, 674234371, 1, 134299, 95, -81165, 0, '', NULL, 1, 'TestCharacter'),
-	(12981, 674234372, 1, 132303, 95, -81165, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12982, 674234373, 1, 130296, 95, -81165, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(12983, 674235278, 1, 131701, 95, -83660, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(12984, 674235340, 1, 130502, -305, -82060, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(12985, 1220542471, 1, 144700, 295, -70835, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(12986, 731906092, 1, 70164, 95, -72710.5, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(12987, 731909801, 1, 70740, 95, -72696.1, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12988, 731909205, 1, 70499.5, 95, -72460, -3.06796, '', NULL, 1, 'TestCharacter'),
-	(12989, 731906095, 1, 70260, 95, -71700.1, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(12990, 731906094, 1, 70260, 95, -71892.2, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(12991, 731909224, 1, 72340, 95, -71499.4, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12992, 731909225, 1, 72340, 95, -71301, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(12993, 731909201, 1, 71740, 95, -72704, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(12994, 731906093, 1, 72740, 95, -71898.5, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(12995, 731906098, 1, 72835, 95, -73894.4, 1.49717, '', NULL, 1, 'TestCharacter'),
-	(12996, 731909554, 1, 71860, 95, -74691.2, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(12997, 731909558, 1, 70504.7, 95, -74340, 0, '', NULL, 1, 'TestCharacter'),
-	(12998, 731909827, 1, 70740, 95, -74712.5, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(12999, 731906099, 1, 70260, 95, -74701.7, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13000, 731906100, 1, 70260, 95, -73888.6, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13001, 731906097, 1, 70260, 95, -73698.4, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13002, 1007681544, 1, 67835, 95, -80301.9, 1.47262, '', NULL, 1, 'TestCharacter'),
-	(13003, 1007681547, 1, 67835, 95, -80106.2, 1.44808, '', NULL, 1, 'TestCharacter'),
-	(13004, 326107143, 1, 65905.9, 95, -86565, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13005, 326107137, 1, 65697, 95, -86565, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13006, 326107138, 1, 65498.1, 95, -86565, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13007, 326107142, 1, 65297.4, 95, -86565, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13008, 326108685, 1, 65596.9, 95, -88340, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13009, 326108664, 1, 66140, 95, -88711.1, -1.64443, '', NULL, 1, 'TestCharacter'),
-	(13010, 326108709, 1, 65060, 95, -88695.9, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(13011, 774897665, 1, 59196.3, 95, -87765, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13012, 774897667, 1, 58804.2, 95, -87765, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13013, 774905352, 1, 58717, 95, -91300, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13014, 774900248, 1, 60740, 95, -91895.6, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13015, 774897666, 1, 62140, 95, -91504.8, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13016, 774900222, 1, 60860, 95, -93295.9, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13017, 774897670, 1, 59197.5, 95, -94140, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13018, 774897669, 1, 58793.5, 95, -94140, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13019, 774900223, 1, 57260, 95, -93298.4, 1.52171, '', NULL, 1, 'TestCharacter'),
-	(13020, 774897668, 1, 55860, 95, -91499.3, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13021, 774900247, 1, 57140, 95, -91903.2, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13022, 681574423, 1, 58701.8, 95, -83835, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13023, 681575853, 1, 58701.8, 95, -83268.3, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13024, 681575807, 1, 58460, 95, -83498.4, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13025, 681574421, 1, 57685.7, 95, -83778.6, -0.269981, '', NULL, 1, 'TestCharacter'),
-	(13026, 681574424, 1, 57893, 95, -83705.3, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13027, 681575816, 1, 57907, 95, -81860, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13028, 681574422, 1, 57896.1, 95, -81200, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13029, 1007681549, 1, 59664, 95, -80695.7, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13030, 1007685683, 1, 60240, 95, -80703.2, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(13031, 1007685655, 1, 60005.6, 95, -80460, -3.06796, '', NULL, 1, 'TestCharacter'),
-	(13032, 1007681552, 1, 59726.8, 95, -79688.8, 1.49717, '', NULL, 1, 'TestCharacter'),
-	(13033, 1007681551, 1, 59737.8, 95, -79891, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13034, 681574419, 1, 60200.6, 95, -83835, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(13035, 681574418, 1, 60393.3, 95, -83740, 0, '', NULL, 1, 'TestCharacter'),
-	(13036, 1007681555, 1, 58835, 95, -80293.8, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13037, 1007681557, 1, 58835, 95, -80093.8, 1.47262, '', NULL, 1, 'TestCharacter'),
-	(13038, 508559381, 1, 53105.4, 95, -73335, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13039, 508560765, 1, 52302.4, 95, -72360, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13040, 508559374, 1, 55602.6, 95, -72835, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13041, 508559370, 1, 55606.6, 95, -70260, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(13042, 508559371, 1, 55797.1, 95, -70260, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13043, 950009865, 1, 55297.4, 95, -67635, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13044, 950009863, 1, 55088.9, 95, -67635, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13045, 950009864, 1, 57290.6, 95, -67635, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13046, 950009859, 1, 60709.3, 95, -67635, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13047, 790626311, 1, 71465, 95, -85205.3, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(13048, 790626309, 1, 71465, 95, -84799.9, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(13049, 790629545, 1, 74901.5, 95, -83260, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13050, 790629547, 1, 77298.7, 95, -83540, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13051, 790629593, 1, 77298.2, 95, -86540, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13052, 790626307, 1, 79194.5, 95, -88340, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13053, 790626312, 1, 78997.9, 95, -88340, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13054, 1182793736, 1, 78897.8, 95, -89165, 0, '', NULL, 1, 'TestCharacter'),
-	(13055, 1182795025, 1, 79693.6, 95, -90140, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13056, 1182793738, 1, 78896.6, 95, -91740, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13057, 1182793735, 1, 78689.1, 95, -91740, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13058, 241172484, 1, 81065, 95, -98503.1, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13059, 790626313, 1, 79005, 95, -81655, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13060, 790626310, 1, 79210, 95, -81655, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13061, 498073615, 1, 82170, 95, -77590, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13062, 498074708, 1, 84100, 95, -77150, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13063, 498073607, 1, 84740, 95, -76790, -1.49717, '', NULL, 1, 'TestCharacter'),
-	(13064, 498073611, 1, 84740, 95, -77600, -1.52171, '', NULL, 1, 'TestCharacter'),
-	(13065, 498073612, 1, 84830, 95, -77800, 1.71806, '', NULL, 1, 'TestCharacter'),
-	(13066, 498073610, 1, 84830, 95, -79190, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13067, 498073608, 1, 84830, 95, -79400, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13068, 498073609, 1, 84830, 95, -80200, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13069, 790626308, 1, 83730, 95, -84990, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13070, 224395267, 1, 86160, 95, -88700, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13071, 731906088, 1, 75100, 95, -76800, 3.09251, '', NULL, 1, 'TestCharacter'),
-	(13072, 731906103, 1, 72800, 95, -76400, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13073, 731906105, 1, 70150, 95, -76200, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13074, 731906104, 1, 70150, 95, -76400, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13075, 731906102, 1, 70150, 95, -77150, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13076, 731909842, 1, 70700, 95, -77200, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13077, 731909767, 1, 70450, 95, -76950, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13078, 1268776961, 1, 70700, 95, -67830, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13079, 1268776963, 1, 69900, 95, -67830, -3.09251, '', NULL, 1, 'TestCharacter'),
-	(13080, 1268776964, 1, 69700, 95, -67830, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13081, 1268777179, 1, 70700, 95, -66260, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13082, 1268776962, 1, 69900, 95, -65250, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13083, 1268776979, 1, 67890, 95, -65160, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13084, 1268776978, 1, 65890, 95, -65160, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13085, 1268776966, 1, 63890, 95, -65160, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13086, 1268777482, 1, 63890, 95, -65740, 0, '', NULL, 1, 'TestCharacter'),
-	(13087, 1268776969, 1, 63890, 95, -67740, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13088, 1268776967, 1, 63690, 95, -67740, 0.0736311, '', NULL, 1, 'TestCharacter'),
-	(13089, 353370118, 1, 64290, 95, -70160, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13090, 353370120, 1, 64100, 95, -70160, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13091, 353370122, 1, 63300, 95, -70160, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13092, 353370385, 1, 63290, 95, -70740, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13093, 353370114, 1, 65160, 95, -71090, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13094, 353370351, 1, 65740, 95, -71100, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13095, 353370113, 1, 67800, 95, -71310, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13096, 353370116, 1, 67830, 95, -71090, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(13097, 353370115, 1, 67830, 95, -70290, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13098, 508559364, 1, 61800, 95, -70160, -0.0736311, '', NULL, 1, 'TestCharacter'),
-	(13099, 508559363, 1, 61590, 95, -70160, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13100, 508559361, 1, 60800, 95, -70160, 0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13101, 508559394, 1, 60790, 95, -70740, 0, '', NULL, 1, 'TestCharacter'),
-	(13102, 508559395, 1, 61040, 95, -70500, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13103, 1268776983, 1, 61700, 95, -67830, 0, '', NULL, 1, 'TestCharacter'),
-	(13104, 1268776982, 1, 61900, 95, -67830, 0, '', NULL, 1, 'TestCharacter'),
-	(13105, 1268776980, 1, 62700, 95, -67830, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13106, 1268778881, 1, 62700, 95, -67250, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13107, 1268778851, 1, 62460, 95, -67490, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13108, 1268778847, 1, 62700, 95, -66260, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13109, 1268776981, 1, 61900, 95, -65260, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13110, 17825794, 1, 54830, 95, -61890, 0, '', NULL, 1, 'TestCharacter'),
-	(13111, 1302331425, 1, 54300, 95, -55630, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13112, 1302332970, 1, 54340, 95, -54300, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13113, 1302332912, 1, 55340, 95, -53700, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13114, 1302331426, 1, 55690, 95, -55540, -0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13115, 1138753538, 1, 57660, 95, -58700, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13116, 1138753540, 1, 57660, 95, -58900, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13117, 1138753539, 1, 57660, 95, -59700, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13118, 1138753794, 1, 58240, 95, -59700, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13119, 1138753748, 1, 58000, 95, -59460, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13120, 1138753757, 1, 59640, 95, -58890, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(13121, 1138753537, 1, 60240, 95, -58900, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13122, 907018254, 1, 71830, 95, -45290, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13123, 907018253, 1, 71830, 95, -45090, 1.49717, '', NULL, 1, 'TestCharacter'),
-	(13124, 907018251, 1, 71830, 95, -44290, 1.61988, '', NULL, 1, 'TestCharacter'),
-	(13125, 907018290, 1, 71260, 95, -44280, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13126, 1268776993, 1, 61665, 95, -61604.5, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13127, 1268779437, 1, 62640, 95, -60803.4, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13128, 1268776992, 1, 64240, 95, -61604.4, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13129, 1268776990, 1, 64240, 95, -61809, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13130, 1268778586, 1, 64007.6, 95, -61160, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13131, 1268778585, 1, 63760, 95, -60794.7, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13132, 1268776994, 1, 64240, 95, -60803.5, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13133, 34603031, 1, 57502.7, 694.999, -35035, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13134, 34603030, 1, 57500.2, 694.999, -34935, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13135, 34603025, 1, 57897.5, 694.999, -35035, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13136, 34605960, 1, 57711.2, 694.999, -34460, -3.06796, '', NULL, 1, 'TestCharacter'),
-	(13137, 34605972, 1, 57319.1, 694.999, -33260, 2.96979, '', NULL, 1, 'TestCharacter'),
-	(13138, 203423750, 1, 58691, 95, -40565, 0, '', NULL, 1, 'TestCharacter'),
-	(13139, 203423748, 1, 59303.8, 95, -40565, 0, '', NULL, 1, 'TestCharacter'),
-	(13140, 872415234, 1, 81165, 694.999, -41094.3, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13141, 263192589, 1, 77335, 694.999, -38899.7, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13142, 263192820, 1, 76002.4, 694.999, -38660, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13143, 163577869, 1, 67704.1, 694.999, -34034.9, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13144, 163577867, 1, 67904, 694.999, -34035, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13145, 163577870, 1, 67493.5, 694.999, -33940, 0, '', NULL, 1, 'TestCharacter'),
-	(13146, 163579156, 1, 67703.3, 694.999, -33460, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13147, 163577871, 1, 64305.2, 694.999, -34060, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13148, 163577866, 1, 64102.8, 694.999, -34060, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13149, 163577872, 1, 64508.4, 694.999, -34060, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13150, 163577861, 1, 67702.1, 694.999, -26035, 3.11705, '', NULL, 1, 'TestCharacter'),
-	(13151, 163577859, 1, 67893.3, 694.999, -25940, -0.0981748, '', NULL, 1, 'TestCharacter'),
-	(13152, 163577862, 1, 67496.7, 694.999, -25940, -0.0490874, '', NULL, 1, 'TestCharacter'),
-	(13153, 430964742, 1, 83498.1, 694.999, -34035, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13154, 430964741, 1, 83703.9, 694.999, -34035, -3.11705, '', NULL, 1, 'TestCharacter'),
-	(13155, 430964739, 1, 83900.2, 694.999, -34035, -3.14159, '', NULL, 1, 'TestCharacter'),
-	(13156, 900726787, 1, 99635, 95, -88294.9, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13157, 900726790, 1, 99835, 95, -81796.5, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13158, 900727743, 1, 99260, 95, -81797.1, 1.54625, '', NULL, 1, 'TestCharacter'),
-	(13159, 900727744, 1, 99496.5, 95, -82040, 0.0245437, '', NULL, 1, 'TestCharacter'),
-	(13160, 900726788, 1, 99740, 95, -82802, -1.5708, '', NULL, 1, 'TestCharacter'),
-	(13161, 900726791, 1, 99740, 95, -82601.1, -1.54625, '', NULL, 1, 'TestCharacter'),
-	(13162, 900728053, 1, 97859.8, 95, -82596.8, 1.5708, '', NULL, 1, 'TestCharacter'),
-	(13163, 900726789, 1, 97260, 95, -82599.5, 1.59534, '', NULL, 1, 'TestCharacter'),
-	(13164, 900726795, 1, 97165.2, 95, -84605.4, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13165, 900728249, 1, 98140, 95, -83806, -1.59534, '', NULL, 1, 'TestCharacter'),
-	(13166, 900726796, 1, 99740, 95, -84606.4, -1.61988, '', NULL, 1, 'TestCharacter'),
-	(13167, 900726797, 1, 99740, 95, -84804.6, -1.54625, '', NULL, 1, 'TestCharacter');
+	(12849, 900726787, 1, 119700, -505, -50636, 0, b'1', NULL, 0, 'TestCharacter'),
+	(12850, 211812355, 1, 115835, -505, -54298, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12851, 211812359, 1, 115835, -505, -55088.3, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12852, 211812358, 1, 115835, -505, -55292.1, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12853, 211812353, 1, 115835, -505, -56699.3, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12854, 211812357, 1, 115835, -505, -56882.4, 1.66897, b'1', NULL, 1, 'TestCharacter'),
+	(12855, 211812360, 1, 115835, -505, -57655, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12856, 211812369, 1, 114902, -505, -59165, 0.0981748, b'1', NULL, 1, 'TestCharacter'),
+	(12857, 211812977, 1, 114660, -505, -59882.2, 1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12858, 211812944, 1, 112660, -505, -61092.4, 1.64443, b'1', NULL, 1, 'TestCharacter'),
+	(12859, 211812362, 1, 113096, -505, -61740, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12860, 211812364, 1, 113292, -505, -61740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12861, 700448792, 1, 118297, 95, -75165, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12862, 700450906, 1, 118504, 95, -77140, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12863, 905969666, 1, 111902, 95, -70035, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12864, 905969665, 1, 111697, 95, -70035, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12865, 905969668, 1, 111499, 95, -70035, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12866, 905973238, 1, 110711, 95, -69940, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12867, 905973486, 1, 109300, 95, -70060, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12868, 905969672, 1, 108106, 95, -70060, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12869, 905969669, 1, 108296, 95, -70060, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12870, 905969671, 1, 108497, 95, -70059.9, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12871, 905975253, 1, 107900, 95, -70740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12872, 905974927, 1, 107940, 95, -71900.4, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12873, 905974938, 1, 108297, 95, -72340, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12874, 905974985, 1, 109504, 95, -72860, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12875, 905975006, 1, 109881, 95, -73340, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12876, 905975027, 1, 110504, 95, -73340, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12877, 905974982, 1, 109460, 95, -75499.3, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12878, 905974937, 1, 108298, 95, -74060, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12879, 905974926, 1, 108060, 95, -74509.2, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12880, 905975245, 1, 107260, 95, -74298.2, 1.66897, b'1', NULL, 1, 'TestCharacter'),
+	(12881, 905977077, 1, 106301, 95, -74540, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12882, 905977051, 1, 105702, 95, -74060, -3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(12883, 905975246, 1, 107260, 95, -71501.9, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12884, 905977031, 1, 105295, 95, -71940, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12885, 905977011, 1, 104740, 95, -73303.2, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12886, 905977070, 1, 106140, 95, -73307.8, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12887, 905976998, 1, 104505, 95, -71460, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12888, 905977040, 1, 105502, 95, -71460, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12889, 1216348168, 1, 98103.8, 95, -80835, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12890, 1216348164, 1, 97703.9, 95, -78260, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12891, 1216348162, 1, 97901.3, 95, -78260, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12892, 1216348693, 1, 98340, 95, -78910.3, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12893, 1216348163, 1, 98701.1, 95, -78260, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12894, 1216348694, 1, 98340, 95, -79507.7, -1.66897, b'1', NULL, 1, 'TestCharacter'),
+	(12895, 1441792006, 1, 91801.2, 95, -78165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12896, 1441792007, 1, 91591.5, 95, -78165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12897, 1441792001, 1, 93208.4, 95, -78260, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12898, 1441792005, 1, 93401, 95, -78260, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12899, 1441792008, 1, 94197.4, 95, -78260, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12900, 1441792053, 1, 91800.6, 95, -80140, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12901, 1441792002, 1, 91595.7, 95, -80740, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12902, 1441792028, 1, 93840, 95, -80497.9, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12903, 1441792003, 1, 90805.6, 95, -78260, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12904, 1441792012, 1, 89294.4, 95, -78165, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12905, 1441792011, 1, 89095.4, 95, -78166, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12906, 1441792136, 1, 88660, 95, -78496.4, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12907, 1441792321, 1, 88295.3, 95, -79740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12908, 1441792010, 1, 89098.1, 95, -80740.1, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12909, 1375731745, 1, 90397.9, 95, -84165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12910, 1375733558, 1, 91196.9, 95, -85140, -0.0736311, b'1', NULL, 1, 'TestCharacter'),
+	(12911, 1375733562, 1, 90840, 95, -86509.7, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12912, 1375731744, 1, 90390.3, 95, -86740, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12913, 1375731742, 1, 90190.2, 95, -86740, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12914, 1375733610, 1, 91201.9, 95, -86260, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12915, 1375731750, 1, 89902.7, 95, -89165.1, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12916, 1375733963, 1, 90705.3, 95, -90140, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12917, 1375731749, 1, 89900.9, 95, -91740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12918, 1375731747, 1, 89695.9, 95, -91740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12919, 1375733967, 1, 90340, 95, -91499, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12920, 1375734005, 1, 90700.2, 95, -91260, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12921, 1375731751, 1, 90702.5, 95, -91740, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12922, 1375731735, 1, 92200.2, 95, -91835, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12923, 1375731734, 1, 92404.9, 95, -91834, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12924, 1375733003, 1, 92840, 95, -91507.4, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12925, 1375733032, 1, 93196.3, 95, -91260, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12926, 1375732999, 1, 93205.9, 95, -90260, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12927, 1375731733, 1, 92404.3, 95, -89260, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12928, 1375731722, 1, 94399.1, 95, -89165, 0.0736311, b'1', NULL, 1, 'TestCharacter'),
+	(12929, 1375732519, 1, 94396.9, 95, -89740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12930, 1375732510, 1, 94840, 95, -91506.2, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12931, 1375732555, 1, 95210.3, 95, -91260, 3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(12932, 1375731725, 1, 94400.2, 95, -91740, 0.0981748, b'1', NULL, 1, 'TestCharacter'),
+	(12933, 1375731723, 1, 94197.4, 95, -91740, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12934, 1375731724, 1, 95198.7, 95, -91835, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12935, 900726786, 1, 98635, 95, -91302.2, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12936, 900727710, 1, 97859.8, 95, -89293.2, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12937, 900727730, 1, 97060, 95, -88294.4, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12938, 900727697, 1, 96298.1, 95, -89740, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12939, 900727689, 1, 96495.3, 95, -90340, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12940, 900727688, 1, 97499.6, 95, -90340, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12941, 672137222, 1, 108965, 95, -83501.8, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12942, 672137223, 1, 108965, 95, -83707.1, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12943, 672137218, 1, 108965, 95, -83902.1, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12944, 672139294, 1, 109060, 95, -82695.6, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12945, 672139299, 1, 109740, 95, -84094, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12946, 672139211, 1, 108940, 95, -81308.8, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12947, 672137224, 1, 108940, 95, -80116.3, -1.69351, b'1', NULL, 1, 'TestCharacter'),
+	(12948, 672137221, 1, 108940, 95, -80294.6, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12949, 672137220, 1, 108940, 95, -80486.7, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12950, 1427111938, 1, 121165, 95, -69103.6, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12951, 1427111940, 1, 121165, 95, -71097, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12952, 1427111987, 1, 121740, 95, -69301.1, -1.66897, b'1', NULL, 1, 'TestCharacter'),
+	(12953, 1427111939, 1, 123740, 95, -68302.5, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12954, 1427111943, 1, 123740, 95, -69101, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12955, 1427111942, 1, 123740, 95, -69297.9, -1.64443, b'1', NULL, 1, 'TestCharacter'),
+	(12956, 1427111937, 1, 123740, 95, -70706, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12957, 1427111941, 1, 123740, 95, -70908.4, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12958, 1427111944, 1, 123740, 95, -71700.4, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12959, 1427111952, 1, 123335, 95, -67701.8, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12960, 1427111949, 1, 123335, 95, -66895.2, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12961, 1427111945, 1, 123335, 95, -66688.6, 1.49717, b'1', NULL, 1, 'TestCharacter'),
+	(12962, 1427111950, 1, 123335, 95, -65307.5, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12963, 1427111951, 1, 123335, 95, -65096.4, 1.47262, b'1', NULL, 1, 'TestCharacter'),
+	(12964, 1427111947, 1, 123335, 95, -64296, 1.47262, b'1', NULL, 1, 'TestCharacter'),
+	(12965, 1427111946, 1, 120665, 95, -65102.9, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(12966, 1427111948, 1, 120665, 95, -67109.4, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12967, 700448791, 1, 120297, 95, -75165, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12968, 700448790, 1, 122302, 95, -75165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12969, 700448776, 1, 136301, 95, -75165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12970, 700448777, 1, 134302, 95, -75165, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12971, 700449070, 1, 135697, 95, -77340, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12972, 700449219, 1, 135000, 95, -78308.4, -1.64443, b'1', NULL, 1, 'TestCharacter'),
+	(12973, 700449095, 1, 134940, -305, -76900.5, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12974, 700449130, 1, 134292, -305, -77140.1, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(12975, 700449154, 1, 135490, -305, -78060, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12976, 700449040, 1, 134698, 495, -76237.5, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12977, 700449048, 1, 134290, 495, -76140.2, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12978, 700449021, 1, 135579, 495, -78492.8, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12979, 700449030, 1, 135313, 495, -78200, 3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(12980, 674234371, 1, 134299, 95, -81165, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12981, 674234372, 1, 132303, 95, -81165, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12982, 674234373, 1, 130296, 95, -81165, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(12983, 674235278, 1, 131701, 95, -83660, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(12984, 674235340, 1, 130502, -305, -82060, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(12985, 1220542471, 1, 144700, 295, -70835, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(12986, 731906092, 1, 70164, 95, -72710.5, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12987, 731909801, 1, 70740, 95, -72696.1, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12988, 731909205, 1, 70499.5, 95, -72460, -3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(12989, 731906095, 1, 70260, 95, -71700.1, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12990, 731906094, 1, 70260, 95, -71892.2, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12991, 731909224, 1, 72340, 95, -71499.4, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12992, 731909225, 1, 72340, 95, -71301, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(12993, 731909201, 1, 71740, 95, -72704, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12994, 731906093, 1, 72740, 95, -71898.5, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(12995, 731906098, 1, 72835, 95, -73894.4, 1.49717, b'1', NULL, 1, 'TestCharacter'),
+	(12996, 731909554, 1, 71860, 95, -74691.2, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(12997, 731909558, 1, 70504.7, 95, -74340, 0, b'1', NULL, 1, 'TestCharacter'),
+	(12998, 731909827, 1, 70740, 95, -74712.5, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(12999, 731906099, 1, 70260, 95, -74701.7, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13000, 731906100, 1, 70260, 95, -73888.6, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13001, 731906097, 1, 70260, 95, -73698.4, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13002, 1007681544, 1, 67835, 95, -80301.9, 1.47262, b'1', NULL, 1, 'TestCharacter'),
+	(13003, 1007681547, 1, 67835, 95, -80106.2, 1.44808, b'1', NULL, 1, 'TestCharacter'),
+	(13004, 326107143, 1, 65905.9, 95, -86565, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13005, 326107137, 1, 65697, 95, -86565, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13006, 326107138, 1, 65498.1, 95, -86565, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13007, 326107142, 1, 65297.4, 95, -86565, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13008, 326108685, 1, 65596.9, 95, -88340, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13009, 326108664, 1, 66140, 95, -88711.1, -1.64443, b'1', NULL, 1, 'TestCharacter'),
+	(13010, 326108709, 1, 65060, 95, -88695.9, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13011, 774897665, 1, 59196.3, 95, -87765, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13012, 774897667, 1, 58804.2, 95, -87765, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13013, 774905352, 1, 58717, 95, -91300, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13014, 774900248, 1, 60740, 95, -91895.6, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13015, 774897666, 1, 62140, 95, -91504.8, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13016, 774900222, 1, 60860, 95, -93295.9, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13017, 774897670, 1, 59197.5, 95, -94140, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13018, 774897669, 1, 58793.5, 95, -94140, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13019, 774900223, 1, 57260, 95, -93298.4, 1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(13020, 774897668, 1, 55860, 95, -91499.3, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13021, 774900247, 1, 57140, 95, -91903.2, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13022, 681574423, 1, 58701.8, 95, -83835, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13023, 681575853, 1, 58701.8, 95, -83268.3, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13024, 681575807, 1, 58460, 95, -83498.4, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13025, 681574421, 1, 57685.7, 95, -83778.6, -0.269981, b'1', NULL, 1, 'TestCharacter'),
+	(13026, 681574424, 1, 57893, 95, -83705.3, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13027, 681575816, 1, 57907, 95, -81860, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13028, 681574422, 1, 57896.1, 95, -81200, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13029, 1007681549, 1, 59664, 95, -80695.7, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13030, 1007685683, 1, 60240, 95, -80703.2, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13031, 1007685655, 1, 60005.6, 95, -80460, -3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(13032, 1007681552, 1, 59726.8, 95, -79688.8, 1.49717, b'1', NULL, 1, 'TestCharacter'),
+	(13033, 1007681551, 1, 59737.8, 95, -79891, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13034, 681574419, 1, 60200.6, 95, -83835, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(13035, 681574418, 1, 60393.3, 95, -83740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13036, 1007681555, 1, 58835, 95, -80293.8, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13037, 1007681557, 1, 58835, 95, -80093.8, 1.47262, b'1', NULL, 1, 'TestCharacter'),
+	(13038, 508559381, 1, 53105.4, 95, -73335, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13039, 508560765, 1, 52302.4, 95, -72360, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13040, 508559374, 1, 55602.6, 95, -72835, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13041, 508559370, 1, 55606.6, 95, -70260, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(13042, 508559371, 1, 55797.1, 95, -70260, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13043, 950009865, 1, 55297.4, 95, -67635, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13044, 950009863, 1, 55088.9, 95, -67635, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13045, 950009864, 1, 57290.6, 95, -67635, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13046, 950009859, 1, 60709.3, 95, -67635, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13047, 790626311, 1, 71465, 95, -85205.3, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(13048, 790626309, 1, 71465, 95, -84799.9, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13049, 790629545, 1, 74901.5, 95, -83260, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13050, 790629547, 1, 77298.7, 95, -83540, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13051, 790629593, 1, 77298.2, 95, -86540, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13052, 790626307, 1, 79194.5, 95, -88340, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13053, 790626312, 1, 78997.9, 95, -88340, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13054, 1182793736, 1, 78897.8, 95, -89165, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13055, 1182795025, 1, 79693.6, 95, -90140, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13056, 1182793738, 1, 78896.6, 95, -91740, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13057, 1182793735, 1, 78689.1, 95, -91740, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13058, 241172484, 1, 81065, 95, -98503.1, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13059, 790626313, 1, 79005, 95, -81655, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13060, 790626310, 1, 79210, 95, -81655, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13061, 498073615, 1, 82170, 95, -77590, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13062, 498074708, 1, 84100, 95, -77150, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13063, 498073607, 1, 84740, 95, -76790, -1.49717, b'1', NULL, 1, 'TestCharacter'),
+	(13064, 498073611, 1, 84740, 95, -77600, -1.52171, b'1', NULL, 1, 'TestCharacter'),
+	(13065, 498073612, 1, 84830, 95, -77800, 1.71806, b'1', NULL, 1, 'TestCharacter'),
+	(13066, 498073610, 1, 84830, 95, -79190, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13067, 498073608, 1, 84830, 95, -79400, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13068, 498073609, 1, 84830, 95, -80200, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13069, 790626308, 1, 83730, 95, -84990, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13070, 224395267, 1, 86160, 95, -88700, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13071, 731906088, 1, 75100, 95, -76800, 3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(13072, 731906103, 1, 72800, 95, -76400, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13073, 731906105, 1, 70150, 95, -76200, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13074, 731906104, 1, 70150, 95, -76400, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13075, 731906102, 1, 70150, 95, -77150, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13076, 731909842, 1, 70700, 95, -77200, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13077, 731909767, 1, 70450, 95, -76950, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13078, 1268776961, 1, 70700, 95, -67830, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13079, 1268776963, 1, 69900, 95, -67830, -3.09251, b'1', NULL, 1, 'TestCharacter'),
+	(13080, 1268776964, 1, 69700, 95, -67830, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13081, 1268777179, 1, 70700, 95, -66260, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13082, 1268776962, 1, 69900, 95, -65250, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13083, 1268776979, 1, 67890, 95, -65160, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13084, 1268776978, 1, 65890, 95, -65160, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13085, 1268776966, 1, 63890, 95, -65160, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13086, 1268777482, 1, 63890, 95, -65740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13087, 1268776969, 1, 63890, 95, -67740, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13088, 1268776967, 1, 63690, 95, -67740, 0.0736311, b'1', NULL, 1, 'TestCharacter'),
+	(13089, 353370118, 1, 64290, 95, -70160, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13090, 353370120, 1, 64100, 95, -70160, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13091, 353370122, 1, 63300, 95, -70160, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13092, 353370385, 1, 63290, 95, -70740, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13093, 353370114, 1, 65160, 95, -71090, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13094, 353370351, 1, 65740, 95, -71100, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13095, 353370113, 1, 67800, 95, -71310, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13096, 353370116, 1, 67830, 95, -71090, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13097, 353370115, 1, 67830, 95, -70290, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13098, 508559364, 1, 61800, 95, -70160, -0.0736311, b'1', NULL, 1, 'TestCharacter'),
+	(13099, 508559363, 1, 61590, 95, -70160, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13100, 508559361, 1, 60800, 95, -70160, 0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13101, 508559394, 1, 60790, 95, -70740, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13102, 508559395, 1, 61040, 95, -70500, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13103, 1268776983, 1, 61700, 95, -67830, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13104, 1268776982, 1, 61900, 95, -67830, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13105, 1268776980, 1, 62700, 95, -67830, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13106, 1268778881, 1, 62700, 95, -67250, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13107, 1268778851, 1, 62460, 95, -67490, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13108, 1268778847, 1, 62700, 95, -66260, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13109, 1268776981, 1, 61900, 95, -65260, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13110, 17825794, 1, 54830, 95, -61890, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13111, 1302331425, 1, 54300, 95, -55630, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13112, 1302332970, 1, 54340, 95, -54300, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13113, 1302332912, 1, 55340, 95, -53700, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13114, 1302331426, 1, 55690, 95, -55540, -0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13115, 1138753538, 1, 57660, 95, -58700, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13116, 1138753540, 1, 57660, 95, -58900, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13117, 1138753539, 1, 57660, 95, -59700, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13118, 1138753794, 1, 58240, 95, -59700, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13119, 1138753748, 1, 58000, 95, -59460, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13120, 1138753757, 1, 59640, 95, -58890, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13121, 1138753537, 1, 60240, 95, -58900, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13122, 907018254, 1, 71830, 95, -45290, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13123, 907018253, 1, 71830, 95, -45090, 1.49717, b'1', NULL, 1, 'TestCharacter'),
+	(13124, 907018251, 1, 71830, 95, -44290, 1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13125, 907018290, 1, 71260, 95, -44280, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13126, 1268776993, 1, 61665, 95, -61604.5, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13127, 1268779437, 1, 62640, 95, -60803.4, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13128, 1268776992, 1, 64240, 95, -61604.4, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13129, 1268776990, 1, 64240, 95, -61809, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13130, 1268778586, 1, 64007.6, 95, -61160, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13131, 1268778585, 1, 63760, 95, -60794.7, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13132, 1268776994, 1, 64240, 95, -60803.5, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13133, 34603031, 1, 57502.7, 694.999, -35035, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13134, 34603030, 1, 57500.2, 694.999, -34935, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13135, 34603025, 1, 57897.5, 694.999, -35035, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13136, 34605960, 1, 57711.2, 694.999, -34460, -3.06796, b'1', NULL, 1, 'TestCharacter'),
+	(13137, 34605972, 1, 57319.1, 694.999, -33260, 2.96979, b'1', NULL, 1, 'TestCharacter'),
+	(13138, 203423750, 1, 58691, 95, -40565, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13139, 203423748, 1, 59303.8, 95, -40565, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13140, 872415234, 1, 81165, 694.999, -41094.3, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13141, 263192589, 1, 77335, 694.999, -38899.7, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13142, 263192820, 1, 76002.4, 694.999, -38660, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13143, 163577869, 1, 67704.1, 694.999, -34034.9, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13144, 163577867, 1, 67904, 694.999, -34035, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13145, 163577870, 1, 67493.5, 694.999, -33940, 0, b'1', NULL, 1, 'TestCharacter'),
+	(13146, 163579156, 1, 67703.3, 694.999, -33460, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13147, 163577871, 1, 64305.2, 694.999, -34060, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13148, 163577866, 1, 64102.8, 694.999, -34060, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13149, 163577872, 1, 64508.4, 694.999, -34060, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13150, 163577861, 1, 67702.1, 694.999, -26035, 3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13151, 163577859, 1, 67893.3, 694.999, -25940, -0.0981748, b'1', NULL, 1, 'TestCharacter'),
+	(13152, 163577862, 1, 67496.7, 694.999, -25940, -0.0490874, b'1', NULL, 1, 'TestCharacter'),
+	(13153, 430964742, 1, 83498.1, 694.999, -34035, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13154, 430964741, 1, 83703.9, 694.999, -34035, -3.11705, b'1', NULL, 1, 'TestCharacter'),
+	(13155, 430964739, 1, 83900.2, 694.999, -34035, -3.14159, b'1', NULL, 1, 'TestCharacter'),
+	(13156, 900726787, 1, 99635, 95, -88294.9, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13157, 900726790, 1, 99835, 95, -81796.5, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13158, 900727743, 1, 99260, 95, -81797.1, 1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13159, 900727744, 1, 99496.5, 95, -82040, 0.0245437, b'1', NULL, 1, 'TestCharacter'),
+	(13160, 900726788, 1, 99740, 95, -82802, -1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13161, 900726791, 1, 99740, 95, -82601.1, -1.54625, b'1', NULL, 1, 'TestCharacter'),
+	(13162, 900728053, 1, 97859.8, 95, -82596.8, 1.5708, b'1', NULL, 1, 'TestCharacter'),
+	(13163, 900726789, 1, 97260, 95, -82599.5, 1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13164, 900726795, 1, 97165.2, 95, -84605.4, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13165, 900728249, 1, 98140, 95, -83806, -1.59534, b'1', NULL, 1, 'TestCharacter'),
+	(13166, 900726796, 1, 99740, 95, -84606.4, -1.61988, b'1', NULL, 1, 'TestCharacter'),
+	(13167, 900726797, 1, 99740, 95, -84804.6, -1.54625, b'1', NULL, 1, 'TestCharacter');
 /*!40000 ALTER TABLE `doors` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.inventory
+-- Exportiere Struktur von Tabelle reality_hd.inventory
 CREATE TABLE IF NOT EXISTS `inventory` (
   `invId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `charId` bigint(11) unsigned NOT NULL,
@@ -747,13 +749,13 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `updated` datetime NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`invId`)
-) ENGINE=MyISAM AUTO_INCREMENT=64 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=79 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.inventory: 40 rows
+-- Exportiere Daten aus Tabelle reality_hd.inventory: 55 rows
 /*!40000 ALTER TABLE `inventory` DISABLE KEYS */;
 INSERT INTO `inventory` (`invId`, `charId`, `goid`, `slot`, `count`, `purity`, `updated`, `created`) VALUES
 	(1, 3, 7332, 0, 0, 0, '2012-01-11 06:49:44', '2012-01-11 06:49:44'),
-	(4, 3, 7332, 1, 1, 1, '2012-01-30 09:58:00', '2012-01-30 09:58:00'),
+	(4, 3, 7332, 0, 1, 1, '2012-01-30 09:58:00', '2012-01-30 09:58:00'),
 	(27, 3, 2147484672, 4, 0, 0, '0000-00-00 00:00:00', '2012-01-31 12:14:12'),
 	(26, 3, 2147490816, 1, 0, 0, '0000-00-00 00:00:00', '2012-01-31 12:13:56'),
 	(28, 3, 2147492864, 5, 0, 0, '0000-00-00 00:00:00', '2012-01-31 12:14:14'),
@@ -791,11 +793,26 @@ INSERT INTO `inventory` (`invId`, `charId`, `goid`, `slot`, `count`, `purity`, `
 	(60, 3, 2148660224, 34, 0, 0, '0000-00-00 00:00:00', '2013-08-09 09:14:17'),
 	(61, 3, 2147490816, 2, 0, 0, '0000-00-00 00:00:00', '2014-10-06 16:00:00'),
 	(62, 3, 2147491840, 36, 0, 0, '0000-00-00 00:00:00', '2014-10-06 16:00:04'),
-	(63, 3, 2147492864, 37, 0, 0, '0000-00-00 00:00:00', '2014-10-06 16:00:12');
+	(63, 3, 2147492864, 37, 0, 0, '0000-00-00 00:00:00', '2014-10-06 16:00:12'),
+	(64, 3, 2147490816, 38, 0, 0, '0000-00-00 00:00:00', '2015-06-27 12:05:06'),
+	(65, 3, 2147490816, 39, 0, 0, '0000-00-00 00:00:00', '2015-06-27 12:05:11'),
+	(66, 3, 2147490816, 40, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:03'),
+	(67, 3, 2147490816, 41, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:09'),
+	(68, 3, 2147490816, 42, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:10'),
+	(69, 3, 2147490816, 43, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:11'),
+	(70, 3, 2147488768, 44, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:14'),
+	(71, 3, 2147492864, 45, 0, 0, '0000-00-00 00:00:00', '2015-06-27 16:30:19'),
+	(72, 3, 2147490816, 46, 0, 0, '0000-00-00 00:00:00', '2015-09-03 06:47:34'),
+	(73, 3, 2147490816, 47, 0, 0, '0000-00-00 00:00:00', '2015-09-03 06:47:35'),
+	(74, 3, 2147494912, 48, 0, 0, '0000-00-00 00:00:00', '2015-10-14 21:24:08'),
+	(75, 3, 2147494912, 49, 0, 0, '0000-00-00 00:00:00', '2015-10-14 21:24:08'),
+	(76, 3, 2147494912, 50, 0, 0, '0000-00-00 00:00:00', '2015-10-14 21:24:08'),
+	(77, 3, 2147494912, 51, 0, 0, '0000-00-00 00:00:00', '2015-10-14 21:24:09'),
+	(78, 3, 2147490816, 52, 0, 0, '0000-00-00 00:00:00', '2015-10-25 19:40:34');
 /*!40000 ALTER TABLE `inventory` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.locations
+-- Exportiere Struktur von Tabelle reality_hd.locations
 CREATE TABLE IF NOT EXISTS `locations` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `Command` varchar(45) NOT NULL,
@@ -807,7 +824,7 @@ CREATE TABLE IF NOT EXISTS `locations` (
   UNIQUE KEY `Id` (`Id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.locations: 45 rows
+-- Exportiere Daten aus Tabelle reality_hd.locations: 45 rows
 /*!40000 ALTER TABLE `locations` DISABLE KEYS */;
 INSERT INTO `locations` (`Id`, `Command`, `X`, `Y`, `Z`, `District`) VALUES
 	(17, 'Whiteroom', 203183, 95, -172722, 1),
@@ -858,7 +875,7 @@ INSERT INTO `locations` (`Id`, `Command`, `X`, `Y`, `Z`, `District`) VALUES
 /*!40000 ALTER TABLE `locations` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.marketplace
+-- Exportiere Struktur von Tabelle reality_hd.marketplace
 CREATE TABLE IF NOT EXISTS `marketplace` (
   `id` int(10) NOT NULL DEFAULT '0',
   `category` varchar(15) NOT NULL DEFAULT '0',
@@ -873,12 +890,12 @@ CREATE TABLE IF NOT EXISTS `marketplace` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.marketplace: ~0 rows (approximately)
+-- Exportiere Daten aus Tabelle reality_hd.marketplace: ~0 rows (ungefähr)
 /*!40000 ALTER TABLE `marketplace` DISABLE KEYS */;
 /*!40000 ALTER TABLE `marketplace` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.rsivalues
+-- Exportiere Struktur von Tabelle reality_hd.rsivalues
 CREATE TABLE IF NOT EXISTS `rsivalues` (
   `charid` smallint(6) NOT NULL,
   `sex` smallint(6) NOT NULL,
@@ -906,11 +923,11 @@ CREATE TABLE IF NOT EXISTS `rsivalues` (
   PRIMARY KEY (`charid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-# Dumping data for table reality_hd.rsivalues: 11 rows
+-- Exportiere Daten aus Tabelle reality_hd.rsivalues: 11 rows
 /*!40000 ALTER TABLE `rsivalues` DISABLE KEYS */;
 INSERT INTO `rsivalues` (`charid`, `sex`, `body`, `hat`, `face`, `shirt`, `coat`, `pants`, `shoes`, `gloves`, `glasses`, `hair`, `facialdetail`, `shirtcolor`, `pantscolor`, `coatcolor`, `shoecolor`, `glassescolor`, `haircolor`, `skintone`, `tattoo`, `facialdetailcolor`, `leggins`) VALUES
-	(2, 1, 2, 0, 6, 8, 0, 0, 3, 4, 1, 3, 0, 2, 3, 0, 0, 0, 6, 0, 2, 3, 1),
-	(3, 0, 1, 3, 4, 5, 6, 5, 3, 3, 4, 1, 0, 2, 3, 4, 5, 1, 4, 2, 5, 0, 0),
+	(2, 0, 2, 0, 0, 2, 12, 4, 0, 0, 8, 8, 0, 0, 0, 19, 0, 15, 1, 0, 0, 0, 0),
+	(3, 0, 2, 0, 0, 2, 12, 4, 0, 0, 8, 8, 0, 0, 0, 19, 0, 15, 1, 0, 0, 0, 0),
 	(4, 1, 3, 0, 19, 12, 0, 1, 1, 4, 34, 9, 0, 22, 0, 0, 2, 1, 0, 10, 3, 0, 0),
 	(45, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 5, 0, 0),
 	(46, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0),
@@ -923,7 +940,7 @@ INSERT INTO `rsivalues` (`charid`, `sex`, `body`, `hat`, `face`, `shirt`, `coat`
 /*!40000 ALTER TABLE `rsivalues` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.users
+-- Exportiere Struktur von Tabelle reality_hd.users
 CREATE TABLE IF NOT EXISTS `users` (
   `userId` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(32) NOT NULL,
@@ -938,16 +955,17 @@ CREATE TABLE IF NOT EXISTS `users` (
   `passwordmd5` varchar(40) DEFAULT NULL,
   UNIQUE KEY `id` (`userId`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.users: 1 rows
+-- Exportiere Daten aus Tabelle reality_hd.users: 2 rows
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` (`userId`, `username`, `passwordSalt`, `passwordHash`, `publicExponent`, `publicModulus`, `privateExponent`, `timeCreated`, `account_status`, `sessionid`, `passwordmd5`) VALUES
-	(28, 'loluser', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, _binary 0xED7707AB64F87A51DD9020F73752E9455386A402BB539C64F8A4310EC211499DD503DA74187EE109C325CF07EC0A2FCF904C15CF38918B9782578D589294B6BC0033802EE099E8A8163D3A1D8E1A7B3238CE4B58A20C01B47180823C3ADC0B1D, _binary 0x5ACBA10CD3C86B012F1176042BBDD1A990E0A81F2981D9EA5F119A496851E7710DAEA65990E537ED24F7DE37BC22033809A6D66CAB7205376859C0794708D71A6279537218A3D3496096AD23532179F1BB71315E64FFBEE609B98D8F08E05887, 1250413439, 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c');
+	(28, 'loluser', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, _binary 0xED7707AB64F87A51DD9020F73752E9455386A402BB539C64F8A4310EC211499DD503DA74187EE109C325CF07EC0A2FCF904C15CF38918B9782578D589294B6BC0033802EE099E8A8163D3A1D8E1A7B3238CE4B58A20C01B47180823C3ADC0B1D, _binary 0x5ACBA10CD3C86B012F1176042BBDD1A990E0A81F2981D9EA5F119A496851E7710DAEA65990E537ED24F7DE37BC22033809A6D66CAB7205376859C0794708D71A6279537218A3D3496096AD23532179F1BB71315E64FFBEE609B98D8F08E05887, 1250413439, 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c'),
+	(33, 'loluser2', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, _binary 0xED7707AB64F87A51DD9020F73752E9455386A402BB539C64F8A4310EC211499DD503DA74187EE109C325CF07EC0A2FCF904C15CF38918B9782578D589294B6BC0033802EE099E8A8163D3A1D8E1A7B3238CE4B58A20C01B47180823C3ADC0B1D, _binary 0x5ACBA10CD3C86B012F1176042BBDD1A990E0A81F2981D9EA5F119A496851E7710DAEA65990E537ED24F7DE37BC22033809A6D66CAB7205376859C0794708D71A6279537218A3D3496096AD23532179F1BB71315E64FFBEE609B98D8F08E05887, 1250413439, 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 
 
-# Dumping structure for table reality_hd.worlds
+-- Exportiere Struktur von Tabelle reality_hd.worlds
 CREATE TABLE IF NOT EXISTS `worlds` (
   `worldId` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL,
@@ -958,7 +976,7 @@ CREATE TABLE IF NOT EXISTS `worlds` (
   PRIMARY KEY (`worldId`)
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
-# Dumping data for table reality_hd.worlds: 4 rows
+-- Exportiere Daten aus Tabelle reality_hd.worlds: 4 rows
 /*!40000 ALTER TABLE `worlds` DISABLE KEYS */;
 INSERT INTO `worlds` (`worldId`, `name`, `type`, `status`, `load`, `numPlayers`) VALUES
 	(1, 'Recursion', 1, 1, 49, 0),
@@ -966,6 +984,6 @@ INSERT INTO `worlds` (`worldId`, `name`, `type`, `status`, `load`, `numPlayers`)
 	(3, 'HostileWorld1', 2, 1, 49, 0),
 	(4, 'EnterTheMatricks', 1, 1, 49, 0);
 /*!40000 ALTER TABLE `worlds` ENABLE KEYS */;
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IF(@OLD_FOREIGN_KEY_CHECKS IS NULL, 1, @OLD_FOREIGN_KEY_CHECKS) */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
