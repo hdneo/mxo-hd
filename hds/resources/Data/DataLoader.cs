@@ -40,11 +40,11 @@ namespace hds
 
             
             // Disabled for Debugging
-            
+            /*
             this.loadWorldObjectsDb("data\\staticObjects_slums.csv");
             this.loadWorldObjectsDb("data\\staticObjects_it.csv");
             this.loadWorldObjectsDb("data\\staticObjects_dt.csv");
-            
+            */
             
         }
 
