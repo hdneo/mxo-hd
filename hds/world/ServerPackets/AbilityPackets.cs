@@ -28,16 +28,29 @@ namespace hds
             // RSI Health FX "send 02 03 02 00 02 80 80 80 90 ed 00 30 22 0a 00 28 06 00 00;"
             PacketContent pak = new PacketContent();
 
+            
             pak.addUint16(viewId, 1);
             pak.addByte(0x02);
             pak.addByte(0x80);
             pak.addByte(0x80);
             pak.addByte(0x80);
+            if (viewId == 2)
+            {
+                pak.addByte(0x80);
+                pak.addByte(0xb0);
+            }
+            else
+            {
+                pak.addByte(0x0c);
+            }
+            /*
             pak.addByte(0x90);
             pak.addByte(0xed);
             pak.addByte(0x00);
             pak.addByte(0x30);
-            pak.addUint32(animationId,1);
+            */
+
+            pak.addUint32(animationId, 1);
             pak.addByteArray(updateCount);
 
 

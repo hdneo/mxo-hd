@@ -23,7 +23,7 @@ namespace hds.world.scripting{
 			cp.ReferencedAssemblies.Add ("system.dll");
 			cp.ReferencedAssemblies.Add ("hds.exe");
 
-			var list = Directory.GetFiles ("./resources");
+			var list = Directory.GetFiles ("./data/resources");
 
 			Console.WriteLine("Found "+list.Length+" scripts");
 

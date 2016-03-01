@@ -150,7 +150,6 @@
     <Compile Include="world\Client\RpcHandlers\MissionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\RegionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\TeamHandler.cs" />
-    <Compile Include="world\Helpers\SkillHelper.cs" />
     <Compile Include="world\PacketUtils\PacketContent.cs" />
     <Compile Include="utils\StringUtils.cs" />
     <Compile Include="utils\TimeUtils.cs" />

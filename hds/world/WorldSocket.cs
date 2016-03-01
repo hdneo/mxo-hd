@@ -106,7 +106,6 @@ namespace hds
                         worldClient.flushQueue();
                     }
 
-
                 }
             }
             
@@ -194,12 +193,19 @@ namespace hds
 
         private void finalReceiveFrom(IAsyncResult iar)
         {
+            Socket recvSocket = (Socket)iar.AsyncState;
+            EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
+            int msgLen = 0;
+
             try
             {
-                Socket recvSocket = (Socket)iar.AsyncState;
-                EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
-               
-                int msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
+                msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
+            }catch(SocketException ex)
+            {
+
+            }
+            finally
+            {
                 byte[] finalMessage = new byte[msgLen];
                 ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
 
@@ -228,10 +234,7 @@ namespace hds
                 EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
                 socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
             }
-            catch (ObjectDisposedException)
-            {
-
-            }
+                
         }
 
         

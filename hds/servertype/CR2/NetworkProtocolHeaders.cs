@@ -105,6 +105,8 @@ namespace hds
 
         // Abilitys
         SERVER_CAST_BAR_ABILITY = 0x80ac,
+        SERVER_ABILITY_LOAD = 0x80b2,
+        SERVER_ABILITY_UNLOAD = 0x80b3,
 
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,

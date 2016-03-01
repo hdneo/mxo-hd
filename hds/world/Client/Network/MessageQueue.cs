@@ -47,7 +47,11 @@ namespace hds
         {
             SequencedMessage message = new SequencedMessage(messageBlock);
             message.isTimed = isTimed;
-            ObjectMessagesQueue.Add(message);
+            lock (ObjectMessagesQueue.SyncRoot)
+            {
+                ObjectMessagesQueue.Add(message);
+            }
+            
         }
 
         public void addRawMessage(byte[] messageBlock)

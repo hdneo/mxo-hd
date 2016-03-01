@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 
 using hds.databases.interfaces;
 using hds.shared;
+using System.Collections.Generic;
 
 namespace hds.databases{
 	
@@ -319,6 +320,21 @@ namespace hds.databases{
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
         }
-	}
+
+        public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
+        {
+            UInt32 charID = Store.currentClient.playerData.getCharID();
+            string sqlQuery = "";
+            foreach(uint slot in abilitySlots)
+            {
+                sqlQuery += "UPDATE char_abilities SET is_loaded = " + loaded.ToString() + " WHERE char_id = " + charID.ToString() + " AND slot = " + slot.ToString() + ";";
+            }
+
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            queryExecuter.ExecuteNonQuery();
+
+        }
+    }
 }
 

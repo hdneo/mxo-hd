@@ -15,6 +15,8 @@ namespace hds.databases.interfaces{
         void setPlayerValues();
         void setRsiValues();
         void savePlayer();
+
+        void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
         
         //NEW
         void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot);

@@ -3,16 +3,19 @@ using System.Collections;
 using System.Text;
 
 using hds.shared;
+using System.Collections.Generic;
 
 namespace hds
 {
     /*
      * The General Player Helper
      */
-    class PlayerHelper{
+    class PlayerHelper
+    {
 
 
-        public void processIncreaseCash(UInt16 amount, UInt16 type){
+        public void processIncreaseCash(UInt16 amount, UInt16 type)
+        {
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = { 0x80, 0xe4 };
             long newCash = Store.currentClient.playerData.getInfo() + (long)amount;
@@ -21,7 +24,7 @@ namespace hds
             Store.dbManager.WorldDbHandler.savePlayer();
 
             DynamicArray din = new DynamicArray();
-            
+
             din.append(header);
             din.append(NumericalUtils.uint32ToByteArray((UInt32)newCash, 1));
             din.append(NumericalUtils.uint16ToByteArray(type, 1));
@@ -31,7 +34,8 @@ namespace hds
         }
 
 
-        public void processDecreaseCash(UInt16 amount, UInt16 type){
+        public void processDecreaseCash(UInt16 amount, UInt16 type)
+        {
 
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = { 0x80, 0xe4 };
@@ -53,7 +57,7 @@ namespace hds
         public void processLoadAbility(ref byte[] packet)
         {
             // read the values from the packet 
-            byte[] staticObjectByteID  = new byte[4];
+            byte[] staticObjectByteID = new byte[4];
             ArrayUtils.copyTo(packet, 0, staticObjectByteID, 0, 4);
 
             byte[] unloadFlagByte = new byte[2];
@@ -62,49 +66,68 @@ namespace hds
             byte[] loadFlagByte = new byte[2];
             ArrayUtils.copyTo(packet, 6, loadFlagByte, 0, 2);
 
-            byte[] slotByteID = new byte[2];
-            ArrayUtils.copyTo(packet, 11, slotByteID, 0, 2);
+            byte[] countAbilityBytes = new byte[2];
+            ArrayUtils.copyTo(packet, 8, countAbilityBytes, 0, 2);
+            UInt16 countAbilities = NumericalUtils.ByteArrayToUint16(countAbilityBytes, 1);
+            
+            // Get the Ability Related Header Data
+            UInt32 staticObjectID = NumericalUtils.ByteArrayToUint32(staticObjectByteID, 1);
+            UInt16 unloadFlag = NumericalUtils.ByteArrayToUint16(unloadFlagByte, 1);
+            UInt16 loadFlag = NumericalUtils.ByteArrayToUint16(loadFlagByte, 1);
 
-            byte[] abilityByteID = new byte[2];
-            ArrayUtils.copyTo(packet, 13, abilityByteID, 0, 2);
+            int pointer = 11; // Start at index 11
+            List<UInt16> abilitySlots = new List<UInt16>();
 
-            byte[] abilityByteLevel = new byte[2];
-            ArrayUtils.copyTo(packet, 17, abilityByteLevel, 0, 2);
+            for (int i = 1; i <= countAbilities; i++)
+            {
 
-            // Get the Ability Related Data
-            UInt32 staticObjectID   = NumericalUtils.ByteArrayToUint32(staticObjectByteID,1);
-            UInt16 unloadFlag       = NumericalUtils.ByteArrayToUint16(unloadFlagByte,1);
-            UInt16 loadFlag         = NumericalUtils.ByteArrayToUint16(loadFlagByte, 1);
-            UInt16 slotID           = NumericalUtils.ByteArrayToUint16(slotByteID, 1);
-            UInt16 AbilityID        = NumericalUtils.ByteArrayToUint16(abilityByteID, 1);
-            UInt16 AbilityLevel     = NumericalUtils.ByteArrayToUint16(abilityByteLevel, 1);
+                // This must be looped 
+                byte[] slotByteID = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, slotByteID, 0, 2);
+                pointer = pointer + 2;
 
-            string flagMessage = "";
+                byte[] abilityByteID = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, abilityByteID, 0, 2);
+                pointer = pointer + 4;
+
+                byte[] abilityByteLevel = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, abilityByteLevel, 0, 2);
+                pointer = pointer + 3;
 
 
-            DynamicArray header = new DynamicArray();
+                UInt16 slotID = NumericalUtils.ByteArrayToUint16(slotByteID, 1);
+                UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(abilityByteID, 1);
+                UInt16 AbilityLevel = NumericalUtils.ByteArrayToUint16(abilityByteLevel, 1);
+
+                PacketContent pak = new PacketContent();
+                if (unloadFlag > 0)
+                {
+                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
+                    pak.addByteArray(abilityByteID);
+
+                }
+                else
+                {
+                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
+                    pak.addByteArray(abilityByteID);
+                    pak.addByteArray(abilityByteLevel);
+                    pak.addByteArray(slotByteID);
+                }
+                abilitySlots.Add(slotID);
+                Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+
+            }
+
+           
             if (unloadFlag > 0)
             {
-                byte[] responseHeader = { 0x80, 0xb3 };
-                header.append(responseHeader);
-                flagMessage = "Unload";
+                Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 0);
             }
-
-            if (loadFlag > 0)
+            else
             {
-                byte[] responseHeader = { 0x80, 0xb2 };
-                header.append(responseHeader);
-                flagMessage =  flagMessage + " Load";
+                Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 1);
             }
-            // create a new System message but fill it in the switch block
-            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability Loader | Action : " + flagMessage + " for Slot ID " + slotID.ToString() + " | Ability ID " + AbilityID.ToString() + " Lvl : " + AbilityLevel.ToString(), "MODAL", Store.currentClient));
-
-            DynamicArray din = new DynamicArray();
-            din.append(header.getBytes());
-            din.append(abilityByteID);
-            din.append(abilityByteLevel);
-            din.append(slotByteID);
-            Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+            
 
         }
 
@@ -139,13 +162,13 @@ namespace hds
         {
             DynamicArray din = new DynamicArray();
             din.append(0x03);
-            din.append(NumericalUtils.uint16ToByteArray(viewID,1));
+            din.append(NumericalUtils.uint16ToByteArray(viewID, 1));
             din.append(0x02);
             din.append(0x80);
             din.append(0x80);
             din.append(0x80);
             din.append(0x50);
-            din.append(NumericalUtils.uint16ToByteArray(isC,1));
+            din.append(NumericalUtils.uint16ToByteArray(isC, 1));
             din.append(NumericalUtils.uint16ToByteArray(healthC, 1));
             din.append(0x00);
             // ToDO SEND PAK and get real health and IS
@@ -194,7 +217,7 @@ namespace hds
 
         public void processChangeMoaRSI(byte[] rsi)
         {
-            
+
             DynamicArray din = new DynamicArray();
             din.append(0x03);
             din.append(0x02);

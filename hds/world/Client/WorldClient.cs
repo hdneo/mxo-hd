@@ -82,7 +82,7 @@ namespace hds{
                 if (messageQueue.ObjectMessagesQueue.Count > 0)
                 {
                     UInt16 sendingSSeq = playerData.calculateNextPossibleSseq();
-                    lock (messageQueue.ObjectMessagesQueue)
+                    lock (messageQueue.ObjectMessagesQueue.SyncRoot)
                     {
                         foreach (SequencedMessage messageObjects in messageQueue.ObjectMessagesQueue)
                         {
@@ -201,7 +201,7 @@ namespace hds{
 
         private void sendRawMessages()
         {
-            lock (messageQueue.rawMessages)
+            lock (messageQueue.rawMessages.SyncRoot)
             {
                 if (messageQueue.rawMessages.Count > 0)
                 {
@@ -218,7 +218,7 @@ namespace hds{
         {
             // First identify which messages needs to be deleted from queue
             ArrayList ackedObjectMessages = new ArrayList();
-            lock (messageQueue.ObjectMessagesQueue)
+            lock (messageQueue.ObjectMessagesQueue.SyncRoot)
             {
                 foreach (SequencedMessage message in messageQueue.ObjectMessagesQueue)
                 {
@@ -248,12 +248,19 @@ namespace hds{
             // Now delete them finally
             foreach (SequencedMessage deletedAckObject in ackedObjectMessages)
             {
-                messageQueue.ObjectMessagesQueue.Remove(deletedAckObject);
+                lock (messageQueue.ObjectMessagesQueue.SyncRoot)
+                {
+                    messageQueue.ObjectMessagesQueue.Remove(deletedAckObject);
+                }
             }
 
             foreach (SequencedMessage deletedAckRPC in ackedRPCMessages)
             {
-                messageQueue.RPCMessagesQueue.Remove(deletedAckRPC);
+                lock (messageQueue.RPCMessagesQueue.SyncRoot)
+                {
+                    messageQueue.RPCMessagesQueue.Remove(deletedAckRPC);
+                }
+                
             }
             Output.WriteLine("[CLIENT] Removed " + messageQueue.ObjectMessagesQueue.Count + messageQueue.RPCMessagesQueue.Count + " Acked Messages by SSEQ : " + ackSeq);
         }
@@ -305,32 +312,26 @@ namespace hds{
 			bool encrypted = false;
 			
 			byte[] processedPacket =null;
-			if(packet[0]==0x00){ // Plain text packet
-				processedPacket = packet;
-			}else{
-				encrypted = true;
-				processedPacket = decryptReceivedPacket(packet);	
-			}
+            if (packet.Length > 0)
+            {
+                if (packet[0] == 0x00)
+                { // Plain text packet
+                    processedPacket = packet;
+                }
+                else
+                {
+                    encrypted = true;
+                    processedPacket = decryptReceivedPacket(packet);
+                }
 
-			Output.WriteLine("\n"+key+" PSS = "+playerData.getPss()+", Cseq = "+playerData.getCseq()+", AckSSeq = "+playerData.getACK());
-			Output.WriteLine("D: "+StringUtils.bytesToString(processedPacket));
-            Output.WritePacketLog(StringUtils.bytesToString(processedPacket), "CLIENT", playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getACK().ToString());
-				
-			Output.WriteLine("Parsing using MPM");
+                Output.WriteLine("\n" + key + " PSS = " + playerData.getPss() + ", Cseq = " + playerData.getCseq() + ", AckSSeq = " + playerData.getACK());
+                Output.WriteLine("D: " + StringUtils.bytesToString(processedPacket));
+                Output.WritePacketLog(StringUtils.bytesToString(processedPacket), "CLIENT", playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getACK().ToString());
 
-            // Changed 20.02.2012 : 
-            // Instead of collecting messages and send a helper now can force the direct sending of a message 
-            // If there are still messages that needs to be send it will work the normal way
-            Store.Mpm.Parse(encrypted,processedPacket);
-            flushQueue();
-            /*
-            if (Store.currentClient.answerBuffer.Size() > 0){
-                sendAnswers(answerBuffer);
-            }*/
+                Store.Mpm.Parse(encrypted, processedPacket);
+                flushQueue();
+            }
 
-           
-			//sendAnswers(MPM.Parse(encrypted,ref processedPacket));
-			
 		}
 		
 		

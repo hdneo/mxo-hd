@@ -11,6 +11,7 @@ namespace hds
     public class AbilityHandler{
 
         public AbilityItem currentAbility;
+        public UInt16 currentTargetViewId;
         public void processAbility(ref byte[] packet)
         {
             byte[] ability = {packet[0], packet[1]};
@@ -18,7 +19,7 @@ namespace hds
             UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(ability, 1);
 
             UInt16 viewId = 0;
-            viewId = NumericalUtils.ByteArrayToUint16(targetView, 1);
+            currentTargetViewId = NumericalUtils.ByteArrayToUint16(targetView, 1);
 
 
             // load the ability name from a list to see if we match the right ability
@@ -27,8 +28,8 @@ namespace hds
 
             // lets create a message for the client - we will later execute the right AbilityScript for it 
 
-            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() + " and Target ViewId Is " + viewId, "BROADCAST", Store.currentClient));
-            ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
+            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() + " and Target ViewId Is " + currentTargetViewId, "BROADCAST", Store.currentClient));
+
             // ToDo: do something with the entity (or queue a fx hit animation or something lol)      
             ServerPackets pak = new ServerPackets();
             pak.sendCastAbilityBar(AbilityID, this.currentAbility.getCastingTime());
@@ -57,7 +58,7 @@ namespace hds
             {
                 targetAnim = this.currentAbility.getAbilityExecutionFX();
             }
-            pak.sendCastAbilityOnEntityId(2, targetAnim);
+            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim);
         }
 
         public void processCharacterAnimationSelf(UInt16 abilityID)

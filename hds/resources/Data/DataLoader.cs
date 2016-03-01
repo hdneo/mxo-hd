@@ -34,7 +34,7 @@ namespace hds
         {
             this.loadEmotes();
             this.loadGODB("data\\gameobjects.csv");
-            this.loadMobs("data\\mob.csv");
+            //this.loadMobs("data\\mob.csv");
             this.loadAbilityDB("data\\abilityIDs.csv");
             this.loadClothingDB("data\\mxoClothing.csv");
 
