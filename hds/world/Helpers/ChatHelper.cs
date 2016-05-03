@@ -13,7 +13,6 @@ namespace hds{
 			string[] commands = data.Split(' ');
 			
 			string command = commands[0].ToLower();
-			byte[] hexData = null;
 
 			try{
 				
@@ -119,31 +118,6 @@ namespace hds{
 
                 if (command.Contains("?mob"))
                 {
-                    // we use this for a test to see if we can spawn mobs and how we can handle them 
-                    // First we just spawn one mob - and after that we test around with some things
-                    // it is something like pupeteer but just a simple variant of it
-
-                    byte[] goID = { 0x57, 0x02 }; // For NPC
-                    byte[] spawnCounter = { 0x35 }; // well this needs to be incremented but reseted if we receve an ack for it | EDIT: it isnt a really spawn counter ?
-                    byte[] seperator = { 0xcd, 0xab };
-
-                    double x = 0; 
-                    double y = 0; 
-                    double z = 0;
-
-                    byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue(); // Get player coords as we want to spawn him there 
-                    UInt16 rotation = (UInt16)Store.currentClient.playerInstance.YawInterval.getValue()[0]; // Rotation
-
-                    // Convert to Double 
-                    NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-
-                    Output.writeToLogForConsole("SPAWN MOB Position : X " + x.ToString() + " Y : " + y.ToString() + " Z: " + z.ToString());
-
-                    UInt16 dynObjectID = 0x8fff;
-                    string name = "HD Protector".PadRight(32,'\x00');
-                    byte[] viewID = { 0x08, 0x00 }; // The new ViewID
-                    byte[] tail = { 0x00, 0x00, 0x00 }; // The tail at the end 
-                    byte[] weapon = {0xc0, 0x01, 0x8B, 0x05};
 
                     UInt32[] rsiIDs = new UInt32[10];
                     rsiIDs[0] = 0xB7010058;
@@ -156,42 +130,44 @@ namespace hds{
                     rsiIDs[7] = 0xB8040004; // Smith
                     rsiIDs[8] = 0x92010058; // Seraph
                     rsiIDs[9] = 0x56050004;
-
                     Random rand = new Random();
                     int index = rand.Next(0, 9);
 
-                    byte[] rsiID = NumericalUtils.uint32ToByteArray(rsiIDs[index], 0);
+                    double x = 0; double y = 0; double z = 0;
+                    byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+                    NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
 
-                    UInt16 randView = (UInt16)rand.Next(0, 256);
+                    byte[] xPos = NumericalUtils.floatToByteArray((float)x, 1);
+                    byte[] yPos = NumericalUtils.floatToByteArray((float)y, 1);
+                    byte[] zPos = NumericalUtils.floatToByteArray((float)z, 1);
 
-                    DynamicArray din = new DynamicArray();
-                    din.append(0x01); // Master View ID 1
-                    din.append(0x00); // Master View ID 1
-                    din.append(0x0c);
-                    din.append(goID); // The goID
-                    din.append(spawnCounter);
-                    din.append(seperator);
-                    din.append(0x12); // Num Attributes
-                    din.append(0x8e); // Indicator for name
-                    din.append(StringUtils.stringToBytes(name)); // 32 Bytes Name (padded)
-                    din.append(StringUtils.hexStringToBytes("0010000022D4F5941C00C601")); // Unknown yet
-                                                           //0010000022c4c30180c9
-                    din.append(StringUtils.hexStringToBytes("80C1")); // Maybe ObjectID ? Ok maybe the C1 is part of the objectID (uint32) and the 0x58 at the end belongs to new attrib
-                    din.append(rsiID);
-                    //din.append(NumericalUtils.uint16ToByteArrayShort(rotation)); (must first check what is rotation)
-                    din.append(NumericalUtils.doublesToLtVector3d(x, y, z));
-                    din.append(weapon); // NOT SURE - ITS FROM MXOSOURCE
-                    din.append(StringUtils.hexStringToBytes("0312")); // 0312 - has something to do with the mood of the npc (01 is normal , 12 is similiar to aggresive)
-                    din.append(0xA8); // Should this be the level attrib identifier ?
-                    din.append(0xff); // Level (should be 255)
-                    din.append(StringUtils.hexStringToBytes("9600B209960007080000"));
-                    din.append(0x80);
-                    din.append(0x01); // something with the options (02 = close combat (unselectable) and details, 01 close combat (unselectable) , details and talk)
-                    din.append(0x01);
-                    din.append(viewID); // new View ID
-                    //din.append(NumericalUtils.uint16ToByteArray(randView, 1)); // Try to assign a random id
+                    UInt64 currentEntityId = WorldSocket.entityIdCounter;
+                    WorldSocket.entityIdCounter++;
+                    uint rotation = 0;
+                    
+                    npc theMob = new npc();
+                    theMob.setEntityId(currentEntityId);
+                    theMob.setDistrict(Convert.ToUInt16(data[0].ToString()));
+                    theMob.setDistrictName(Store.currentClient.playerData.getDistrict());
+                    theMob.setName("HD Protector");
+                    theMob.setLevel(255);
+                    theMob.setHealthM(UInt16.Parse(data[4].ToString()));
+                    theMob.setHealthC(UInt16.Parse(data[5].ToString()));
+                    theMob.setMobId((ushort)rsiIDs[index]);
+                    theMob.setRsiHex(StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray(rsiIDs[index],1)));
+                    theMob.setXPos(x);
+                    theMob.setYPos(y);
+                    theMob.setZPos(z);
+                    theMob.xBase = x;
+                    theMob.yBase = y;
+                    theMob.zBase = z;
+                    theMob.setRotation(rotation);
+                    theMob.setIsDead(false);
+                    theMob.setIsLootable(false);
+                    WorldSocket.npcs.Add(theMob);
 
-                    Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
+                    // we use this for a test to see if we can spawn mobs and how we can handle them 
+                    // We refactor this 
                 }
 
 
@@ -244,16 +220,19 @@ namespace hds{
                         din.append(0x00);
 
                         Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
-                        Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Test RPC Header : " + Store.currentClient.playerData.currentTestRPC.ToString(), "MODAL", Store.currentClient));
+
+                        ServerPackets pak = new ServerPackets();
+                        pak.sendSystemChatMessage(Store.currentClient, "Test RPC Header : " + Store.currentClient.playerData.currentTestRPC.ToString(),"MODAL");
 
                         Store.currentClient.playerData.currentTestRPC++;
                     }
                 }
 				
 				if (command.Equals("?save")){
-                    new PlayerHelper().savePlayerInfo();
+                    new PlayerHelper().savePlayerInfo(Store.currentClient);
 
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.saveCharDataMessage(Store.currentClient.playerInstance.getName(), Store.currentClient));
+                    ServerPackets pak = new ServerPackets();
+                    pak.sendSaveCharDataMessage(Store.currentClient, StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
 				}
 				
 			}

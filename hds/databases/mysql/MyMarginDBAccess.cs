@@ -195,6 +195,17 @@ namespace hds.databases{
 			
 		}
 
+        public void updateCharacter(string firstName, string lastName, string background, UInt32 charID)
+        {
+            string theQuery = "UPDATE characters SET firstName = '" + firstName + "', lastName='" + lastName + "', background='" + background + "' WHERE charid='" + charID.ToString() + "' ";
+            conn.Open();
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = theQuery;
+            queryExecuter.ExecuteNonQuery();
+            conn.Close();
+        }
+
+
         public void updateRSIValue(string field, string value, UInt32 charID)
         {
             string theQuery = "UPDATE rsivalues SET " + field + "='" + value + "' WHERE charid='" + charID.ToString() + "' ";

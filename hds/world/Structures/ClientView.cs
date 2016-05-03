@@ -9,6 +9,7 @@ namespace hds
         public UInt32 GoID = 0; // the Type
         public UInt16 ViewID = 0;
         public UInt64 entityId = 0;
+        public uint spawnId = 0; // Spawn Counter 
         public bool viewCreated = false;  // To define if the view Packet was successful created
         public bool viewNeedsToBeDeleted = false; // set it to true if views needs to be "cleaned" up
 

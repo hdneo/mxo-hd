@@ -182,7 +182,7 @@ namespace hds.databases{
                 //Store.currentClient.playerInstance.YawInterval.setValue((byte)dr.GetDecimal(3));
             }
             dr.Close();
-            savePlayer();
+            savePlayer(Store.currentClient);
         }
 		
 		public void setPlayerValues(){
@@ -254,20 +254,20 @@ namespace hds.databases{
 		
 		
 
-		public void savePlayer(){
+		public void savePlayer(WorldClient client){
 			
-			UInt32 charID = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CharacterID.getValue(),1);
-			string handle = StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+			UInt32 charID = NumericalUtils.ByteArrayToUint32(client.playerInstance.CharacterID.getValue(),1);
+			string handle = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
 			
-			int [] rsiValues = Store.currentClient.playerData.getRsiValues();
+			int [] rsiValues = client.playerData.getRsiValues();
 			
 			double x=0;double y=0;double z=0;
-			byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+			byte[] Ltvector3d = client.playerInstance.Position.getValue();
 			NumericalUtils.LtVector3dToDoubles(Ltvector3d,ref x,ref y,ref z);
 			
-			int rotation =(int) Store.currentClient.playerInstance.YawInterval.getValue()[0];
+			int rotation =(int)client.playerInstance.YawInterval.getValue()[0];
 			
-			string sqlQuery="update characters set x = '"+(float)x+"',y='"+(float)y+"',z='"+(float)z+"',rotation='"+rotation+"', districtId='" + Store.currentClient.playerData.getDistrictId()+"' where handle='"+handle+"';";
+			string sqlQuery="update characters set x = '"+(float)x+"',y='"+(float)y+"',z='"+(float)z+"',rotation='"+rotation+"', districtId='" + client.playerData.getDistrictId()+"' where handle='"+handle+"';";
 			queryExecuter= conn.CreateCommand();
 			queryExecuter.CommandText = sqlQuery;
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));

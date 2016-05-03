@@ -16,7 +16,7 @@ namespace hds
             // ToDo: This should update "timers" like Buffs, Skill Execution or something 
             Thread.Sleep(100);
             // Update Client Data (Buffs ?)
-            lock (WorldSocket.Clients)
+            lock (WorldSocket.Clients.Keys)
             {
                 foreach(string client in WorldSocket.Clients.Keys){
                     WorldClient thisclient = WorldSocket.Clients[client];

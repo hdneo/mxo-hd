@@ -43,11 +43,7 @@ namespace hds{
             byte[] disarmDifficultyMaybe = { 0x03, 0x84 };
             byte[] endViewID = { 0x00, 0x00 };
 
-
-            Random rand = new Random();
-            UInt16 randSpawncounter = (UInt16)rand.Next(15, 254);
-
-            byte[] spawnCounter = NumericalUtils.uint16ToByteArrayShort(randSpawncounter);
+            byte[] spawnCounter = NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
             Output.WriteLine("[DOOR]POS X : " + door.pos_x.ToString() + " POS Y: " + door.pos_y.ToString() + " POS Z: " + door.pos_z.ToString() + ", TypeId: " + StringUtils.bytesToString_NS(door.type));
 
             switch (typeId)
@@ -133,11 +129,12 @@ namespace hds{
 
             DataLoader objectLoader = DataLoader.getInstance();
             StaticWorldObject objectValues = objectLoader.getObjectValues(NumericalUtils.ByteArrayToUint32(objectID, 1));
-            
+
 
             // create a new System message but fill it in the switch block
+            ServerPackets pak = new ServerPackets();
 
-            switch(objectTypeID){
+            switch (objectTypeID){
 
                 case (int)objectTypes.DOOR:
                     Output.writeToLogForConsole("[OI HELPER] INTERACT WITH DOOR | Object ID :" + id + " Sector ID : " + numericSectorId);
@@ -154,8 +151,8 @@ namespace hds{
                     break;
 
                 case (int)objectTypes.HARDLINE_SYNC:
-                    Output.writeToLogForConsole("[OI HELPER] INTERACT WITH HARDLINE | Object ID :" + id);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Hardline Interaction (not done yet)!", "MODAL", Store.currentClient));
+                   
+                    pak.sendSystemChatMessage(Store.currentClient, "Hardline Interaction(not done yet)!", "MODAL");
                     break;
 
                 case (int)objectTypes.HARDLINE_UPLOAD:
@@ -166,31 +163,27 @@ namespace hds{
 
                 case (int)objectTypes.HARDLINE_LAEXIT:
                     // Exit LA
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Exit to LA Dialog should popup", "MODAL", Store.currentClient));
+                    pak.sendSystemChatMessage(Store.currentClient, "Exit to LA Dialog should popup", "MODAL");
                     new TeleportHandler().processHardlineExitRequest(ref packet);
                     //new TestUnitHandler().processTestCombat(ref packet);
                     break;
 
                 case (int)objectTypes.HUMAN_NPC:
-                    Output.writeToLogForConsole("[OI HELPER] INTERACT WITH HUMAN NPC | Object ID :" + id);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("NPC Interaction (not done yet)!", "MODAL", Store.currentClient));
+                    pak.sendSystemChatMessage(Store.currentClient, "NPC Interaction (not done yet)!", "MODAL");
                     this.processVendorOpen(ref objectID);
                     break;
 
                 case (int)objectTypes.COLLECTOR:
-                    Output.writeToLogForConsole("[OI HELPER] INTERACT WITH COLLECTOR | Object ID :" + id);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Collector Interaction (not done yet)!", "MODAL", Store.currentClient));                    
+                    pak.sendSystemChatMessage(Store.currentClient, "Collector Interaction (not done yet)!", "MODAL");
                     break;
 
                 case (int)objectTypes.PIPE:
-                    Output.writeToLogForConsole("[OI HELPER] INTERACT WITH PIPE/BENCH | Object ID :" + id);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("PIPE/BENCH/others Interaction (not done yet)!", "MODAL", Store.currentClient));
+                    pak.sendSystemChatMessage(Store.currentClient, "Collector Interaction (not done yet)!", "MODAL");
                     break;
                 
 
                 default:
-                    Output.writeToLogForConsole("[OI HELPER] Unknown Object Type : " + objectTypeID.ToString() + "| Object ID :" + id);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("[OI HELPER] Unknown Object Type : " + objectTypeID.ToString() + "| Object ID :" + id, "MODAL", Store.currentClient));
+                    pak.sendSystemChatMessage(Store.currentClient, "[OI HELPER] Unknown Object Type : " + objectTypeID.ToString() + "| Object ID :" + id, "MODAL");
                     break;
             }
 

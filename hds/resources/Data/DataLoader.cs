@@ -25,6 +25,7 @@ namespace hds
         public List<ClothingItem> ClothingRSIDB = new List<ClothingItem>();
         public List<StaticWorldObject> WorldObjectsDB = new List<StaticWorldObject>();
         public List<EmoteItem> Emotes = new List<EmoteItem>();
+        public List<NewRSIItem> newRSIItemsDb = new List<NewRSIItem>();
         public SQLiteConnection mxoSqliteDb = null;
 
         public bool useSQLiteDatabase = false;
@@ -33,8 +34,18 @@ namespace hds
         private DataLoader()
         {
             this.loadEmotes();
+            this.loadNewRSIIDs("data\\newrsiIDs.csv");
             this.loadGODB("data\\gameobjects.csv");
-            //this.loadMobs("data\\mob.csv");
+            
+            
+            this.loadMobs("data\\mob.csv");
+            this.loadMobs("data\\mob_parsed.csv");
+            
+            // Load Mobs parsed^^
+
+
+
+            this.loadMobs("data\\mob_just_one.csv");
             this.loadAbilityDB("data\\abilityIDs.csv");
             this.loadClothingDB("data\\mxoClothing.csv");
 
@@ -48,6 +59,37 @@ namespace hds
             
         }
 
+        public void loadNewRSIIDs(string path)
+        {
+            Output.Write("Loading RSI IDs for Character Creation ..");
+            ArrayList newRSIDB = loadCSV(path, ',');
+            int linecount = 1;
+            foreach (string[] data in newRSIDB) { 
+                if (linecount > 1)
+                {
+                    NewRSIItem item = new NewRSIItem();
+                    item.name = data[0];
+                    item.newRSIID = UInt16.Parse(data[1]);
+                    item.internalId = UInt16.Parse(data[2]);
+                    item.type = data[3];
+                    item.gender = ushort.Parse(data[4]);
+                    this.newRSIItemsDb.Add(item);
+                }
+                linecount++;
+            }
+        }
+
+        public NewRSIItem getNewRSIItemByTypeAndID(string type, UInt16 newRSIID)
+        {
+            NewRSIItem newrsiItemTemp = newRSIItemsDb.Find(delegate (NewRSIItem temp) { return temp.newRSIID == newRSIID && temp.type==type; });
+            if (newrsiItemTemp == null)
+            {
+                NewRSIItem emptyItem = new NewRSIItem();
+                return emptyItem;
+
+            }
+            return newrsiItemTemp;
+        }
 
         public void loadMobs(string path)
         {
@@ -69,26 +111,31 @@ namespace hds
                     {
                         rotation = uint.Parse(data[10].ToString());
                     }
-                    npc theMob = new npc();
-                    theMob.setEntityId(currentEntityId);
-                    theMob.setDistrict(Convert.ToUInt16(data[0].ToString()));
-                    theMob.setDistrictName(data[1]);
-                    theMob.setName(data[2].ToString());
-                    theMob.setLevel(ushort.Parse(data[3].ToString()));
-                    theMob.setHealthM(UInt16.Parse(data[4].ToString()));
-                    theMob.setHealthC(UInt16.Parse(data[5].ToString()));
-                    theMob.setMobId((ushort)linecount);
-                    theMob.setRsiHex(data[6].ToString());
-                    theMob.setXPos(double.Parse(data[7].ToString()));
-                    theMob.setYPos(double.Parse(data[8].ToString()));
-                    theMob.setZPos(double.Parse(data[9].ToString()));
-                    theMob.xBase = double.Parse(data[7].ToString());
-                    theMob.yBase = double.Parse(data[8].ToString());
-                    theMob.zBase = double.Parse(data[9].ToString());
-                    theMob.setRotation(rotation);
-                    theMob.setIsDead(bool.Parse(data[11].ToString()));
-                    theMob.setIsLootable(bool.Parse(data[12].ToString()));
-                    WorldSocket.npcs.Add(theMob);
+
+                  
+                    if (data[4].Length > 0 && data[5].Length > 0)
+                    {
+                        npc theMob = new npc();
+                        theMob.setEntityId(currentEntityId);
+                        theMob.setDistrict(Convert.ToUInt16(data[0].ToString()));
+                        theMob.setDistrictName(data[1]);
+                        theMob.setName(data[2].ToString());
+                        theMob.setLevel(ushort.Parse(data[3].ToString()));
+                        theMob.setHealthM(UInt16.Parse(data[4].ToString()));
+                        theMob.setHealthC(UInt16.Parse(data[5].ToString()));
+                        theMob.setMobId((ushort)linecount);
+                        theMob.setRsiHex(data[6].ToString());
+                        theMob.setXPos(double.Parse(data[7].ToString()));
+                        theMob.setYPos(double.Parse(data[8].ToString()));
+                        theMob.setZPos(double.Parse(data[9].ToString()));
+                        theMob.xBase = double.Parse(data[7].ToString());
+                        theMob.yBase = double.Parse(data[8].ToString());
+                        theMob.zBase = double.Parse(data[9].ToString());
+                        theMob.setRotation(rotation);
+                        theMob.setIsDead(bool.Parse(data[11].ToString()));
+                        theMob.setIsLootable(bool.Parse(data[12].ToString()));
+                        WorldSocket.npcs.Add(theMob);
+                    }
                 }
                 linecount++;
             }

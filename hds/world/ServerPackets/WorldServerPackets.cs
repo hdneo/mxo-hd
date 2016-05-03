@@ -40,7 +40,8 @@ namespace hds
             pak.addUintShort(0x0e); // dunno if header or not - just part of this
             pak.addUintShort(0);
             pak.addUint32(districtId, 1); // Atlas Byte
-            pak.addByteArray(new byte[] { 0xd8, 0x68, 0xc8, 0x47, 0x01 }); // Unknown
+            pak.addByteArray(TimeUtils.getCurrentSimTime());
+            pak.addByte(0x01); // SimeTime + 01 
             pak.addUint16(offsetWeatherEvent, 1);
             pak.addSizedTerminatedString(path);
             pak.addSizedTerminatedString(enviromentOptions);

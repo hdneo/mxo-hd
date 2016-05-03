@@ -47,8 +47,8 @@ namespace hds
             if (Store.currentClient.playerData.getDistrict()!="la")
             {
                 // REFACTOR!!!!
-                byte[] rsiObject = new BootingHelperRsi().generateSelfSpawnPacket();
-                Store.world.sendViewPacketToAllPlayers(new BootingHelperRsi().generatePlayerSpawnPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.getGoid(), 1), Store.currentClient.playerData.getEntityId());
+                byte[] rsiObject = new BootingHelperRsi().generateSelfSpawnPacket(Store.currentClient);
+                //Store.world.sendViewPacketToAllPlayers(new BootingHelperRsi().generatePlayerSpawnPacket(Store.currentClient), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.getGoid(), 1), Store.currentClient.playerData.getEntityId());
 
                 Store.currentClient.messageQueue.addObjectMessage(rsiObject, false);
                 Store.currentClient.playerData.setOnWorld(true);

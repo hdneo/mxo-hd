@@ -47,7 +47,7 @@ namespace hds{
                 new TestUnitHandler().processHyperJump(ref rpcData);
                 break;
             case (int)RPCRequestHeader.CLIENT_TARGET:
-                Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("TARGET CHANGE", "MODAL", Store.currentClient));
+                    new PlayerHelper().processTargetChange(ref rpcData, Store.currentClient);
                 break;
             case (int)RPCRequestHeader.CLIENT_MISSION_REQUEST:
                 new MissionHandler().processMissionList(ref rpcData);
@@ -155,8 +155,10 @@ namespace hds{
 
 
             default:
-				//PASS :D
-                string message = "RPCMAIN : Unknown Header "+header.ToString() + " \n Content:\n " + StringUtils.bytesToString_NS(rpcData);
+                    //PASS :D
+                    byte[] headers = NumericalUtils.int32ToByteArray(header, 1);
+
+                string message = "RPCMAIN : Unknown Header "+StringUtils.bytesToString_NS(new byte[] { headers[0], headers[1] }) + " \n Content:\n " + StringUtils.bytesToString_NS(rpcData);
                 Output.WriteLine(message);
                 Output.WriteRpcLog(message);
 

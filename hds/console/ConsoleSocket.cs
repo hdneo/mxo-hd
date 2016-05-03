@@ -16,8 +16,8 @@ namespace hds{
 		public ConsoleSocket (){
 			this.mainThreadWorking = true;
 			 
-      		this.tcpListener = new TcpListener(IPAddress.Any, 55555);
-			Output.WriteLine("[Console] Server console operating on port 55555");
+      		this.tcpListener = new TcpListener(IPAddress.Any, 55556);
+			Output.WriteLine("[Console] Server console operating on port 55556");
       		this.listenThread = new Thread(new ThreadStart(ListenForClients));
 		}
 		

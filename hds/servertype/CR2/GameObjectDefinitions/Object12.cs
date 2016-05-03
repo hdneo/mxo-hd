@@ -1,4 +1,6 @@
 using System;
+
+//namespace hds.servertype.cr2
 namespace hds
 {
 	public class Object12 :GameObject

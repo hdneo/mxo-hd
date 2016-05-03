@@ -8,6 +8,7 @@ namespace hds
     {
         public List<ClientView> views = new List<ClientView>();
         UInt16 currentViewID = 3; // We start from 3 to increment
+        uint currentSpawnCounter = 1;
         
 
         public ViewManager(){
@@ -55,11 +56,12 @@ namespace hds
             {
                 view = addView(entityId,goID);
             }
+            /*
             else
             {
                 // The View was already created
                 view.viewCreated = true;
-            }
+            }*/
             return view;
         }
 

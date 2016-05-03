@@ -14,7 +14,7 @@ namespace hds
             PacketContent pak = new PacketContent();
             
             pak.addUint16(1, 1);
-            pak.addByteArray(Store.world.objMan.generateCreationPacket(viewData, 0x0000).getBytes());
+            pak.addByteArray(Store.world.objMan.generateCreationPacket(viewData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
             pak.addUint16(mobView.ViewID, 1);
             pak.addByte(0x00);
 

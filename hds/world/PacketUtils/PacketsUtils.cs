@@ -151,63 +151,8 @@ namespace hds{
 			return din.getBytes();
 		}
 		
-		public static byte[] createPartyMessage(string partyName, WorldClient client){
-			DynamicArray din = new DynamicArray();
-			byte[] byteName = StringUtils.stringToBytes(partyName+"\x00");
-			byte[] messageLength = NumericalUtils.uint16ToByteArray((UInt16)byteName.Length,1);
-			
-			
-			byte[]length =NumericalUtils.uint16ToByteArrayShort((UInt16)(byteName.Length+16));
-			
-			din.append(length);	
-			din.append(StringUtils.hexStringToBytes("808d2a0000020e00040000000000"));
-			din.append(messageLength);
-			din.append(byteName);
-			
-			
-			ArrayList content = new ArrayList();
-			content.Add(din.getBytes());
 
-            byte[] finalPacket = createRpcPacket(content, false, client);
-			
-			return finalPacket;
-		}
-
-        public static byte[] createFlashTraffic(string url, WorldClient client){
-
-            DynamicArray din = new DynamicArray();
-            // 48 81 a9 00 00 07 00 05
-            // 3f00687474703a2f2f7468656d61747269786f6e6c696e652e73746174696f6e2e73616e792e636f6d2f70726f63657373466c617368547261666669632e766d00
-            byte[] header = StringUtils.hexStringToBytes("81a40000070005");
-            byte[] urlBytes = StringUtils.stringToBytes(url + "\x00");
-            UInt16 urlSize = (UInt16)(url.Length + 1);
-
-            din.append(header);
-            din.append(NumericalUtils.uint16ToByteArray(urlSize,1));
-            din.append(urlBytes);
-
-
-            return din.getBytes();
-            
-        }
-
-        public static byte[] saveCharDataMessage(string handle, WorldClient client){
-
-            byte[] handleBytes = StringUtils.stringToBytes(handle + "\x00");
-            byte[] packetContents = StringUtils.hexStringToBytes("2E0700000000000000000000006400002E00240000000000000000000000000000000000");
-
-            UInt16 handleSize = (UInt16)(handleBytes.Length + 1);            
-            byte[] handleSizeBytes = NumericalUtils.uint16ToByteArray(handleSize, 1);
-
-            DynamicArray din = new DynamicArray();
-            din.append(packetContents);
-            din.append(handleSizeBytes);
-            din.append(handleBytes);
-
-            
-            return din.getBytes();
- 
-        }
+       
 
         public static byte[] createSystemMessageWithoutRPC(string message)
         {

@@ -21,7 +21,7 @@ namespace hds
             long newCash = Store.currentClient.playerData.getInfo() + (long)amount;
             Store.currentClient.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.savePlayer();
+            Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
 
             DynamicArray din = new DynamicArray();
 
@@ -42,7 +42,7 @@ namespace hds
             long newCash = Store.currentClient.playerData.getInfo() - (long)amount;
             Store.currentClient.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.savePlayer();
+            Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
 
             DynamicArray din = new DynamicArray();
             din.append(header);
@@ -131,6 +131,18 @@ namespace hds
 
         }
 
+        public void processTargetChange(ref byte[] rpcData, WorldClient currentClient)
+        {
+            
+            UInt16 viewId = NumericalUtils.ByteArrayToUint16(new byte[] { rpcData[0], rpcData[1] }, 1);
+            ushort spawnId = rpcData[2];
+            // ToDo: add this to the ClientData 
+            currentClient.playerData.currentSelectedTargetViewId = viewId;
+            currentClient.playerData.currentSelectedTargetSpawnId = spawnId;
+            ServerPackets pak = new ServerPackets();
+            pak.sendSystemChatMessage(Store.currentClient, "TARGET CHANGE For ViewID " + viewId.ToString() + " AND SPAWN ID : " + spawnId.ToString(), "MODAL");
+        }
+
         public void processUpdateExp()
         {
             Random rand = new Random();
@@ -215,6 +227,7 @@ namespace hds
 
         }
 
+        // ToDo: Move it to player Packets and make a ?moa command for it
         public void processChangeMoaRSI(byte[] rsi)
         {
 
@@ -233,9 +246,9 @@ namespace hds
         /// <summary>
         /// Helper Methods 
         /// </summary>
-        public void savePlayerInfo()
+        public void savePlayerInfo(WorldClient client)
         {
-            Store.dbManager.WorldDbHandler.savePlayer();
+            Store.dbManager.WorldDbHandler.savePlayer(client);
         }
 
         public byte[] teleport(int x, int y, int z)

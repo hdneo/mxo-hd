@@ -294,7 +294,7 @@ namespace hds{
             
             // Get the charId from the packet
             byte[] charIDB = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-            ArrayUtils.copy(packet, 3, charIDB, 0, 8); //Offset for charID is 5 in request
+            ArrayUtils.copy(packet, 5, charIDB, 0, 8); //Offset for charID is 5 in request
             
             // Need for SQL Delete
             UInt64 charID = NumericalUtils.ByteArrayToUint32(charIDB, 1);
@@ -310,6 +310,9 @@ namespace hds{
             // Instance the Data Loader
             DataLoader ItemLoader = DataLoader.getInstance();
             isNewCreatedChar = true;
+
+            string debugHexPacket = StringUtils.bytesToString_NS(packet);
+
             // lets read the values
             // the IDs for the Appeareance is always uint16 goID 
             byte[] bodyTypeIDByte           = new byte[4];
@@ -333,21 +336,40 @@ namespace hds{
             //byte[] legginsIDBytes           = new byte[4];
 
             // RSI 
-            ArrayUtils.copy(packet, 4, skintoneBytes, 0, 2);
-            ArrayUtils.copy(packet, 7, bodyTypeIDByte, 0, 2);
-            ArrayUtils.copy(packet, 16, hairBytes, 0, 2);
-            ArrayUtils.copy(packet, 20, hairColorBytes, 0, 2);
-            ArrayUtils.copy(packet, 23, tatooBytes, 0, 2);  // Something is wrong here... tatoo and headid couldnt be at same position
-            ArrayUtils.copy(packet, 23, headIDBytes, 0, 2); // Something is wrong here...
-            ArrayUtils.copy(packet, 27, facialdetailBytes, 0, 2);
-            ArrayUtils.copy(packet, 31, facialdetailColorBytes, 0, 2);
+            ArrayUtils.copy(packet, 3, skintoneBytes, 0, 2);        // Done!
+            ArrayUtils.copy(packet, 7, bodyTypeIDByte, 0, 2);       // Done!
+            ArrayUtils.copy(packet, 15, hairBytes, 0, 2);           // Done!
+            ArrayUtils.copy(packet, 19, hairColorBytes, 0, 2);      // Done!
+            ArrayUtils.copy(packet, 23, tatooBytes, 0, 2);          // Done!
+            ArrayUtils.copy(packet, 27, headIDBytes, 0, 2);         
+            ArrayUtils.copy(packet, 31, facialdetailBytes, 0, 2);
+            ArrayUtils.copy(packet, 35, facialdetailColorBytes, 0, 2);
             ArrayUtils.copy(packet, 67, professionByte, 0, 2);
 
+            UInt16 body = 0;
+            UInt16 gender = 0;
+            UInt32 bodyTypeId = NumericalUtils.ByteArrayToUint32(bodyTypeIDByte, 1);
 
-            Store.dbManager.MarginDbHandler.updateRSIValue("haircolor", NumericalUtils.ByteArrayToUint16(hairColorBytes, 1).ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("tattoo", NumericalUtils.ByteArrayToUint16(tatooBytes, 1).ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("facialdetailcolor", NumericalUtils.ByteArrayToUint16(facialdetailColorBytes, 1).ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("skintone", NumericalUtils.ByteArrayToUint16(skintoneBytes, 1).ToString(), newCharID);
+            UInt16 hairId = NumericalUtils.ByteArrayToUint16(hairBytes, 1);
+            UInt16 haircolor = NumericalUtils.ByteArrayToUint16(hairColorBytes, 1);
+            UInt16 tattoo = NumericalUtils.ByteArrayToUint16(tatooBytes, 1);
+            UInt16 facialDetailColor = NumericalUtils.ByteArrayToUint16(facialdetailColorBytes, 1);
+            UInt16 skintone = NumericalUtils.ByteArrayToUint16(skintoneBytes, 1);
+            UInt16 headID = NumericalUtils.ByteArrayToUint16(headIDBytes, 1);
+
+            // Get Values by "NewRSI" IDs
+            NewRSIItem hairItem = ItemLoader.getNewRSIItemByTypeAndID("HAIR", hairId);
+            NewRSIItem bodyItem = ItemLoader.getNewRSIItemByTypeAndID("BODY", (ushort)bodyTypeId);
+            NewRSIItem headItem = ItemLoader.getNewRSIItemByTypeAndID("HEAD", headID);
+
+            Store.dbManager.MarginDbHandler.updateRSIValue("body", bodyItem.internalId.ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("sex", bodyItem.gender.ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("face", headItem.internalId.ToString(), newCharID);              // ToDo: 
+            Store.dbManager.MarginDbHandler.updateRSIValue("hair", hairItem.internalId.ToString(), newCharID); 
+            Store.dbManager.MarginDbHandler.updateRSIValue("haircolor", haircolor.ToString(), newCharID);                   // ToDo: check if it is correct
+            Store.dbManager.MarginDbHandler.updateRSIValue("tattoo", tattoo.ToString(), newCharID);                         // ToDo:
+            Store.dbManager.MarginDbHandler.updateRSIValue("facialdetailcolor", facialDetailColor.ToString(), newCharID);   // ToDo:
+            Store.dbManager.MarginDbHandler.updateRSIValue("skintone", skintone.ToString(), newCharID);
             // Clothing Items
             // ToDo: GLOVES ARE MISSING!
             ArrayUtils.copy(packet, 43, shirtIDBytes, 0, 2);
@@ -380,7 +402,44 @@ namespace hds{
             Store.dbManager.MarginDbHandler.updateRSIValue("glassescolor", pants.getModelId().ToString(), newCharID);
 
             // ToDO: Figre out the ITem Slots for "currentlyWearing" Items and add the ITems correctly to the Inventory
+            
+            // FirstName
+            UInt16 currentOffset = 79;
+            byte[] firstNameLenBytes = new byte[2];
+            ArrayUtils.copy(packet, currentOffset, firstNameLenBytes, 0,2);
+            UInt16 firstNameLen = NumericalUtils.ByteArrayToUint16(firstNameLenBytes, 1);
+            currentOffset += 2;
 
+            byte[] firstNameBytes = new byte[NumericalUtils.ByteArrayToUint16(firstNameLenBytes,1) - 1];
+            ArrayUtils.copy(packet, currentOffset, firstNameBytes, 0, firstNameLen - 1);
+            string firstNameString = StringUtils.charBytesToString(firstNameBytes);
+            currentOffset += firstNameLen;
+
+            // LastName
+            byte[] lastNameLenBytes = new byte[2];
+            ArrayUtils.copy(packet, currentOffset, lastNameLenBytes, 0, 2);
+            UInt16 lastNameLen = NumericalUtils.ByteArrayToUint16(lastNameLenBytes, 1);
+            currentOffset += 2;
+
+            byte[] lastNameBytes = new byte[NumericalUtils.ByteArrayToUint16(lastNameLenBytes, 1) - 1];
+            ArrayUtils.copy(packet, currentOffset, lastNameBytes, 0, lastNameLen - 1);
+            string lastNameString = StringUtils.charBytesToString(lastNameBytes);
+            currentOffset += lastNameLen;
+
+            // Description
+            byte[] descriptionLenBytes = new byte[2];
+            ArrayUtils.copy(packet, currentOffset, descriptionLenBytes, 0, 2);
+            UInt16 descriptionLen = NumericalUtils.ByteArrayToUint16(descriptionLenBytes, 1);
+            currentOffset += 2;
+
+            byte[] descriptionBytes = new byte[NumericalUtils.ByteArrayToUint16(descriptionLenBytes, 1) - 1];
+            ArrayUtils.copy(packet, currentOffset, descriptionBytes, 0, descriptionLen - 1);
+            string descriptionString = StringUtils.charBytesToString(descriptionBytes);
+            currentOffset += lastNameLen;
+
+            // Update Characters values
+            Store.dbManager.MarginDbHandler.updateCharacter(firstNameString, lastNameString, descriptionString,newCharID);
+            
             // Add the Basic Abilitys...
             Store.dbManager.MarginDbHandler.addAbility(-2147481600, 0, newCharID, 1, 1);
             Store.dbManager.MarginDbHandler.addAbility(-2147367936, 1, newCharID, 1, 1);
@@ -397,6 +456,7 @@ namespace hds{
             // we have all created - lets load the charData 
             loadCharacter(packet, client, this.newCharID);
         }
+
 
         private void addStartAbilitys(UInt32 charID){
             

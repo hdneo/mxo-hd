@@ -66,61 +66,34 @@ namespace hds
 
         public void testCloseCombat(ref byte[] packet)
         {
-            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessageWithoutRPC("Close Combat"));
-            PacketContent pak = new PacketContent();
-            pak.addByte(0x3f); // 0x3d is request - check 3f
-            pak.addByte(0x08);
-            pak.addByte(0x00);
-            pak.addHexBytes("3500016b");
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            //Store.currentClient.messageQueue.addRpcMessage(new byte = 0x5a);
+            byte[] targetViewWithSpawnId = new byte[4];
+            ArrayUtils.copy(packet, 0, targetViewWithSpawnId, 0, 4);
+            string hexString = StringUtils.bytesToString_NS(targetViewWithSpawnId);
+            string hexStringPak = StringUtils.bytesToString_NS(packet);
             Store.currentClient.messageQueue.addObjectMessage(StringUtils.hexStringToBytes("020003010C00808400808080800100001000"), false); // Make me combat mode "on"
 
-            // ToDo:  check if 0x03 is 
+            // The 55 View Packet
             PacketContent ilCombatHandler = new PacketContent();
-            pak.addHexBytes("01000C370036CDAB0205");
-            pak.addByteArray(Store.currentClient.playerInstance.Position.getValue());
-            pak.addHexBytes("99939F22");
-            pak.addHexBytes("0600");
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-
+            ilCombatHandler.addHexBytes("01000C370036CDAB0205");
+            ilCombatHandler.addByteArray(Store.currentClient.playerInstance.Position.getValue());
+            ilCombatHandler.addHexBytes("cdec4023"); // Time starts i think
+            ilCombatHandler.addHexBytes("fd0000"); // view ID fd00
+            Store.currentClient.messageQueue.addObjectMessage(ilCombatHandler.returnFinalPacket(), false);
+            Store.currentClient.flushQueue();
+            // The other 03 Packet for combat
             PacketContent unknownCreatePak = new PacketContent();
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01000C370036CDAB02"));
+            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("010002A700"));
+            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("FD00")); // ViewID from Combat Object 
+            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01"));
             unknownCreatePak.addByteArray(Store.currentClient.playerInstance.Position.getValue());
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("99939F22060000")); // Spawn a View for ILCombat thing
-
+            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("0100000003000000"));
+            unknownCreatePak.addByteArray(targetViewWithSpawnId);
+            unknownCreatePak.addUint16(2, 1);
+            unknownCreatePak.addUint16(Store.currentClient.playerData.selfSpawnIdCounter, 1); 
+            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01010207030000200BF5C2000020C19420B9C300000000000020C100000000070001001201000007037608E00603145200008B0B0024145200008B0B0024882300008B0B00240000000000000000000000000000000064000000640000000010001010000000020000001000000002000000000000000000000000"));
             Store.currentClient.messageQueue.addObjectMessage(unknownCreatePak.returnFinalPacket(), false);
+            Store.currentClient.flushQueue();
 
-            // 07 3c 03 00 10 00 00 00 
-            // 07 3b 6b 11 00 00 00 00 
-            // 02 0c 01 
-            PacketContent newPak = new PacketContent();
-            newPak.addHexBytes("5f116b");
-
-            PacketContent newPak2 = new PacketContent();
-            newPak2.addHexBytes("0d01");
-
-            PacketContent newPak3 = new PacketContent();
-            newPak3.addHexBytes("3a01");
-
-
-            Store.currentClient.messageQueue.addRpcMessage(newPak.returnFinalPacket());
-            Store.currentClient.messageQueue.addRpcMessage(newPak2.returnFinalPacket());
-            Store.currentClient.messageQueue.addRpcMessage(newPak3.returnFinalPacket());
-            //ushort min = 48;
-            /*
-            ushort min = 80;
-            ushort max = 90;
-            while(min<max){
-                PacketContent newPak = new PacketContent();
-                newPak.addUintShort(min); // 0x3d is request - check 3f
-                newPak.addByte(0x08);
-                newPak.addByte(0x00);
-                newPak.addHexBytes("35000100");
-                Store.currentClient.messageQueue.addRpcMessage(newPak.returnFinalPacket());
-                min++;
-
-            }*/
         }
 
         public float getDistance(float x1,float y1,float z1,float x2,float y2, float z2)
@@ -161,7 +134,7 @@ namespace hds
             float zDestFloat = (float)NumericalUtils.byteArrayToDouble(destZBytes, 1);
 
             float distance = getDistance(xPos, yPos, zPos, xDestFloat, yDestFloat, zDestFloat);
-            UInt16 duration = (UInt16)(distance * 0.5);
+            UInt16 duration = (UInt16)(distance * 1.5);
             //UInt32 startTime = TimeUtils.getUnixTimeUint32() - 100000;
             //UInt32 endTime = startTime + duration;
 

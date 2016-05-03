@@ -87,12 +87,11 @@ namespace hds
         public void sendRPCToAllOtherPlayers(ClientData myself, byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients){
+            lock(Clients.Keys){
                 foreach (string client in Clients.Keys)
                 {
                     // Populate a message to all players 
                     // WE TEST THIS HERE!
-
 
                     if (Clients[client].playerData.getCharID() != myself.getCharID())
                     {
@@ -118,7 +117,7 @@ namespace hds
         public void sendRPCToAllPlayers(byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients)
+            lock (Clients.Keys)
             {
                 foreach (string client in Clients.Keys)
                 {
@@ -137,7 +136,7 @@ namespace hds
         public void sendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients)
+            lock (Clients.Keys)
             {
                 foreach (string client in Clients.Keys)
                 {
@@ -224,7 +223,10 @@ namespace hds
                     value = new WorldClient(Remote, socket, key);
                     value.playerData.setEntityId(WorldSocket.entityIdCounter++);
 
-                    Clients.Add(key, value);
+                    lock (Clients.Keys)
+                    {
+                        Clients.Add(key, value);
+                    }
                     // Once one player enters, clean all 
                     Store.currentClient = value; // BEFORE processing
                 }
@@ -248,46 +250,6 @@ namespace hds
             
         }
         
-        /*
-        private void ListenForAllClients()
-        {
-
-            socket.Bind(this.udplistener);
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-            EndPoint Remote = (EndPoint)(sender);
-
-
-            while (mainThreadWorking)
-            {
-
-                byte[] message = new byte[4096];
-                int receivedDataLenght = socket.ReceiveFrom(message, ref Remote);
-                byte[] finalMessage = new byte[receivedDataLenght];
-
-                // Use fast copy to do express operations
-                ArrayUtils.fastCopy(message, finalMessage, receivedDataLenght);
-                string key = Remote.ToString();
-
-
-                // TODO CLIENT CHECK AND HANDLING
-                WorldClient value;
-                if (Clients.TryGetValue(key, out value))
-                {
-                    Store.currentClient = value; // BEFORE processing
-                }
-                else
-                {
-                    objMan.PushClient(key); // Push first, then create it
-                    value = new WorldClient(Remote, socket, key);
-                    value.playerData.setEntityId(WorldSocket.entityIdCounter++);
-
-                    Clients.Add(key, value);
-                    // Once one player enters, clean all 
-                    Store.currentClient = value; // BEFORE processing
-                }
-                value.processPacket(finalMessage);
-            }
-        }*/
 
     }
 }

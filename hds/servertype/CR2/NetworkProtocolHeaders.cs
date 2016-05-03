@@ -32,9 +32,9 @@ namespace hds
         // Ability Handlers
         CLIENT_ABILITY_LOADER = 0xae,
         CLIENT_UPGRADE_ABILITY_LEVEL = 0xb7,
-        CLIENT_DISABLE_BUFF = 0xB6, //(0x80b6 is full)
+        CLIENT_DISABLE_BUFF = 0xB6,
 
-        CLIENT_LOOT_ALL = 0x117, // CR2 ?
+        CLIENT_LOOT_ALL = 0x117, 
 
         // Inventory
         CLIENT_ITEM_CHANGE_RSI = 0x63,
@@ -69,8 +69,6 @@ namespace hds
 
         // Faction and crew
         CLIENT_FACTION_INFO = 0xf4,
-
-
     }
 
     public enum RPCResponseHeaders
@@ -84,6 +82,7 @@ namespace hds
         // Player
         SERVER_PLAYER_ATTRIBUTE = 0x80b2,
         SERVER_MANAGE_BONUS = 0xbc,
+        SERVER_EXIT_HL = 0x80fb,
         SERVER_JACKOUT_FINISH = 0x80fe,
         SERVER_PLAYER_EXP   = 0x80e5,
         SERVER_PLAYER_INFO  = 0x80e4,

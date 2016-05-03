@@ -18,11 +18,11 @@ namespace hds{
 		}
 
 
-        public byte[] generatePlayerSpawnPacket()
+        public byte[] generatePlayerSpawnPacket(WorldClient client, UInt16 spawnIdCounter)
         {
             DynamicArray rsiPacket;
             DynamicArray creationPacket;
-            playerRSIPacket(out rsiPacket, out creationPacket);
+            playerRSIPacket(out rsiPacket, out creationPacket, client, spawnIdCounter);
 
             // Same as generate Self without viewData
             rsiPacket.append(creationPacket.getBytes());
@@ -30,10 +30,12 @@ namespace hds{
 
         }
 
-		public byte[] generateSelfSpawnPacket(){
+		public byte[] generateSelfSpawnPacket(WorldClient client)
+        {
             DynamicArray rsiPacket;
             DynamicArray creationPacket;
-            playerRSIPacket(out rsiPacket, out creationPacket);
+            client.playerData.selfSpawnIdCounter = client.playerData.spawnViewUpdateCounter;
+            playerRSIPacket(out rsiPacket, out creationPacket, client, client.playerData.assignSpawnIdCounter());
 
             // self
             byte[] selfViewID = {0x02, 0x00 };
@@ -46,49 +48,50 @@ namespace hds{
             creationPacket.append(0x00);
             */
 			rsiPacket.append(creationPacket.getBytes());
+            
 			return rsiPacket.getBytes();
 			
 		}
 
-        private static void playerRSIPacket(out DynamicArray rsiPacket, out DynamicArray creationPacket)
+        private static void playerRSIPacket(out DynamicArray rsiPacket, out DynamicArray creationPacket, WorldClient client, ushort spawnIdCounter)
         {
             //Create the packet for the player
 
             rsiPacket = new DynamicArray();
-            byte[] rsi = PacketsUtils.getRSIBytes(Store.currentClient.playerData.getRsiValues());
+            byte[] rsi = PacketsUtils.getRSIBytes(client.playerData.getRsiValues());
 
             byte[] CurCombatExclusiveAbility = { 0x00, 0x10, 0x00, 0x00 };
 
             //TODO: fix this 03 01 00
             rsiPacket.append(new byte[] { 0x01, 0x00 });
             /////////////////////////////////////////////
-            Store.currentClient.playerInstance.disableAllAttributes(); //Predisable to just send what we need to spawn
+            client.playerInstance.disableAllAttributes(); //Predisable to just send what we need to spawn
 
-            Store.currentClient.playerInstance.RealFirstName.enable();
-            Store.currentClient.playerInstance.RealLastName.enable();
-            Store.currentClient.playerInstance.Health.enable();
-            Store.currentClient.playerInstance.MaxHealth.enable();
-            Store.currentClient.playerInstance.YawInterval.enable(); //ROTATION
-            Store.currentClient.playerInstance.OrganizationID.enable();
+            client.playerInstance.RealFirstName.enable();
+            client.playerInstance.RealLastName.enable();
+            client.playerInstance.Health.enable();
+            client.playerInstance.MaxHealth.enable();
+            client.playerInstance.YawInterval.enable(); //ROTATION
+            client.playerInstance.OrganizationID.enable();
 
-            Store.currentClient.playerInstance.StealthAwareness.setValue((byte)0x01); // TODO: See what's stealth awareness
-            Store.currentClient.playerInstance.InnerStrengthAvailable.enable();
-            Store.currentClient.playerInstance.CharacterName.enable();
+            client.playerInstance.StealthAwareness.setValue((byte)0x01); // TODO: See what's stealth awareness
+            client.playerInstance.InnerStrengthAvailable.enable();
+            client.playerInstance.CharacterName.enable();
 
-            Store.currentClient.playerInstance.TitleAbility.enable();
-            Store.currentClient.playerInstance.CharacterID.enable(); // It was set when grabbing from database
-            Store.currentClient.playerInstance.RSIDescription.setValue(rsi);
-            Store.currentClient.playerInstance.InnerStrengthMax.enable();
-            Store.currentClient.playerInstance.Position.enable();
-            Store.currentClient.playerInstance.Level.enable();
-            Store.currentClient.playerInstance.CombatantMode.setValue((byte)0x22); //TODO: see what's combatantmode
+            client.playerInstance.TitleAbility.enable();
+            client.playerInstance.CharacterID.enable(); // It was set when grabbing from database
+            client.playerInstance.RSIDescription.setValue(rsi);
+            client.playerInstance.InnerStrengthMax.enable();
+            client.playerInstance.Position.enable();
+            client.playerInstance.Level.enable();
+            client.playerInstance.CombatantMode.setValue((byte)0x22); //TODO: see what's combatantmode
 
 
-            Store.currentClient.playerInstance.CurExclusiveAbility.setValue(CurCombatExclusiveAbility); //TODO: see what's this
+            client.playerInstance.CurExclusiveAbility.setValue(CurCombatExclusiveAbility); //TODO: see what's this
 
             // ok we set all our values - lets get the generated packet for us
-            DynamicArray creationPacketWithoutView = Store.world.objMan.generateCreationPacket(Store.currentClient.playerInstance, 0x0000);
-            creationPacket = Store.world.objMan.generateCreationPacket(Store.currentClient.playerInstance, 0x0000);
+            DynamicArray creationPacketWithoutView = Store.world.objMan.generateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
+            creationPacket = Store.world.objMan.generateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
         }
 	}
 	

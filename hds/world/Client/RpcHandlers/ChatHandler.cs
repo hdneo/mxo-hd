@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using hds.shared;
 
 namespace hds
 {
@@ -24,11 +25,21 @@ namespace hds
             {
                 byte[] textB = new byte[length - 1];
                 ArrayUtils.copy(packetData, offset, textB, 0, length - 1);
-                string text = StringUtils.charBytesToString(textB);
-                Output.WriteLine("Chat Helper - Message :" + text);
+                string text = StringUtils.charBytesToString(textB);                
+
                 if (text[0] == '?')
-                { //Maybe a parameter			
+                {
+                    //Maybe a parameter			
                     chatCommands.parseCommand(text); // Parse for commands
+                }
+                else
+                {
+                    // Not a Param - lets distribute the Message throw our Area 
+                    ServerPackets pak = new ServerPackets();
+                    pak.sendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), "AREA");
+                    // ToDo: Send the ChatMessage to the Scope of Players
+
+                    
                 }
             }
 

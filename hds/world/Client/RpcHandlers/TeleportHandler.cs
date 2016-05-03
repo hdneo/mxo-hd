@@ -15,16 +15,6 @@ namespace hds
 
         public void processTeleportReset(ref byte[] packet){
 
-            //1. Reset 
-            /*
-            WorldAnswer RPCReset;
-            RPCReset = new WorldAnswer();
-            RPCReset.encrypted = true;
-            RPCReset.isAckOnly = true;
-            RPCReset.timed = false;
-            RPCReset.isRPCReset = true;
-            Console.WriteLine("TELEPORT : 0x08 Reset Acked by Client - We just ack this again!");
-             */
             Store.currentClient.playerData.setRPCShutDown(true);
 
             // We want to reset
@@ -66,15 +56,14 @@ namespace hds
             Store.dbManager.WorldDbHandler.updateLocationByHL(destDIS, destHL);
             Store.dbManager.WorldDbHandler.updateSourceHlForObjectTracking(sourceDIS, sourceHL, Store.currentClient.playerData.lastClickedObjectId);
 
-
-            Output.writeToLogForConsole("User wants teleport from : HL ID: " + sourceHL.ToString() + " (DIS: " + sourceDIS.ToString() + " ) TO HL ID: " + destHL.ToString() + " (DIS: " + destDIS.ToString() + ") ");
+            ServerPackets serverPak = new ServerPackets();
+            serverPak.sendSystemChatMessage(Store.currentClient,"User wants teleport from : HL ID: " + sourceHL.ToString() + " (DIS: " + sourceDIS.ToString() + " ) TO HL ID: " + destHL.ToString() + " (DIS: " + destDIS.ToString() + ") ","MODAL");
 
             // Tell client we want to unload the World
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOAD_RPC_RESET, 0);
-
-
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            Store.currentClient.flushQueue();
 
         }
 
@@ -82,7 +71,9 @@ namespace hds
         {
             if (packet[0] == 0x01)
             {
-                Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Exit to LA init...", "MODAL", Store.currentClient));
+                ServerPackets serverPak = new ServerPackets();
+                serverPak.sendSystemChatMessage(Store.currentClient, "Exit to LA init...","MODAL");
+                
                 // Tell client we want to reset
                 byte[] response = { 0x81, 0x07 };
 
@@ -93,18 +84,15 @@ namespace hds
 
         public void processHardlineExitRequest(ref byte[] packet)
         {
-            DynamicArray din = new DynamicArray();
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_EXIT_HL, 0);
+            pak.addByte(0x95);
+            pak.addByte(0x00);
+            pak.addByte(0x00);
+            pak.addByte(0x00);
+            pak.addByte(0x01);
 
-            byte[] header = { 0x80, 0xfb };
-
-            din.append(header);
-            din.append(0x95);
-            din.append(0x00);
-            din.append(0x00);
-            din.append(0x00);
-            din.append(0x01);
-
-            Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
 
         }
 

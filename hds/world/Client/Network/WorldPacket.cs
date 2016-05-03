@@ -132,7 +132,6 @@ namespace hds
                 content.append(NumericalUtils.uint16ToByteArrayShort((UInt16)RPCMessages.Count));
                 foreach (SequencedMessage message in RPCMessages)
                 {
-                    // Do the loop
                     content.append(message.content);
                 }
 

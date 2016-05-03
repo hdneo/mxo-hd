@@ -12,6 +12,7 @@ namespace hds
 
         public AbilityItem currentAbility;
         public UInt16 currentTargetViewId;
+        public Timer damageTimer;
         public void processAbility(ref byte[] packet)
         {
             byte[] ability = {packet[0], packet[1]};
@@ -27,13 +28,10 @@ namespace hds
             this.currentAbility = AbilityLoader.getAbilityByID(AbilityID);
 
             // lets create a message for the client - we will later execute the right AbilityScript for it 
-
-            Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createMessage("Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() + " and Target ViewId Is " + currentTargetViewId, "BROADCAST", Store.currentClient));
-
-            // ToDo: do something with the entity (or queue a fx hit animation or something lol)      
             ServerPackets pak = new ServerPackets();
-            pak.sendCastAbilityBar(AbilityID, this.currentAbility.getCastingTime());
+            pak.sendSystemChatMessage(Store.currentClient, "Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() + " and Target ViewId Is " + currentTargetViewId, "BROADCAST");
 
+            // ToDo: do something with the entity (or queue a fx hit animation or something lol)    
             this.processAbilityScript(this.currentAbility);
 
             
@@ -41,12 +39,22 @@ namespace hds
 
         public void processAbilityScript(AbilityItem abilityItem)
         {
+
             // Lets just test
-            //this.processBarCreation(abilityID);
-            this.processSelfAnimation(abilityItem.getAbilityID());
-            this.processCharacterAnimationSelf(abilityItem.getAbilityID());
-            // Test Is
             ServerPackets pak = new ServerPackets();
+            if (this.currentAbility.getCastingTime()>0)
+            {
+                pak.sendCastAbilityBar(this.currentAbility.getAbilityID(), this.currentAbility.getCastingTime());
+                this.processSelfAnimation(abilityItem.getAbilityID());
+            }
+
+            this.processCharacterAnimationSelf(abilityItem.getAbilityID());
+
+            if (currentAbility.getAbilityID() == 12 || currentAbility.getAbilityID() == 184)
+            {
+                pak.sendHyperSpeed();
+            }
+            // Test Is
             pak.sendISCurrent(Store.currentClient, 50);
         }
 
@@ -78,7 +86,7 @@ namespace hds
 
                 // And Time a "Damage" or "Buff" Animation
                 int castingTime = (int)this.currentAbility.getCastingTime() * 1000;
-                Timer damageTimer = new Timer(new TimerCallback(abilityAnimateTheTarget), this, castingTime, 0);
+                this.damageTimer = new Timer(new TimerCallback(abilityAnimateTheTarget), this, castingTime, 0);
             }
             
         }
@@ -96,13 +104,12 @@ namespace hds
             Random randAnim = new Random();
             UInt32 randAnimID = (UInt32)fxIDs.GetValue(randAnim.Next(fxIDs.Length));
             */
-            UInt32 randAnimID = (UInt32)FXList.FX_VIRUSCAST_SPLIT_GROUP_REPAIRS_GROUPREPAIRS5_START;
+            UInt32 randAnimID = (UInt32)FXList.FX_VIRUSCAST_SPLIT_LOGIC_BLAST_LOGICBLAST3;
             
             byte[] animationId = NumericalUtils.uint32ToByteArray(randAnimID, 0);
             byte[] viewID = { 0x02, 0x00 };
 
-            Store.currentClient.playerData.spawnViewUpdateCounter++;
-            byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.spawnViewUpdateCounter);
+            byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
 
             din.append(viewID);
             din.append(0x02);

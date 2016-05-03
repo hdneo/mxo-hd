@@ -14,7 +14,7 @@ namespace hds.databases.interfaces{
         void updateSourceHlForObjectTracking(UInt16 sourceDistrict, UInt16 sourceHl, UInt32 lastObjectId);
         void setPlayerValues();
         void setRsiValues();
-        void savePlayer();
+        void savePlayer(WorldClient client);
 
         void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
         

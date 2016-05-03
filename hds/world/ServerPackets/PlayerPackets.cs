@@ -212,7 +212,29 @@ namespace hds
             createFlashTraffic(client, "http://mxo.hardlinedreams.com");
         }
 
+        public void sendPlayerSpawn(WorldClient receiverClient, WorldClient otherClient, UInt16 viewId)
+        {
+            PacketContent pak = new PacketContent();
+            byte[] spawnPaket = new BootingHelperRsi().generatePlayerSpawnPacket(otherClient, receiverClient.playerData.assignSpawnIdCounter());
+            pak.addByteArray(spawnPaket);
+            pak.addUint16(viewId,1);
+            pak.addByte(0x00);
+            receiverClient.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+            receiverClient.flushQueue();
+        }
 
-        
+        public void sendSaveCharDataMessage(WorldClient client, string handle)
+        {
+
+            PacketContent pak = new PacketContent();
+            pak.addByte((byte)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.addHexBytes("0700000000000000000000006400002E00240000000000000000000000000000000000");
+            pak.addSizedTerminatedString(handle);
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+
+        }
+
+
+
     }
 }

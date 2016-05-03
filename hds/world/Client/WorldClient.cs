@@ -94,7 +94,6 @@ namespace hds{
                                 bool canAddThePak = packet.addObjectContent(messageObjects);
                                 if (canAddThePak == false)
                                 {
-                                    Console.WriteLine("Add Final PAcket to Queue");
                                     packet.isFinal = true;
                                     // if one sub has a timed param set, we just set it here too
                                     worldPackets.Add(packet);
@@ -105,7 +104,6 @@ namespace hds{
                                 }
                                 if (messageObjects.isTimed == true)
                                 {
-                                    Output.writeToLogForConsole("isTimed is true");
                                     packet.timed = true;
                                 }
                             }
@@ -124,7 +122,7 @@ namespace hds{
                 
                 if (messageQueue.RPCMessagesQueue.Count > 0)
                 {
-                    lock (messageQueue.RPCMessagesQueue)
+                    lock (messageQueue.RPCMessagesQueue.SyncRoot)
                     {
                         foreach (SequencedMessage messageRPC in messageQueue.RPCMessagesQueue)
                         {
@@ -136,7 +134,6 @@ namespace hds{
                                 messageRPC.increaseResendTime();
                                 if (packet.addRPCContent(messageRPC) == false)
                                 {
-                                    Console.WriteLine("Add Final PAcket to Queue");
                                     packet.isFinal = true;
                                     worldPackets.Add(packet);
                                     // Start new packet and add it to the queue 

@@ -13,6 +13,7 @@ namespace hds.databases.interfaces{
         UInt32 getNewCharnameID(string handle, UInt32 userId);
         UInt32 createNewCharacter(string handle, UInt32 userid, UInt32 worldId);
         void updateRSIValue(string field, string value, UInt32 charID);
+        void updateCharacter(string firstName, string lastName, string background, UInt32 charID);
 
         // NEW
         void addAbility(Int32 abilityID, UInt16 slotID, UInt32 charID, UInt16 level, UInt16 is_loaded);

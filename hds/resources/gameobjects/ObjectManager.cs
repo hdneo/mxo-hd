@@ -16,13 +16,6 @@ namespace hds
 			Output.WriteLine("[SHEEVA] Object Manager Operative. Welcome back");
 		}
 		
-		private byte assignIdCounter(){
-			byte temp = (byte) currentIdcounter;
-			currentIdcounter++;
-			if (currentIdcounter==256)
-				currentIdcounter = 1;
-			return temp;
-		}
 		
 		public void PushClient(string key){
 			// Create a new gameobject for the unique key
@@ -39,7 +32,7 @@ namespace hds
 			currentObjects.Remove(key);
 		}
 		
-		public DynamicArray generateCreationPacket(GameObject go,UInt16 viewID){
+		public DynamicArray generateCreationPacket(GameObject go,UInt16 viewID, byte idCounter){
             
 			DynamicArray din = new DynamicArray();
             byte FullyDynamicFlag=0x08;
@@ -55,7 +48,7 @@ namespace hds
 				din.append(NumericalUtils.uint32ToByteArray(go.getRelatedStaticObjId(),1));
 			}
 						
-			din.append(assignIdCounter());
+			din.append(idCounter);
 			byte[] separator = {0xcd,0xab};
 			din.append(separator);
 			
@@ -64,15 +57,7 @@ namespace hds
 			if(goid[0] == 0x0c && goid[1] == 0x00){
 				viewID = 0x0002;
 			}
-			
-            /*
-			din.append(NumericalUtils.uint16ToByteArray(viewID,1));
-			
-			din.append(0x00);
-			din.append(0x00);
-			din.append(0x00);
-			*/
-			
+
 			return din;
 		}
 	}

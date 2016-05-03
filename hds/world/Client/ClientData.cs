@@ -31,15 +31,23 @@ namespace hds
         public int lastSimTimeSEQ = 0; // Add timed packet every 4 SEQ automatically
         public long lastSimTimeUpdate = 0; // Timer
         private bool UDPSessionEstablished = false;
+
+        public UInt16 currentSelectedTargetViewId = 2;
+        public ushort currentSelectedTargetSpawnId = 1; // we need both for combat
+
+        // This vars needs to be refaktored / deleted (they are more for testing)
         public UInt16 currentTestRPC = 33015;  // 0-127 = DONE, all 0x81XX -> done ToDo: 127-256 and 80XX(didnt found higher) Needs to be removed (hell the only way to store the current value) Start Point is : 32769 / Brek Point 1 : 32827 | Break Point 2: 33056 (need later for Subway)
         public UInt32 lastClickedObjectId = 0; // Temp for Hardline ObjectID Tracking - call upload hardline before teleporting so we know the last clicked object ID and save it (if not isset) to the Hardline list to assing it
         public UInt16 newViewIdCounter = 7;
         public UInt16 spawnViewUpdateCounter = 1; // maybe the wording is wrong - need to change this later
         private UInt16 jumpID = 36352;
 
+
+
         public bool waitForRPCShutDown = false;
-		
-		public ClientData ()
+        internal ushort selfSpawnIdCounter;
+
+        public ClientData ()
 		{
 			rsiValues = new int[22];
 			RPCCounter = 0;
@@ -49,6 +57,15 @@ namespace hds
 
 
 		}
+
+        public byte assignSpawnIdCounter()
+        {
+            byte temp = (byte)spawnViewUpdateCounter;
+            spawnViewUpdateCounter++;
+            if (spawnViewUpdateCounter == 256)
+                spawnViewUpdateCounter = 1;
+            return temp;
+        }
 
         public void setupPlayerData()
         {
