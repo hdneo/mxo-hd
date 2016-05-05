@@ -8,23 +8,23 @@ namespace hds
 	{
 		
 		private int currentIdcounter = 0x01;
-		private Dictionary<string,PlayerCharacter> currentObjects;
+		private Hashtable currentObjects;
 				
 				
 		public ObjectManager (){
-			currentObjects = new Dictionary<string, PlayerCharacter>();
+			currentObjects = new Hashtable();
 			Output.WriteLine("[SHEEVA] Object Manager Operative. Welcome back");
 		}
 		
 		
 		public void PushClient(string key){
-			// Create a new gameobject for the unique key
-			currentObjects[key] = new PlayerCharacter();
+            // Create a new gameobject for the unique key
+            currentObjects.Add(key, new PlayerCharacter());
 		}
 		
 		public PlayerCharacter GetAssignedObject(string key){
 			// Return gameobject structure
-			return currentObjects[key];
+			return currentObjects[key] as PlayerCharacter;
 		}
 		
 		public void PopClient(string key){

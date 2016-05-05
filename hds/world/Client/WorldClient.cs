@@ -54,7 +54,7 @@ namespace hds{
 		// This method sends one packet at a time to the game client 
 		private void sendPacket(byte[] data){
 			if(this.deadSignals==0){
-                Output.WriteLine("[SEND PACKET] PSS: " + playerData.getPss().ToString() + " SSEQ : " + playerData.getSseq().ToString() + " CSEQ: " + playerData.getCseq().ToString());
+                //Output.WriteLine("[SEND PACKET] PSS: " + playerData.getPss().ToString() + " SSEQ : " + playerData.getSseq().ToString() + " CSEQ: " + playerData.getCseq().ToString());
 				socket.SendTo(data, Remote);
 			}
 		}
@@ -64,6 +64,7 @@ namespace hds{
         {
             // This resend the MessageQueue - should be called after parsing or after sending something out
             // or in a timed interval (keep alive for example)
+            
 
             // Sends RAW MEssages
             sendRawMessages();
@@ -76,8 +77,6 @@ namespace hds{
             if (messageQueue.RPCMessagesQueue.Count > 0 || messageQueue.ObjectMessagesQueue.Count > 0 && flushingQueueInProgress==false)
             {
                 flushingQueueInProgress = true;
-                
-                
                 // we currently dont know if we send something out so we need to proove that in a way
                 if (messageQueue.ObjectMessagesQueue.Count > 0)
                 {
@@ -184,9 +183,11 @@ namespace hds{
                     playerData.IncrementSseq();
                     
                     byte[] finalData = thePacket.getFinalData(playerData);
+                    
                     Output.WritePacketLog(StringUtils.bytesToString(finalData), "SERVER", playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getSseq().ToString());
                     byte[] encryptedData = cypher.encrypt(finalData, finalData.Length, playerData.getPss(), playerData.getCseq(), playerData.getSseq());
                     sendPacket(encryptedData);
+                    Output.WriteDebugLog("PACKET SEND FINALLY (WC AFTER sendPacket):" + StringUtils.bytesToString(finalData));
 
                 }
             }
@@ -229,7 +230,7 @@ namespace hds{
             
 
             ArrayList ackedRPCMessages = new ArrayList();
-            lock (messageQueue.RPCMessagesQueue)
+            lock (messageQueue.RPCMessagesQueue.SyncRoot)
             {
 
                 foreach (SequencedMessage message in messageQueue.RPCMessagesQueue)

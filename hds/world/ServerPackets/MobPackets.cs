@@ -29,7 +29,6 @@ namespace hds
             pak.addUint16(viewId, 1);
             pak.addByteArray(updateData);
 
-
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             client.flushQueue();
             

@@ -19,7 +19,7 @@ namespace hds
         private bool mainThreadWorking;
         private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
-        public static Dictionary<string, WorldClient> Clients { get; set; }
+        public static Hashtable Clients { get; set; }
 
         // Collection to store the spawned npcs 
         public static ArrayList npcs = ArrayList.Synchronized(new ArrayList());
@@ -36,7 +36,7 @@ namespace hds
             serverport = 10000;
             udplistener = new IPEndPoint(IPAddress.Any, serverport);
 
-            Clients = new Dictionary<string, WorldClient>();
+            Clients = new Hashtable();
 
             listenThread = new Thread(new ThreadStart(ListenForAllClients));
             mainThreadWorking = true;
@@ -63,14 +63,16 @@ namespace hds
         /// <param name="packet">Packet Stream</param>
         public void sendRPCToOnePlayer(UInt32 charId, byte[] packet)
         {
-            lock (Clients)
+            lock (Clients.SyncRoot)
             {
-                foreach (string client in Clients.Keys)
+                
+                foreach (string clientKey in Clients.Keys)
                 {
-                    if (Clients[client].playerData.getCharID() == charId)
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() == charId)
                     {
-                        Clients[client].messageQueue.addRpcMessage(packet);
-                        Clients[client].flushQueue();
+                        client.messageQueue.addRpcMessage(packet);
+                        client.flushQueue();
                     }
                 }
             }
@@ -87,22 +89,21 @@ namespace hds
         public void sendRPCToAllOtherPlayers(ClientData myself, byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients.Keys){
-                foreach (string client in Clients.Keys)
+            lock(Clients.SyncRoot){
+                foreach (string clientKey in Clients.Keys)
                 {
                     // Populate a message to all players 
                     // WE TEST THIS HERE!
-
-                    if (Clients[client].playerData.getCharID() != myself.getCharID())
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != myself.getCharID())
                     {
 
                         // create the RPC Message
                         ArrayList content = new ArrayList();
                         content.Add(data);
                         
-                        WorldClient worldClient = Clients[client];
-                        worldClient.messageQueue.addRpcMessage(data);
-                        worldClient.flushQueue();
+                        client.messageQueue.addRpcMessage(data);
+                        client.flushQueue();
                     }
 
                 }
@@ -117,12 +118,13 @@ namespace hds
         public void sendRPCToAllPlayers(byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients.Keys)
+            lock (Clients.SyncRoot)
             {
-                foreach (string client in Clients.Keys)
+                foreach (string clientKey in Clients.Keys)
                 {
-                    Clients[client].messageQueue.addRpcMessage(data);
-                    Clients[client].flushQueue();
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    client.messageQueue.addRpcMessage(data);
+                    client.flushQueue();
                 }
             }
         }
@@ -136,15 +138,16 @@ namespace hds
         public void sendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients.Keys)
+            lock (Clients.SyncRoot)
             {
-                foreach (string client in Clients.Keys)
+                foreach (string clientKey in Clients.Keys)
                 {
-                    if (Clients[client].playerData.getCharID() != charId)
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != charId)
                     {
                         Output.Write("[ViewThread] Handle View For all Packet for charId : " + charId.ToString());
                         // Get or generate a View for the GoID 
-                        ClientView view = Clients[client].viewMan.getViewForEntityAndGo(entityId, goId);
+                        ClientView view = client.viewMan.getViewForEntityAndGo(entityId, goId);
                         DynamicArray content = new DynamicArray();
 
                         if (view.viewCreated == false)
@@ -182,9 +185,9 @@ namespace hds
                         
                         // ToDo: handle viewId for packets (For creation it needs to be append to the end, for update at the start )
                         // ToDo: Complete this :)
-                        Clients[client].messageQueue.addObjectMessage(content.getBytes(), false);
-                        Clients[client].flushQueue();
-                        Output.WriteLine("[World View Server] CharId: " + Clients[client].playerData.getCharID().ToString() + " )");
+                        client.messageQueue.addObjectMessage(content.getBytes(), false);
+                        client.flushQueue();
+                        Output.WriteLine("[World View Server] CharId: " + client.playerData.getCharID().ToString() + " )");
                     }
                 }
             }
@@ -212,26 +215,29 @@ namespace hds
 
 
                 // TODO CLIENT CHECK AND HANDLING
-                WorldClient value;
-                if (Clients.TryGetValue(key, out value))
+                lock (Clients.SyncRoot)
                 {
-                    Store.currentClient = value; // BEFORE processing
-                }
-                else
-                {
-                    objMan.PushClient(key); // Push first, then create it
-                    value = new WorldClient(Remote, socket, key);
-                    value.playerData.setEntityId(WorldSocket.entityIdCounter++);
-
-                    lock (Clients.Keys)
+                    WorldClient value;
+                    if (Clients.ContainsKey(key))
                     {
+                        value = Clients[key] as WorldClient;
+                        Store.currentClient = Clients[key] as WorldClient;
+                    }
+                    else
+                    {
+
+                        objMan.PushClient(key); // Push first, then create it
+                        value = new WorldClient(Remote, socket, key);
+                        value.playerData.setEntityId(WorldSocket.entityIdCounter++);
+
+
                         Clients.Add(key, value);
                     }
                     // Once one player enters, clean all 
                     Store.currentClient = value; // BEFORE processing
-                }
-                value.processPacket(finalMessage);
 
+                    value.processPacket(finalMessage);
+                }
                 // Listening for a new message
                 EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
                 socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);

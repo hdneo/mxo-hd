@@ -205,7 +205,6 @@ namespace hds
         public bool doTick()
         {
             ticksReceived++;
-            Output.WriteDebugLog("Ticks Received " + this.ticksReceived.ToString() + " , Needed: " + this.ticksNeeded.ToString());
             // Reach the next action
             if (this.ticksReceived >= this.ticksNeeded)
             {

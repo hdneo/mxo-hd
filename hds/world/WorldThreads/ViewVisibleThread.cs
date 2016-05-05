@@ -21,17 +21,17 @@ namespace hds
                 ArrayList removeEntities = new ArrayList();
 
                 // Clean 
-                lock (WorldSocket.Clients.Keys)
+                lock (WorldSocket.Clients.SyncRoot)
                 {
-                    foreach (string client in WorldSocket.Clients.Keys)
+                    foreach (string clientKey in WorldSocket.Clients.Keys)
                     {
                         // Collect dead players to arraylist
-                        WorldClient thisclient = WorldSocket.Clients[client];
+                        WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
 
                         if (thisclient.Alive == false)
                         {
                             // Add dead Player to the List - we need later to clear them
-                            deadPlayers.Add(client);
+                            deadPlayers.Add(thisclient);
 
                         }
                     }
@@ -39,16 +39,16 @@ namespace hds
                 }
 
                 // Check for Player Views
-                lock (WorldSocket.Clients.Keys)
+                lock (WorldSocket.Clients.SyncRoot)
                 {
                     foreach(string clientKey in WorldSocket.Clients.Keys)
                     {
                         // get Current client
-                        WorldClient currentClient = WorldSocket.Clients[clientKey];
+                        WorldClient currentClient = WorldSocket.Clients[clientKey] as WorldClient;
                         // Loop all Clients and check if we need to create a view for it
                         foreach (string clientOtherKey in WorldSocket.Clients.Keys)
                         {
-                            WorldClient otherClient = WorldSocket.Clients[clientOtherKey];
+                            WorldClient otherClient = WorldSocket.Clients[clientOtherKey] as WorldClient;
                             if (otherClient != currentClient)
                             {
                                 ClientView clientView = currentClient.viewMan.getViewForEntityAndGo(otherClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(otherClient.playerInstance.getGoid(), 1));
@@ -101,12 +101,12 @@ namespace hds
                 {
                     npc thismob = (npc)WorldSocket.npcs[i];
  
-                    lock (WorldSocket.Clients.Keys)
+                    lock (WorldSocket.Clients.SyncRoot)
                     {
-                        foreach (string client in WorldSocket.Clients.Keys)
+                        foreach (string clientKey in WorldSocket.Clients.Keys)
                         {
                             // Loop through all clients
-                            WorldClient thisclient = WorldSocket.Clients[client];
+                            WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
 
                             if (thisclient.Alive == true)
                             {
@@ -173,10 +173,10 @@ namespace hds
         {
             foreach (string key in deadPlayers)
             {
-                WorldClient deadClient = WorldSocket.Clients[key];
+                WorldClient deadClient = WorldSocket.Clients[key] as WorldClient;
                 foreach (string client in WorldSocket.Clients.Keys)
                 {
-                    WorldClient otherclient = WorldSocket.Clients[client];
+                    WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
                     ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.getGoid(), 1));
 
                     ServerPackets pak = new ServerPackets();
@@ -190,7 +190,7 @@ namespace hds
                 // ToDo: Announce friendlists from other users that you are going offline (just collect all players whohave this client in list and send the packet)
                 // ToDo: Finally save the current character Data to the Database^^
                 Output.WriteLine("Removed inactive Client with Key " + key);
-                lock (WorldSocket.Clients.Keys)
+                lock (WorldSocket.Clients.SyncRoot)
                 {
                     WorldSocket.Clients.Remove(key);
                 }

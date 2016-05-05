@@ -11,6 +11,7 @@ namespace hds
         public ArrayList RPCMessagesQueue;
         public ArrayList ObjectMessagesQueue;
         public ArrayList rawMessages;
+        public ArrayList worldPackets; // These are final worldPackets to be resend
         public int ackOnlyCount = 0;
 
         public MessageQueue()

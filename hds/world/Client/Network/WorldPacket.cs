@@ -69,7 +69,7 @@ namespace hds
             playerData.IncrementSseq();
             this.neededAckSSeq = playerData.getSseq();
 
-            if ((NumericalUtils.ByteArrayToUint32(TimeUtils.getCurrentSimTime(), 1) - playerData.lastSimTimeUpdate) > 5)
+            if ((NumericalUtils.ByteArrayToUint32(TimeUtils.getCurrentSimTime(), 1) - playerData.lastSimTimeUpdate) > 3)
             {
                 timed = true;
                 playerData.lastSimTimeUpdate = NumericalUtils.ByteArrayToUint32(TimeUtils.getCurrentSimTime(),1);
@@ -108,7 +108,7 @@ namespace hds
             // Merge all Message together and generate the Final Packet Header
             generateObjectMessageData();
             generateRpcMessageData();
-            
+            Output.WriteDebugLog("PACKET DATA (getFinalData):" + StringUtils.bytesToString(content.getBytes()));
             return content.getBytes();
             
         }
@@ -137,8 +137,11 @@ namespace hds
 
                 // Set new RPC Counter
                 UInt16 incrementRpcCounter = playerData.getRPCCounter();
+                Output.WriteDebugLog("Before RPC Counter :" + incrementRpcCounter.ToString());
                 incrementRpcCounter += (ushort)RPCMessages.Count;
                 playerData.setRPCCounter(incrementRpcCounter);
+                Output.WriteDebugLog("After RPC Counter :" + incrementRpcCounter.ToString() + " (should added " + RPCMessages.Count.ToString() + ")");
+
             }
             
         }
