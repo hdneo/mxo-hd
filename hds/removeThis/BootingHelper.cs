@@ -65,7 +65,7 @@ namespace hds{
             //TODO: fix this 03 01 00
             rsiPacket.append(new byte[] { 0x01, 0x00 });
             /////////////////////////////////////////////
-            client.playerInstance.disableAllAttributes(); //Predisable to just send what we need to spawn
+            client.playerInstance.DisableAllAttributes(); //Predisable to just send what we need to spawn
 
             client.playerInstance.RealFirstName.enable();
             client.playerInstance.RealLastName.enable();
@@ -90,8 +90,8 @@ namespace hds{
             client.playerInstance.CurExclusiveAbility.setValue(CurCombatExclusiveAbility); //TODO: see what's this
 
             // ok we set all our values - lets get the generated packet for us
-            DynamicArray creationPacketWithoutView = Store.world.objMan.generateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
-            creationPacket = Store.world.objMan.generateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
+            DynamicArray creationPacketWithoutView = Store.world.objMan.GenerateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
+            creationPacket = Store.world.objMan.GenerateCreationPacket(client.playerInstance, 0x0000,(byte)spawnIdCounter);
         }
 	}
 	

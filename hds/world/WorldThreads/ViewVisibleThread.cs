@@ -31,7 +31,7 @@ namespace hds
                         if (thisclient.Alive == false)
                         {
                             // Add dead Player to the List - we need later to clear them
-                            deadPlayers.Add(thisclient);
+                            deadPlayers.Add(clientKey);
 
                         }
                     }
@@ -51,7 +51,7 @@ namespace hds
                             WorldClient otherClient = WorldSocket.Clients[clientOtherKey] as WorldClient;
                             if (otherClient != currentClient)
                             {
-                                ClientView clientView = currentClient.viewMan.getViewForEntityAndGo(otherClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(otherClient.playerInstance.getGoid(), 1));
+                                ClientView clientView = currentClient.viewMan.getViewForEntityAndGo(otherClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(otherClient.playerInstance.GetGoid(), 1));
 
                                 // Create
                                 Maths math = new Maths();
@@ -71,7 +71,7 @@ namespace hds
                                 {
                                     // Spawn player
                                     ServerPackets pak = new ServerPackets();
-                                    pak.sendSystemChatMessage(currentClient, "Player " + otherClient.playerInstance.getName() + " with new View ID " + clientView.ViewID + " jacked in", "BROADCAST");
+                                    pak.sendSystemChatMessage(currentClient, "Player " + otherClient.playerInstance.GetName() + " with new View ID " + clientView.ViewID + " jacked in", "BROADCAST");
                                     pak.sendPlayerSpawn(currentClient, otherClient, clientView.ViewID);
                                     clientView.spawnId = currentClient.playerData.spawnViewUpdateCounter;
                                     clientView.viewCreated = true;
@@ -82,7 +82,7 @@ namespace hds
                                 {
                                     // ToDo: delete mob
                                     ServerPackets packets = new ServerPackets();
-                                    packets.sendSystemChatMessage(currentClient, "Player " + otherClient.playerInstance.getName() + " with View ID " + clientView.ViewID + " jacked out!", "MODAL");
+                                    packets.sendSystemChatMessage(currentClient, "Player " + otherClient.playerInstance.GetName() + " with View ID " + clientView.ViewID + " jacked out!", "MODAL");
                                     packets.sendDeleteViewPacket(currentClient, clientView.ViewID);
                                     currentClient.viewMan.removeViewByViewId(clientView.ViewID);
                                 }
@@ -123,10 +123,6 @@ namespace hds
                                     bool mobIsInCircle = mathUtils.IsInCircle((float)playerX,(float)playerZ,(float)thismob.getXPos(),(float)thismob.getZPos(),5000);
 
                                     // ToDo: Check if mob is in circle of player (radian some value that is in a middle range for example 300m)
-                                    if (!mobIsInCircle)
-                                    {
-                                        continue;
-                                    }
                                     // Create
                                     ClientView mobView = thisclient.viewMan.getViewForEntityAndGo(thismob.getEntityId(), NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
                                     if (mobView.viewCreated == false && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld() && mobIsInCircle)
@@ -143,11 +139,17 @@ namespace hds
                                     if (mobView.viewCreated == true && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld())
                                     {
                                         // ToDo: We need to involve the Statuslist here and we need to move them finaly
-                                        updateMob(thisclient, ref thismob, mobView);
+                                        if (thismob.getIsDead() == false)
+                                        {
+                                            updateMob(thisclient, ref thismob, mobView);
+                                        }
+                                        
                                     }
 
                                     // Mob moves outside - should delete it
-                                    if (mobView.viewCreated == true && !mobIsInCircle && thismob.getDistrict() == thisclient.playerData.getDistrictId())
+                                    if (mobView.viewCreated == true && 
+                                        !mobIsInCircle && 
+                                        thismob.getDistrict() == thisclient.playerData.getDistrictId())
                                     {
                                         // ToDo: delete mob
                                         ServerPackets packets = new ServerPackets();
@@ -177,7 +179,7 @@ namespace hds
                 foreach (string client in WorldSocket.Clients.Keys)
                 {
                     WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
-                    ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.getGoid(), 1));
+                    ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
 
                     ServerPackets pak = new ServerPackets();
                     pak.sendDeleteViewPacket(otherclient, view.ViewID);

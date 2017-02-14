@@ -1,5 +1,5 @@
 using System;
-
+using hds.auth;
 using hds.shared;
 using hds.world.scripting;
 

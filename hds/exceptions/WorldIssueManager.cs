@@ -3,10 +3,6 @@ namespace hds
 {
 	public class WorldIssueManager
 	{
-		public WorldIssueManager ()
-		{
-			
-		}
 		
 		public void handleErrorEvent(string operation, string message,string debug,int level){
 			if(level==1)

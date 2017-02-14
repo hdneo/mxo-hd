@@ -5,13 +5,7 @@ namespace hds
 {
     public class PlayerCharacter : Object12
 	{
-		
-		public PlayerCharacter (){
-						
-		}
-		
-		
-		private int parseAttributesPack(ref Attribute[] attList,int maxGroups,ref byte[] data,int offset){
+	    private int parseAttributesPack(ref Attribute[] attList,int maxGroups,ref byte[] data,int offset){
 			
 			for(int i = 0;i<maxGroups;i++){
 				byte groupIndicator = BufferHandler.readByte(ref data,ref offset);
@@ -79,9 +73,7 @@ namespace hds
             }
 			
 			// TODO: update player attribute packets someday (announce it to my spawners)
-            Store.world.sendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.getGoid(), 1), Store.currentClient.playerData.getEntityId());
-
-			
+            Store.world.sendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
 			return offset;
 		}
 		

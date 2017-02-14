@@ -14,7 +14,9 @@ namespace hds{
          */
 
 		public void HandleRpc(int header,ref byte[] rpcData){
-			switch(header){
+            ServerPackets pak = new ServerPackets();
+            pak.sendSystemChatMessage(Store.currentClient, "Handle RPC Client Request Header " + StringUtils.bytesToString_NS(NumericalUtils.int32ToByteArray(header,0)) , "BROADCAST");
+            switch (header){
 
             case (int)RPCRequestHeader.CLIENT_SPAWN_READY:
                     new PlayerHandler().processSpawn();
@@ -25,7 +27,11 @@ namespace hds{
                 Output.WriteRpcLog("CLOSE COMBAT REQUEST");
                 new TestUnitHandler().testCloseCombat(ref rpcData);
                 break;
-            case (int)RPCRequestHeader.CLIENT_RANGE_COMBAT:
+           case (int)RPCRequestHeader.CLIENT_LEAVE_COMBAT:
+
+                break;
+
+           case (int)RPCRequestHeader.CLIENT_RANGE_COMBAT:
                 Output.WriteRpcLog("RANGE COMBAT REQUEST");
                 new TestUnitHandler().testCloseCombat(ref rpcData);
                 break;
@@ -34,18 +40,19 @@ namespace hds{
 				break;
 
             case (int)RPCRequestHeader.CLIENT_OBJECTINTERACTION_DYNAMIC:
-                new ObjectInteractionHandler().processObject(ref rpcData);
+                new ObjectInteractionHandler().processObjectDynamic(ref rpcData);
                 Output.writeToLogForConsole("RPCMAIN : Handle OBJECTINTERACTION_DYNAMIC");
                 break;
             case (int)RPCRequestHeader.CLIENT_OBJECTINTERACTION_STATIC:
-                new ObjectInteractionHandler().processObject(ref rpcData);
+                new ObjectInteractionHandler().processObjectStatic(ref rpcData);
                 Output.writeToLogForConsole("RPCMAIN : Handle OBJECTINTERACTION_STATIC");
                 break;
             case (int)RPCRequestHeader.CLIENT_JUMP:
                 Output.writeToLogForConsole("RPCMAIN : Handle JUMP");
-                //new TestUnitHandler().processHyperJumpTest(ref rpcData);
+                //ToDo: Split Jump and Hyperjump
+                //new TestUnitHandler().processHyperJump(ref rpcData);
                 new TestUnitHandler().processHyperJump(ref rpcData);
-                break;
+                    break;
             case (int)RPCRequestHeader.CLIENT_TARGET:
                     new PlayerHelper().processTargetChange(ref rpcData, Store.currentClient);
                 break;

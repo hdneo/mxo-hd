@@ -63,9 +63,9 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky1"); // Test our skies
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Test our skies
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2");
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());

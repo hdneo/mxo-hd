@@ -96,6 +96,12 @@ namespace hds
 
         }
 
+        public void testRemoveCloseCombat(ref byte[] packet)
+        {
+            ServerPackets serverPackets = new ServerPackets();
+            serverPackets.sendDeleteViewPacket(Store.currentClient, 253);
+        }
+
         public float getDistance(float x1,float y1,float z1,float x2,float y2, float z2)
         {
             float deltaX = x1 - x2;
@@ -158,7 +164,7 @@ namespace hds
             pak.addByteArray(destXBytes);
             pak.addByteArray(destYBytes);
             pak.addByteArray(destZBytes);
-            pak.addByteArray(new byte[] { 0x10, 0xe3, 0x00 });
+            pak.addByteArray(new byte[] { 0x10, 0xff, 0xff });
             pak.addByte(0x00);
             pak.addByte(0x00);
             pak.addByte(0x00);
@@ -166,80 +172,7 @@ namespace hds
         
         }
 
-        public void processHyperJumpTest(ref byte[] packet)
-        {
-            // The working pak : send 82 9a f3 25 49 03 02 00 03 08 f3 fa 84 46 bb 2e 0d 46 3e 22 51 c6 33 f9 83 28 ff 01 64 01 00 00 00 00 00 00 00 00 00 00 00 08 41 6e 64 65 72 73 6f 6e 06 54 68 6f 6d 61 73 ff 04 80 73 1a e9 82 80 60 04 00 02 8e 00 00 00 01 00 00 00 00 00 00 8f 01 00 02 00 2a 03 02 ff 28 0a 32 00 f0 20 46 04 00 8e 16 84 28 00 00 00 60 50 85 d6 40 00 00 00 00 00 7e a3 40 00 00 00 80 25 da c9 c0 00 ff 00 00 00 00 00 f7 00 00 00 eb 00 00 00 00 00 28 0a ff 00 31 5e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff 00 00 00 00 00 00 00 00 00 00 00 00 80 3f 11 00 00 00 4b b1 00 00 71 02 00 00 3f 00 00 00 01 22 00 00 00 00 00 00 00 05 00 01 00 04 f3 fa 84 46 bb 2e 0d 46 3e 22 51 c6 00 00;
-            //this.testHyperJumpPaket();
-            //return;
-
-            // REMOVE THIS LATER!!!
-            /*
-            destX = (string.join(data[9:17],"")).decode('hex')
-            destY = (string.join(data[17:25],"")).decode('hex')
-            destZ = (string.join(data[25:33],"")).decode('hex')
-            maxHeight = (string.join(data[39:43],"")).decode('hex')
-            lastBytes = (string.join(data[-4:],"")).decode('hex')
-
-            (viewData,newX,newY,newZ) = self.hyperjMan.processHyperJump(x,y,z,destX,destY,destZ,maxHeight,lastBytes)
-             */
-            byte[] destXBytes = new byte[8];
-            byte[] destYBytes = new byte[8];
-            byte[] destZBytes = new byte[8];
-            byte[] maxHeight = new byte[4];
-
-            DynamicArray restBytes = new DynamicArray();
-
-            ArrayUtils.copy(packet, 0, destXBytes, 0, 8);
-            ArrayUtils.copy(packet, 0, destYBytes, 8, 8);
-            ArrayUtils.copy(packet, 0, destZBytes, 16, 8);
-            ArrayUtils.copy(packet, 0, maxHeight, 30, 4);
-            /*
-            int packetSize = packet.Length - 28;
-            byte[] restBytes = new byte[packetSize];
-            ArrayUtils.copy(packet, 0, restBytes, 28, packetSize);
-             */
-
-            // Players current X Z Y
-            double x = 0; double y = 0; double z = 0;
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
-            NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-            int rotation = (int)Store.currentClient.playerInstance.YawInterval.getValue()[0];
-
-
-            float xPos = (float)x;
-            float yPos = (float)y;
-            float zPos = (float)z;
-            Store.currentClient.playerData.incrementJumpID();
-
-
-            // Okay we know have what we need to test hyperjump - lets do it
-            // Normally we would loop and increase the player pos..but for test we dont do it
-            DynamicArray din = new DynamicArray();
-            din.append(StringUtils.hexStringToBytes("02000308")); // The 03 header (update myself)
-            din.append(NumericalUtils.floatToByteArray(xPos, 1)); // Current X
-            din.append(NumericalUtils.floatToByteArray(yPos, 1)); // Current Y
-            din.append(NumericalUtils.floatToByteArray(zPos, 1)); // Current Z
-            din.append(StringUtils.hexStringToBytes("00008328FF016401000000000000000000000008416E646572736F6E0654686F6D6173FFE018400C4105E0020400CD01000000010000000000008F010002002A0302FF280A3200"));
-            din.append(StringUtils.hexStringToBytes("F0204604")); // Max height
-            //din.append(maxHeight); // From Source Packet
-            din.append(StringUtils.hexStringToBytes("00"));
-            din.append(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.getJumpID(), 0)); // Must be increment in the loop
-            din.append(StringUtils.hexStringToBytes("8428"));
-            din.append(destXBytes);
-            din.append(destYBytes);
-            din.append(destZBytes);
-            din.append(StringUtils.hexStringToBytes("00FF0000000000F7000000E70000000000280AFF00315E00000000000000000000000000000000FF000000000000000000000000803F110000004BB10000710200003F0000000022000000000000000500010004"));
-            din.append(NumericalUtils.floatToByteArray(xPos, 1)); // Current X
-            din.append(NumericalUtils.floatToByteArray(yPos, 1)); // Current Y
-            din.append(NumericalUtils.floatToByteArray(zPos, 1)); // Current Z
-            din.append(0x00);
-            din.append(0x00);
-            Output.writeToLogForConsole("HJ PACKET DUMP : " + StringUtils.bytesToString(din.getBytes()));
-
-            Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), true);
-
-            
-        }
+      
 
     }
 }

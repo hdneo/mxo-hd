@@ -1,12 +1,7 @@
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-
 using hds.shared;
 
-namespace hds{
+namespace hds.auth{
 	
 	public class AuthServer{
 		
@@ -43,7 +38,7 @@ namespace hds{
 		}
 		
 		public int getStatus(){
-			return this.status;
+			return status;
 		}
 		
 		private int getOpCode(byte[] data){
@@ -189,7 +184,7 @@ namespace hds{
             if (!ArrayUtils.equal(receivedMD5, md5edChallenge)){
 				Output.WriteLine("The Md5 from client and Our Md5 are not same, aborting");
 				Output.WriteLine("Decrypted (TF) blob:"+StringUtils.bytesToString(decryptedBlob));
-				Output.WriteLine("Stored MD5ed Challenge:"+StringUtils.bytesToString(this.md5edChallenge));
+				Output.WriteLine("Stored MD5ed Challenge:"+StringUtils.bytesToString(md5edChallenge));
 				throw new AuthException("Md5 challenge differs");
 			}
 			

@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
-using hds.shared;
-
 namespace hds{
 
 	public class ConsoleSocket{
@@ -12,12 +10,14 @@ namespace hds{
 		private TcpListener tcpListener;	 
     	private Thread listenThread;
 		private bool mainThreadWorking;
-		
-		public ConsoleSocket (){
+        private int consoleport = 55557;
+
+
+        public ConsoleSocket (){
 			this.mainThreadWorking = true;
 			 
-      		this.tcpListener = new TcpListener(IPAddress.Any, 55556);
-			Output.WriteLine("[Console] Server console operating on port 55556");
+      		this.tcpListener = new TcpListener(IPAddress.Any, consoleport);
+			Output.WriteLine("[Console] Server console operating on port " + consoleport);
       		this.listenThread = new Thread(new ThreadStart(ListenForClients));
 		}
 		

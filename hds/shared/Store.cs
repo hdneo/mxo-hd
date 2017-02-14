@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using hds.auth;
 using hds.databases;
 using hds.world.scripting;
 

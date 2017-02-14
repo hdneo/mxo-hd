@@ -325,7 +325,7 @@ namespace hds.databases{
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "";
-            foreach(uint slot in abilitySlots)
+            foreach(ushort slot in abilitySlots)
             {
                 sqlQuery += "UPDATE char_abilities SET is_loaded = " + loaded.ToString() + " WHERE char_id = " + charID.ToString() + " AND slot = " + slot.ToString() + ";";
             }
