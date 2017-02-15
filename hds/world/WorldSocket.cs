@@ -4,7 +4,7 @@ using System.Collections;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
-
+using hds.resources.gameobjects;
 using hds.shared;
 
 namespace hds
@@ -25,6 +25,7 @@ namespace hds
         public static ArrayList npcs = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;
+        public ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
         private byte[] buffer;
         
         public ObjectManager objMan { get; set; }
@@ -40,7 +41,6 @@ namespace hds
 
             listenThread = new Thread(new ThreadStart(ListenForAllClients));
             mainThreadWorking = true;
-
             objMan = new ObjectManager();
 
             Output.WriteLine("[World Server] Set and ready at UDP port 10000");
@@ -228,8 +228,8 @@ namespace hds
 
                         objMan.PushClient(key); // Push first, then create it
                         value = new WorldClient(Remote, socket, key);
+                        gameServerEntities.Add(objMan.GetAssignedObject(key));
                         value.playerData.setEntityId(WorldSocket.entityIdCounter++);
-
 
                         Clients.Add(key, value);
                     }
@@ -240,7 +240,17 @@ namespace hds
                 }
                 // Listening for a new message
                 EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
+                try
+                {
+                    socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
+                }catch(Exception ex)
+                {
+                    // if we get exception - remove the client
+                    // ToDo:
+                    Store.currentClient.Alive = false;
+
+                }
+                
             }
                 
         }

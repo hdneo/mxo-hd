@@ -16,6 +16,7 @@ Also we started the analyse for the CR1 Client and figured out some differences 
 Currently we handle that with different namespaces but this isnt a clean solution at all.
 
 So we will use different branches for CR2 and pre-CR2 (aka CR1). The Master branch will stay always CR2. 
+Well this is an idea - but maybe we change this later. 
 
 ## Current State
 As we didnt commit a while here this is the current develop version. It is not stable at all.
@@ -56,3 +57,29 @@ If you find files where you see a credit by yourself, feel free to contact us on
 ## Activity
 If we dont commit here, it doesnt mean that we didnt something on it. We want just to commit some major updates in the future.
 Also check out our other repositories for helpful stuff like packets tools etc.
+
+
+## Development Enviroment Setup
+You can use Visual Studio 2015 (which we recommend currently and use it). 
+However - Mono Develop should work too.
+
+Rider EAP works like charm too :) 
+Currently you must change the Architecture to x86 (but should be default in the project setup).
+
+## Get the Server running
+First you should extract the data.zip file in the "Debug/data" directory (there are 3 CSV Files).
+These files holds all static gameobjects for the 3 worlds files (constructs are missing currently).
+
+So you should be able to open doors.
+Please Note: they are parsed using a tool we called "Cortana" in the past (before windows 10 exists :)). 
+We had some bugs parsing it so some doors position are not correctly currently.
+You can checkout the tool here https://github.com/hdneo/cortana-python.git
+
+Second install a MySQL Server somewhere and change the Settings in Debug/Config.xml. 
+Import the SQL which is placed in the SQL Folder. 
+
+Start the Server and if everything is right it should take some minutes and end with "I am running :D".
+
+
+
+

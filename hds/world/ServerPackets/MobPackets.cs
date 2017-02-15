@@ -14,7 +14,7 @@ namespace hds
             PacketContent pak = new PacketContent();
             
             pak.addUint16(1, 1);
-            pak.addByteArray(Store.world.objMan.generateCreationPacket(viewData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
+            pak.addByteArray(Store.world.objMan.GenerateCreationPacket(viewData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
             pak.addUint16(mobView.ViewID, 1);
             pak.addByte(0x00);
 
@@ -52,22 +52,29 @@ namespace hds
 
         public void sendNPCDies(UInt16 viewId, WorldClient client, npc theMob)
         {
-            //activate loot+fx
+            // Falls to ground like dead lol
+            // 02010d000000000000000000000000000000
+
+
+            //activate loot+f
             PacketContent pak = new PacketContent();
             pak.addUint16(viewId, 1);
-            pak.addByte(0x02);
-            pak.addByte(0x0e);
             pak.addHexBytes("0501c20200808100000000e0010000c0830000de810303fd070000000000000000");
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
 
+            // lie on the ground
+            /*
             PacketContent pak2 = new PacketContent();
-            pak2.addHexBytes("0100");
-            pak2.addHexBytes("0206");
-            pak2.addByte(0);
             pak2.addUint16(viewId, 1);
-            pak2.addHexBytes("01010000");
-            pak2.addUint16(0,1);
+            pak2.addHexBytes("02010d000000000000000000000000000000");
             client.messageQueue.addObjectMessage(pak2.returnFinalPacket(), false);
+            */
+            
+            PacketContent fallToGroundPak = new PacketContent();
+            fallToGroundPak.addUint16(viewId, 1);
+            fallToGroundPak.addHexBytes("02010d000000000000000000000000000000");
+            client.messageQueue.addObjectMessage(fallToGroundPak.returnFinalPacket(), false);
+            
 
             client.flushQueue();
 

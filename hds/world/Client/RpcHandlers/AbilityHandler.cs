@@ -104,7 +104,7 @@ namespace hds
             Random randAnim = new Random();
             UInt32 randAnimID = (UInt32)fxIDs.GetValue(randAnim.Next(fxIDs.Length));
             */
-            UInt32 randAnimID = (UInt32)FXList.FX_VIRUSCAST_SPLIT_LOGIC_BLAST_LOGICBLAST3;
+            UInt32 randAnimID = (UInt32)FXList.FX_VIRUSCAST_SPLIT_CODE_NUKE_CODENUKE_START;
             
             byte[] animationId = NumericalUtils.uint32ToByteArray(randAnimID, 0);
             byte[] viewID = { 0x02, 0x00 };

@@ -89,7 +89,7 @@ namespace hds
         public string getName() { return this.name; }
         public UInt32 getWeapon() { return this.weapon; }
         public int getState() { return this.state; }
-        public bool getIsDefeated() { return this.is_dead; }
+        public bool getIsDead() { return this.is_dead; }
         public bool getIsLootable() { return this.is_lootable; }
         public bool getIsSpawned() { return this.is_spawned; }
 
@@ -97,7 +97,7 @@ namespace hds
         public Object599 getCreationData()
         {
             Object599 themob = new Object599();
-            themob.disableAllAttributes();
+            themob.DisableAllAttributes();
 
             themob.CharacterName.enable();
             themob.Health.enable();
@@ -176,7 +176,7 @@ namespace hds
             double testRot2 = Math.Atan2(xNew, zNew) * 128 / Math.PI;
 
             
-            Output.WriteDebugLog("Test Rot with 360 : " + testRot.ToString() + "| 255 : " + testRot2.ToString() + " AND THE YAW: " + yaw.ToString() + " (Cast to uint16 : " + Convert.ToInt16(yaw).ToString() + " )");
+            Output.WriteDebugLog("Test Rot with 360 : " + testRot + "| 255 : " + testRot2 + " AND THE YAW: " + yaw + " (Cast to uint16 : " + Convert.ToInt16(yaw) + " )");
 
 
             int yawVal = (int)Convert.ToInt16(yaw);

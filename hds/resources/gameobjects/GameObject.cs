@@ -27,27 +27,27 @@ namespace hds
 			relatedStaticObjId=_relatedStaticObjId;
 		}
 		
-		public string getName(){
+		public string GetName(){
 			return name;
 		}
 		
-		public byte[] getGoid(){
+		public byte[] GetGoid(){
 			return NumericalUtils.uint16ToByteArray(goid,1);
 		}
 		
-		public UInt32 getRelatedStaticObjId(){
+		public UInt32 GetRelatedStaticObjId(){
 			return relatedStaticObjId;
 		}
 		
-		public void setRelatedStaticObjId(UInt32 _relatedStaticObjId){
+		public void SetRelatedStaticObjId(UInt32 _relatedStaticObjId){
 			relatedStaticObjId= _relatedStaticObjId;
 		}
 		
-		public void unsetRelatedStaticObjID(){
-			setRelatedStaticObjId(0xFFFFFFFF);
+		public void UnsetRelatedStaticObjId(){
+			SetRelatedStaticObjId(0xFFFFFFFF);
 		}
 
-		public void disableAllAttributes(){
+		public void DisableAllAttributes(){
 			for (int i = 0;i<attributesCreation.Length;i++){
 				attributesCreation[i].disable();
 			}
@@ -64,7 +64,7 @@ namespace hds
 			attributesCreation[indexCreation].setValue(content);
 		}
 		
-		public byte[] getCreationAttributes(){
+		public byte[] GetCreationAttributes(){
 			DynamicArray din = new DynamicArray();
 			bool lastGroupEmpty = true;
 			int attribCounter = 0;
@@ -89,7 +89,7 @@ namespace hds
 				}
 
 				// Updating last attribute group, set it as 0b0XXXXXXX
-				if (i == (creationGroups-1)){ 
+				if (i == (creationGroups-1)){
 					if (anyAttribEnabled){
 						din.insertBefore(tempHeader);
 						lastGroupEmpty = false;
@@ -115,7 +115,7 @@ namespace hds
 			return din.getBytes();
 		}
 		
-		public void debug(){
+		public void Debug(){
 			Console.WriteLine("Creation statuses");
 			for(int i = 0;i<attributesCreation.Length;i++){
 				if (attributesCreation[i].isActive()){

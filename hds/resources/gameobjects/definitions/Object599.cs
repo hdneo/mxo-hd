@@ -5,7 +5,7 @@ namespace hds
     {
 
         
-        public int selfViewGroups;
+        public int SelfViewGroups;
 
         public  Attribute EvadeShieldHealth = new Attribute(1, "EvadeShieldHealth");
         public  Attribute CharacterName = new Attribute(32, "CharacterName");
@@ -145,9 +145,6 @@ namespace hds
             this.AddAttribute(ref TalkActiveTracker, 63, 4);
             this.AddAttribute(ref StealthAwareness, 64, -1);
             this.AddAttribute(ref CurrentStateContainer, 65, 41);
-
-
-            
 
         }
 

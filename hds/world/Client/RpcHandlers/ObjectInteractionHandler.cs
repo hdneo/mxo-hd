@@ -9,7 +9,7 @@ namespace hds{
 
     public class ObjectInteractionHandler{
 
-        private enum objectTypes : int
+        private enum objectTypesStatic : int
         {
             COLLECTOR       = 0x01,
             HUMAN_NPC       = 0x02,
@@ -18,6 +18,12 @@ namespace hds{
             HARDLINE_LAEXIT = 0x05,
             HARDLINE_SYNC   = 0x08, // Request Hardline Sync
             PIPE            = 0x00, // Bench too
+        }
+
+        private enum objectTypesDynamic : int
+        {
+            LOOT = 0x05
+            
         }
 
         public void processTarget(ref byte[] packet)
@@ -38,6 +44,7 @@ namespace hds{
             UInt16 typeId = NumericalUtils.ByteArrayToUint16(door.type, 1);
             byte[] masterViewId = { 0x01, 0x00 };
             byte[] seperator = { 0xcd, 0xab };
+
             Store.currentClient.playerData.newViewIdCounter++; // It is just for a test Later we will change this to have a List with Views and Object IDs
 
             byte[] disarmDifficultyMaybe = { 0x03, 0x84 };
@@ -106,7 +113,7 @@ namespace hds{
 
         }
 
-        public void processObject(ref byte[] packet){
+        public void processObjectStatic(ref byte[] packet){
 
             byte[] objectID = new byte[4];
             byte[] sectorID = new byte[2];
@@ -136,7 +143,7 @@ namespace hds{
 
             switch (objectTypeID){
 
-                case (int)objectTypes.DOOR:
+                case (int)objectTypesStatic.DOOR:
                     Output.writeToLogForConsole("[OI HELPER] INTERACT WITH DOOR | Object ID :" + id + " Sector ID : " + numericSectorId);
 
                     // just a test
@@ -150,37 +157,77 @@ namespace hds{
                     
                     break;
 
-                case (int)objectTypes.HARDLINE_SYNC:
+                case (int)objectTypesStatic.HARDLINE_SYNC:
                    
                     pak.sendSystemChatMessage(Store.currentClient, "Hardline Interaction(not done yet)!", "MODAL");
                     break;
 
-                case (int)objectTypes.HARDLINE_UPLOAD:
+                case (int)objectTypesStatic.HARDLINE_UPLOAD:
                     Output.writeToLogForConsole("[OBJECT HELPER] Upload Hardline will be used for combat tests");
                     Store.currentClient.playerData.lastClickedObjectId = numericObjectId;
                     new TestUnitHandler().processTestCombat(ref packet);
                     break;
 
-                case (int)objectTypes.HARDLINE_LAEXIT:
+                case (int)objectTypesStatic.HARDLINE_LAEXIT:
                     // Exit LA
                     pak.sendSystemChatMessage(Store.currentClient, "Exit to LA Dialog should popup", "MODAL");
                     new TeleportHandler().processHardlineExitRequest(ref packet);
                     //new TestUnitHandler().processTestCombat(ref packet);
                     break;
 
-                case (int)objectTypes.HUMAN_NPC:
+                case (int)objectTypesStatic.HUMAN_NPC:
                     pak.sendSystemChatMessage(Store.currentClient, "NPC Interaction (not done yet)!", "MODAL");
                     this.processVendorOpen(ref objectID);
                     break;
 
-                case (int)objectTypes.COLLECTOR:
+                case (int)objectTypesStatic.COLLECTOR:
                     pak.sendSystemChatMessage(Store.currentClient, "Collector Interaction (not done yet)!", "MODAL");
                     break;
 
-                case (int)objectTypes.PIPE:
+                case (int)objectTypesStatic.PIPE:
                     pak.sendSystemChatMessage(Store.currentClient, "Collector Interaction (not done yet)!", "MODAL");
                     break;
                 
+
+                default:
+                    pak.sendSystemChatMessage(Store.currentClient, "[OI HELPER] Unknown Object Type : " + objectTypeID.ToString() + "| Object ID :" + id, "MODAL");
+                    break;
+            }
+
+        }
+
+        public void processObjectDynamic(ref byte[] packet)
+        {
+
+            byte[] objectID = new byte[4];
+            byte[] sectorID = new byte[2];
+            ArrayUtils.copyTo(packet, 0, objectID, 0, 4);
+            ArrayUtils.copyTo(objectID, 2, sectorID, 0, 2);
+
+            UInt32 numericObjectId = NumericalUtils.ByteArrayToUint32(objectID, 1);
+           
+
+            // Ok sector Bytes are something like 30 39 (reversed but the result must be 39 03)
+            UInt16 numericSectorId = NumericalUtils.ByteArrayToUint16(sectorID, 1);
+            // strip out object id
+            string id = StringUtils.bytesToString_NS(objectID);
+
+
+            // get the type 
+            byte[] objectType = new byte[1];
+            ArrayUtils.copy(packet, 4, objectType, 0, 1);
+            int objectTypeID = packet[4];
+
+
+            // create a new System message but fill it in the switch block
+            ServerPackets pak = new ServerPackets();
+            pak.sendSystemChatMessage(Store.currentClient,"Object Type ID IS " + objectTypeID.ToString() + " Dynamic Object RPC : " + StringUtils.bytesToString_NS(packet), "BROADCAST");
+            switch (objectTypeID)
+            {
+
+                case (int)objectTypesDynamic.LOOT:
+                    break;
+
 
                 default:
                     pak.sendSystemChatMessage(Store.currentClient, "[OI HELPER] Unknown Object Type : " + objectTypeID.ToString() + "| Object ID :" + id, "MODAL");

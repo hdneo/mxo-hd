@@ -8,12 +8,6 @@ namespace hds
     {
         private DynamicArray packet = new DynamicArray();
 
-
-        public PacketContent()
-        {
-
-        }
-
         public void addHexBytes(String hexbytes)
         {
             packet.append(StringUtils.hexStringToBytes(hexbytes));
