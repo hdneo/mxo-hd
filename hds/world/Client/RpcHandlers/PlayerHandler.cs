@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 using hds.shared;
@@ -63,9 +64,9 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Test our skies
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Test our skies
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2");
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
@@ -162,7 +163,23 @@ namespace hds
             Store.currentClient.messageQueue.addRawMessage(response);
             Store.currentClient.flushQueue();
             Store.margin.sendUDPSessionReply(Store.currentClient.playerData.getCharID());
-            
+        }
+
+        public void processGetBackgroundRequest(ref byte[] packetData)
+        {
+            ServerPackets packet = new ServerPackets();
+            packet.sendGetBackgroundMessage(Store.currentClient);
+        }
+
+        public void processSetBackgroundRequest(ref byte[] packetData)
+        {
+            UInt16 backgroundSize = NumericalUtils.ByteArrayToUint16(new byte[] {packetData[3], packetData[4]},1);
+
+            byte[] backgroundBytes = new byte[backgroundSize-1];
+            ArrayUtils.copy(packetData,5,backgroundBytes,0,backgroundSize-1);
+
+            string backgroundText = StringUtils.charBytesToString(backgroundBytes);
+            Store.dbManager.WorldDbHandler.setBackground(backgroundText);
 
         }
     }

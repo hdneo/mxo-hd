@@ -50,6 +50,10 @@ namespace hds
 
         //Commands
         CLIENT_CMD_WHEREAMI = 0x154,
+        CLIENT_CMD_WHO = 0x152, // ToDo: implement
+        CLIENT_PLAYER_GET_DETAILS = 0x192, // ToDo: implement
+        CLIENT_PLAYER_GET_BACKGROUND = 0x194, // ToDo: implement
+        CLIENT_PLAYER_SET_BACKGROUND = 0x196, // ToDo: implement
         CLIENT_JACKOUT_START = 0x80fc,
 
         // Char Emotes and things
@@ -87,6 +91,7 @@ namespace hds
         SERVER_JACKOUT_FINISH = 0x80fe,
         SERVER_PLAYER_EXP   = 0x80e5,
         SERVER_PLAYER_INFO  = 0x80e4,
+        SERVER_PLAYER_GET_BACKGROUND = 0x8195,
 
         // Friendlist
         SERVER_FRIENDLIST_STATUS = 0x80D7,
@@ -111,6 +116,7 @@ namespace hds
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,
         SERVER_CHAT_WHEREAMI_RESPONSE = 0x8154, // CR2: 0x8154
+
 
         // Marketplace
         SERVER_LOAD_MARKERPLACE = 0x8125,

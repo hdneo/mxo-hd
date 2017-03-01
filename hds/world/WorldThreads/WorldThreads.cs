@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using System.Threading;
+﻿using System.Threading;
 
 namespace hds
 {
@@ -16,12 +10,12 @@ namespace hds
         public WorldThreads()
         {
             // Init Threads
-            moverThread = new Thread(new ThreadStart(MoverThreadProcess));
-            timersThread = new Thread(new ThreadStart(TimersThreadProcess));
-            viewVisibleThread = new Thread(new ThreadStart(ViewVisibleThread));
+            //moverThread = new Thread(MoverThreadProcess);
+            timersThread = new Thread(TimersThreadProcess);
+            viewVisibleThread = new Thread(ViewVisibleThread);
 
             // Start Threads
-            moverThread.Start();
+            //moverThread.Start();
             timersThread.Start();
             viewVisibleThread.Start();
         }

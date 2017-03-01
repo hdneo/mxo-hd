@@ -46,8 +46,9 @@ namespace hds
 
         public bool waitForRPCShutDown = false;
         internal ushort selfSpawnIdCounter;
+	    public UInt32 lastSaveTime;
 
-        public ClientData ()
+	    public ClientData ()
 		{
 			rsiValues = new int[22];
 			RPCCounter = 0;
@@ -60,7 +61,6 @@ namespace hds
 
         public byte assignSpawnIdCounter()
         {
-            return 1;
             byte temp = (byte)spawnViewUpdateCounter;
             spawnViewUpdateCounter++;
             if (spawnViewUpdateCounter == 256)

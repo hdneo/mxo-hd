@@ -81,12 +81,14 @@ namespace hds
             }
             if (currentAbility.getCastingTime() > 0)
             {
-                // Cast 
-                pak.sendPlayerAnimation(Store.currentClient, "2904");
+                byte[] castAnimStart = currentAbility.getCastAnimStart();
+                // Cast
+                pak.sendSystemChatMessage(Store.currentClient, "Animation Starts with Byte ID " + StringUtils.bytesToString(castAnimStart) , "BROADCAST");
+                pak.sendPlayerAnimation(Store.currentClient, StringUtils.bytesToString_NS(castAnimStart));
 
                 // And Time a "Damage" or "Buff" Animation
                 int castingTime = (int)this.currentAbility.getCastingTime() * 1000;
-                this.damageTimer = new Timer(new TimerCallback(abilityAnimateTheTarget), this, castingTime, 0);
+                this.damageTimer = new Timer(abilityAnimateTheTarget, this, castingTime, 0);
             }
             
         }

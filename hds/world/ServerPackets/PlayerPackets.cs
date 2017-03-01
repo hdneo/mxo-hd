@@ -234,6 +234,21 @@ namespace hds
 
         }
 
+        public void sendGetBackgroundMessage(WorldClient client)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_GET_BACKGROUND,0);
+            pak.addByte(0x05);
+            pak.addUint16(0,1);
+
+            // Get Data from DB and save
+            Hashtable characterData = Store.dbManager.WorldDbHandler.getCharInfo(client.playerData.getCharID());
+            String backgroundTextt = characterData["background"].ToString();
+            pak.addSizedTerminatedString(backgroundTextt);
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+
+        }
+
 
 
     }

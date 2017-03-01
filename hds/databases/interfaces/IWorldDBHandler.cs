@@ -6,6 +6,7 @@ using System.Text;
 namespace hds.databases.interfaces{
     
     public interface IWorldDBHandler{
+        Hashtable getCharInfo (UInt32 charId);
         UInt32 getUserIdForCharId(byte[] charIdHex);
         string getPathForDistrictKey(string key);
         bool fetchWordList(ref WorldList wl);
@@ -22,5 +23,6 @@ namespace hds.databases.interfaces{
         void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot);
         UInt16 getFirstNewSlot();
         void addItemToInventory(UInt16 slotId, UInt32 itemGoID);
+        void setBackground(string backgroundText);
     }
 }

@@ -40,10 +40,11 @@ namespace hds
             
             
             // Disabled for Debugging
-            
+            /*
             this.loadWorldObjectsDb("data\\staticObjects_slums.csv");
             this.loadWorldObjectsDb("data\\staticObjects_it.csv");
             this.loadWorldObjectsDb("data\\staticObjects_dt.csv");
+            */
             
             
         }
@@ -124,6 +125,7 @@ namespace hds
                         theMob.setIsDead(bool.Parse(data[11]));
                         theMob.setIsLootable(bool.Parse(data[12]));
                         WorldSocket.npcs.Add(theMob);
+                        WorldSocket.gameServerEntities.Add(theMob);
                     }
                 }
                 linecount++;

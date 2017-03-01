@@ -165,6 +165,7 @@ namespace hds{
                     theMob.setIsDead(false);
                     theMob.setIsLootable(false);
                     WorldSocket.npcs.Add(theMob);
+                    WorldSocket.gameServerEntities.Add(theMob);
 
                     // we use this for a test to see if we can spawn mobs and how we can handle them 
                     // We refactor this 

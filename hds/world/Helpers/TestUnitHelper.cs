@@ -118,7 +118,6 @@ namespace hds
             byte[] destZBytes = new byte[8];
             byte[] maxHeight = new byte[4];
             byte[] theLast4 = new byte[4]; // we dont know what this is lol
-            DynamicArray restBytes = new DynamicArray();
 
             ArrayUtils.copy(packet, 0, destXBytes, 0, 8);
             ArrayUtils.copy(packet, 8, destYBytes, 0, 8);

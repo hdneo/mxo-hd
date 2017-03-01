@@ -184,6 +184,16 @@ namespace hds.databases{
             dr.Close();
             savePlayer(Store.currentClient);
         }
+
+        public void setBackground(string backgroundText)
+        {
+            UInt32 charID = Store.currentClient.playerData.getCharID();
+
+            string sqlQuery = "UPDATE characters SET background = '" + backgroundText + "' WHERE charId = '" + charID + "' LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            queryExecuter.ExecuteNonQuery();
+        }
 		
 		public void setPlayerValues(){
 
@@ -231,6 +241,38 @@ namespace hds.databases{
 			dr.Close();
 			
 		}
+
+
+        public Hashtable getCharInfo(UInt32 charId)
+        {
+
+            string sqlQuery = "SELECT firstName,lastName,background, district, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+
+            dr = queryExecuter.ExecuteReader();
+
+            Hashtable data = new Hashtable();
+            while (dr.Read())
+            {
+                data.Add("firstname", dr.GetString(0));
+                data.Add("lastname", dr.GetString(1));
+                data.Add("background", dr.GetString(2));
+                data.Add("district", dr.GetString(3));
+                data.Add("repMero",dr.GetInt16(4));
+                data.Add("repMachine", dr.GetInt16(5));
+                data.Add("repNiobe", dr.GetInt16(6));
+                data.Add("repEPN", dr.GetInt16(7));
+                data.Add("repCYPH", dr.GetInt16(8));
+                data.Add("repGM", dr.GetInt16(9));
+                data.Add("repZion", dr.GetInt16(10));
+                data.Add("exp", dr.GetInt32(11));
+                data.Add("cash", dr.GetInt32(12));
+            }
+            dr.Close();
+
+            return data;
+        }
 
 		public void setRsiValues(){
 			int charID = (int) Store.currentClient.playerData.getCharID();

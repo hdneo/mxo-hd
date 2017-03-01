@@ -25,7 +25,7 @@ namespace hds
         public static ArrayList npcs = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;
-        public ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
+        public static ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
         private byte[] buffer;
         
         public ObjectManager objMan { get; set; }
@@ -229,7 +229,7 @@ namespace hds
                         objMan.PushClient(key); // Push first, then create it
                         value = new WorldClient(Remote, socket, key);
                         gameServerEntities.Add(objMan.GetAssignedObject(key));
-                        value.playerData.setEntityId(WorldSocket.entityIdCounter++);
+                        value.playerData.setEntityId(entityIdCounter++);
 
                         Clients.Add(key, value);
                     }
@@ -259,9 +259,9 @@ namespace hds
         private void ListenForAllClients()
         {
             buffer = new byte[4096];
-            socket.Bind(this.udplistener);
+            socket.Bind(udplistener);
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-            EndPoint Remote = (EndPoint)(sender);
+            EndPoint Remote = sender;
             socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
             
         }
