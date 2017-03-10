@@ -128,7 +128,18 @@ namespace hds
             pak.addHexBytes("0200000000");
             Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             Store.currentClient.flushQueue();
-            
+        }
+
+        public void sendAbilitySelfAnimation(UInt16 viewId, UInt16 abilityId, UInt32 animId)
+        {
+            ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
+
+            PacketContent pak = new PacketContent();
+            pak.addUint16(viewId,1);
+            pak.addByteArray(new byte[]{ 0x02, 0x80, 0x80, 0x80, 0x90, 0xed, 0x00, 0x30});
+            pak.addUint32(animId,0);
+            pak.addUintShort(Store.currentClient.playerData.assignSpawnIdCounter());
+            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
 
         }
 

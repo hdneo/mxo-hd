@@ -119,6 +119,12 @@ namespace hds{
 
 
 		        // Inventory
+		        case (int) RPCRequestHeader.CLIENT_ITEM_MOUNT_RSI:
+		            new InventoryHandler().processMountItem(ref rpcData);
+		            break;
+		        case (int) RPCRequestHeader.CLIENT_ITEM_UNMOUNT_RSI:
+		            new InventoryHandler().processUnmountItem(ref rpcData);
+		            break;
 		        case (int) RPCRequestHeader.CLIENT_ITEM_MOVE_SLOT:
 		            new InventoryHandler().processItemMove(ref rpcData);
 		            break;

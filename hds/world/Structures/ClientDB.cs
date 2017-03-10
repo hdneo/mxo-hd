@@ -27,26 +27,6 @@ namespace hds.world.Structures
 
         
 
-        public static Dictionary<uint,byte> EmoteListDict = new Dictionary<uint,byte>() {
-            {0xe6020058, 0x1 }, // /beckon
-            {0x9b010058, 0x2 }, // /bigwave
-            {0xe7020058, 0x3 }, // /bow
-            {0x0d00003a, 0x4 }, // /clap
-            {0x1000003a, 0x5 }, // /crossarms
-            {0x1100003a, 0x6 }, // /nod
-            {0x570d0058, 0x7 }, // /agree
-            {0x590d0058, 0x8 }, // /yes
-            {0x1600003a, 0x9 }, // /orangutan
-            {0x10050004, 0xa }, // /point
-            {0xd1020058, 0xb }, // /pointback
-            {0x1300003a, 0xc }, // /pointleft
-            {0x1400003a, 0xd }, // /pointright
-           
-        };
-            
-        
-
-
 
         // Animations 
         public enum AnimationList : uint

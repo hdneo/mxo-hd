@@ -293,6 +293,16 @@ namespace hds.databases{
 			Store.currentClient.playerData.setRsiValues(rsiValues);
 			dr.Close();
 		}
+
+
+        public void updateRsiPartValue(string part, uint value)
+        {
+            int charID = (int) Store.currentClient.playerData.getCharID();
+            string sqlQuery = "UPDATE rsivalues SET " + part + "= " + value + " WHERE charid= '" + charID.ToString() + "' LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            queryExecuter.ExecuteNonQuery();
+        }
 		
 		
 
@@ -336,11 +346,34 @@ namespace hds.databases{
             queryExecuter.ExecuteNonQuery();
         }
 
+        public bool isSlotinUseByItem(UInt16 slotId)
+        {
+            bool isSlotInUse = false;
+            UInt32 charID = Store.currentClient.playerData.getCharID();
+            string sqlQuery = "SELECT slot FROM inventory WHERE slot = '" + slotId.ToString() + "' AND charID = '" +
+                              charID.ToString() + "' LIMIT 1";
+
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            dr = queryExecuter.ExecuteReader();
+
+            UInt16 freeSlot = 0;
+
+            if (dr.Read())
+            {
+                isSlotInUse = true;
+            }
+
+            dr.Close();
+            return isSlotInUse;
+
+        }
         public UInt16 getFirstNewSlot()
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();
 
-            string sqlQuery = "SELECT inv.slot +1 as freeSlot FROM inventory inv WHERE NOT EXISTS (SELECT * FROM inventory inv2 WHERE inv2.slot = inv.slot + 1 AND charID = '" + charID.ToString() + "') AND charID = '" + charID.ToString() + "' LIMIT 1";
+            // We want the next free slot which is not in the "wearing" range (which starts with 97)
+            string sqlQuery = "SELECT inv.slot +1 as freeSlot FROM inventory inv WHERE NOT EXISTS (SELECT * FROM inventory inv2 WHERE inv2.slot = inv.slot + 1 AND charID = '" + charID.ToString() + "') AND charID = '" + charID.ToString() + "' AND slot<97 LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             dr = queryExecuter.ExecuteReader();
@@ -362,6 +395,24 @@ namespace hds.databases{
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
         }
+
+        public UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId)
+        {
+            UInt32 charID = Store.currentClient.playerData.getCharID();
+
+            string sqlQuery = "SELECT goid FROM inventory WHERE charID = '" + charID + "' AND slot = '" + slotId + "' LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            dr = queryExecuter.ExecuteReader();
+
+            UInt32 GoID = 0;
+            while (dr.Read()){
+                GoID  = (UInt32)dr.GetInt32(0);
+            }
+            dr.Close();
+            return GoID;
+        }
+
 
         public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
         {

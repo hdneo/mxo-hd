@@ -20,7 +20,9 @@ namespace hds{
 					int maxRPC = int.Parse(commands[1]);
 					for(int i = 0;i<maxRPC;i++){
 						Store.currentClient.playerData.setRPCCounter((UInt16)i);
-                        Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("Trying to fix! " + i, Store.currentClient));
+
+					    ServerPackets pak = new ServerPackets();
+					    pak.sendSystemChatMessage(Store.currentClient, "Trying to fix!", "BROADCAST");
 					}
 					
 				}
@@ -28,14 +30,18 @@ namespace hds{
 				if (command.Equals("?teleport") && commands.Length==4){
 					// parse the coord parameters parameters as int
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().teleport(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3])), false);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("Teleported!", Store.currentClient));
+
+				    ServerPackets pak = new ServerPackets();
+				    pak.sendSystemChatMessage(Store.currentClient, "Teleported!", "BROADCAST");
 					
 				}
 				
 				if (command.Equals("?rsi") && commands.Length==3){
 					//parse the rsi part and value
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().changeRsi(commands[1], int.Parse(commands[2])), false);
-                    Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("Rsi changed!", Store.currentClient));
+
+				    ServerPackets pak = new ServerPackets();
+				    pak.sendSystemChatMessage(Store.currentClient, "Rsi changed!", "BROADCAST");
 				}
 
                 

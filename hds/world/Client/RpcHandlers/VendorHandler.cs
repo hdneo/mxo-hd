@@ -6,9 +6,6 @@ namespace hds{
 
     class VendorHandler{
 
-        public VendorHandler(){
-        }
-
         public void processBuyItem(ref byte[] packet){
 
             byte[] goByteID = {packet[0],packet[1],packet[2],packet[3]};

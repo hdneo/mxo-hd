@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Management.Instrumentation;
+using System.Security.Permissions;
 
 namespace hds
 {
@@ -18,6 +21,7 @@ namespace hds
         public List<StaticWorldObject> WorldObjectsDB = new List<StaticWorldObject>();
         public List<EmoteItem> Emotes = new List<EmoteItem>();
         public List<NewRSIItem> newRSIItemsDb = new List<NewRSIItem>();
+        public List<Vendor> Vendors = new List<Vendor>();
         public SQLiteConnection mxoSqliteDb = null;
 
         public bool useSQLiteDatabase = false;
@@ -28,23 +32,23 @@ namespace hds
             loadEmotes();
             loadNewRSIIDs("data\\newrsiIDs.csv");
             loadGODB("data\\gameobjects.csv");
-            
-            
+
             loadMobs("data\\mob.csv");
             loadMobs("data\\mob_parsed.csv");
-            
+
             
             loadMobs("data\\mob_just_one.csv");
             loadAbilityDB("data\\abilityIDs.csv");
             loadClothingDB("data\\mxoClothing.csv");
-            
+
+            loadVendorItems("data\\vendor_items.csv");
             
             // Disabled for Debugging
-            
-            this.loadWorldObjectsDb("data\\staticObjects_slums.csv");
-            this.loadWorldObjectsDb("data\\staticObjects_it.csv");
-            this.loadWorldObjectsDb("data\\staticObjects_dt.csv");
-            
+            /*
+            loadWorldObjectsDb("data\\staticObjects_slums.csv");
+            loadWorldObjectsDb("data\\staticObjects_it.csv");
+            loadWorldObjectsDb("data\\staticObjects_dt.csv");
+            */
             
             
         }
@@ -380,8 +384,14 @@ namespace hds
         }
 
 
-        public void loadVendorItems()
+        public void loadVendorItems(string dataVendorItemsCsv)
         {
+            List<UInt32> items = new List<UInt32>();
+            items.Add(38145);
+            items.Add(38142);
+            items.Add(38146);
+            Vendor theVendor = new Vendor(1,1167065214,items);
+            Vendors.Add(theVendor);
 
         }
 
@@ -625,7 +635,19 @@ namespace hds
 
         }
 
-        public ClothingItem getItemValues(UInt16 itemID)
+        public Vendor getVendorByGoIDandMetrId(UInt32 GoID, UInt16 metrId)
+        {
+            Vendor theVendor = null;
+
+            // ToDo: find vendor with multiple
+            //theVendor = Vendors.Find(c => (c.vendorStaticID == GoID) && (c.metrId == metrId));
+            theVendor = Vendors.FindLast(c => c.metrId == metrId);
+
+            return theVendor;
+
+        }
+
+        public ClothingItem getItemValues(UInt32 itemID)
         {
             ClothingItem clothingTemp = ClothingRSIDB.Find(delegate(ClothingItem temp) { return temp.getGoidDecimal() == itemID; });
             if (clothingTemp == null)

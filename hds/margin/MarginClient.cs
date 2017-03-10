@@ -441,17 +441,7 @@ namespace hds{
             Store.dbManager.MarginDbHandler.updateCharacter(firstNameString, lastNameString, descriptionString,newCharID);
             
             // Add the Basic Abilitys...
-            Store.dbManager.MarginDbHandler.addAbility(-2147481600, 0, newCharID, 1, 1);
-            Store.dbManager.MarginDbHandler.addAbility(-2147367936, 1, newCharID, 1, 1);
-            Store.dbManager.MarginDbHandler.addAbility(-2147294208, 2, newCharID, 0, 1);
-            Store.dbManager.MarginDbHandler.addAbility(-2147281920, 3, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2147280896, 4, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2147437568, 5, newCharID, 1, 1);
-            Store.dbManager.MarginDbHandler.addAbility(-2147425280, 6, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2147404800, 7, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2147445760, 8, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2146493440, 9, newCharID, 0, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2146453504, 10, newCharID, 1, 0);
+            addStartAbilitys(newCharID);
 
             // we have all created - lets load the charData 
             loadCharacter(packet, client, this.newCharID);
@@ -459,7 +449,17 @@ namespace hds{
 
 
         private void addStartAbilitys(UInt32 charID){
-            
+            Store.dbManager.MarginDbHandler.addAbility(-2147481600, 0, charID, 1, 1);
+            Store.dbManager.MarginDbHandler.addAbility(-2147367936, 1, charID, 1, 1);
+            Store.dbManager.MarginDbHandler.addAbility(-2147294208, 2, charID, 0, 1);
+            Store.dbManager.MarginDbHandler.addAbility(-2147281920, 3, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2147280896, 4, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2147437568, 5, charID, 1, 1);
+            Store.dbManager.MarginDbHandler.addAbility(-2147425280, 6, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2147404800, 7, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2147445760, 8, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2146493440, 9, charID, 0, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2146453504, 10, charID, 1, 0);
         }
 		
 		private void charNameRequest(byte[] packet,NetworkStream client){
@@ -689,10 +689,10 @@ namespace hds{
             sendMarginCharData(loadBackgroundInfo((int)this.newCharID), 0x02, client);
             sendMarginCharData(empty, 0x03, client);                            // BuddyList (but old one)
             sendMarginCharData(empty, 0x04, client);                            // Unknown - no one has data there so ignore it
-            //sendMarginCharData(loadInventory((int)this.newCharID), 0x05, client);            // Inventory
-            sendMarginCharData(StringUtils.hexStringToBytes(itemData), 0x05, client);            // Inventory CR1
+            sendMarginCharData(loadInventory((int)this.newCharID), 0x05, client);            // Inventory
+            //sendMarginCharData(StringUtils.hexStringToBytes(itemData), 0x05, client);            // Inventory CR1
             sendMarginCharData(loadEquippedAbilities(), 0x06, client);          // Loaded Abilitys
-            //sendMarginCharData(empty, 0x06, client);          // Loaded Abilitys CR1
+            //sendMarginCharData(empty, 0x06, client);                          // Loaded Abilitys CR1
             sendMarginCharData(loadKnownAbilities(), 0x07, client);             // Known Abilities
             sendMarginCharData(knownHardlines, 0x08, client);                   // Hardlines
             sendMarginCharData(empty, 0x09, client);                            // Access Nodes?

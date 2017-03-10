@@ -34,7 +34,6 @@ namespace hds
             // ToDo: do something with the entity (or queue a fx hit animation or something lol)    
             this.processAbilityScript(this.currentAbility);
 
-            
         }
 
         public void processAbilityScript(AbilityItem abilityItem)
@@ -96,37 +95,9 @@ namespace hds
 
         public void processSelfAnimation(UInt16 abilityID)
         {
-            DynamicArray din = new DynamicArray();
-            //byte[] animationId = {0x22, 0x0a, 0x00, 0x28}; // Repair RSI
-            //byte[] animationId = { 0x39, 0x0a, 0x00, 0x28 }; // Jackout
-            
-            
-            /*
-            Array fxIDs = Enum.GetValues(typeof(FXList));
-            Random randAnim = new Random();
-            UInt32 randAnimID = (UInt32)fxIDs.GetValue(randAnim.Next(fxIDs.Length));
-            */
-            UInt32 randAnimID = (UInt32)FXList.FX_VIRUSCAST_SPLIT_CODE_NUKE_CODENUKE_START;
-            
-            byte[] animationId = NumericalUtils.uint32ToByteArray(randAnimID, 0);
-            byte[] viewID = { 0x02, 0x00 };
 
-            byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
-
-            din.append(viewID);
-            din.append(0x02);
-            din.append(0x80);
-            din.append(0x80);
-            din.append(0x80);
-            din.append(0x90);
-            din.append(0xed);
-            din.append(0x00);
-            din.append(0x30);
-            din.append(animationId);
-            din.append(updateCount);
-
-            Store.currentClient.messageQueue.addObjectMessage(din.getBytes(),false);
-
+            ServerPackets serverPackets = new ServerPackets();
+            serverPackets.sendAbilitySelfAnimation(2, abilityID, (UInt32) FXList.FX_VIRUSCAST_SPLIT_CODE_NUKE_CODENUKE_START);
             
         }
 

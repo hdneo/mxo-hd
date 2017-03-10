@@ -61,7 +61,6 @@ namespace hds
 
         public byte assignSpawnIdCounter()
         {
-            return 1;
             byte temp = (byte)spawnViewUpdateCounter;
             spawnViewUpdateCounter++;
             if (spawnViewUpdateCounter == 256)

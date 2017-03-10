@@ -75,6 +75,7 @@ namespace hds
 
         public void sendMoodChange(WorldClient client, byte moodByte)
         {
+            // ToDo: should be more dynamic ? How to announce to another players ?
             byte[] moodPak = { 0x02, 0x00, 0x01, 0x01, 0x00, moodByte, 0x00, 0x00 };
             PacketContent pak = new PacketContent();
             pak.addUint16(2, 1);
@@ -83,6 +84,18 @@ namespace hds
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             client.flushQueue();
 
+        }
+
+        public void sendAppeareanceUpdate(WorldClient client, byte[] rsibytes)
+        {
+
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2,1);
+            pak.addByteArray(new byte[] {  0x02, 0x80, 0x89 });
+            pak.addByteArray(rsibytes);
+
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.flushQueue();
         }
 
         public void sendAttribute(WorldClient client, UInt16 attributeValue, byte type)

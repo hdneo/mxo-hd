@@ -123,7 +123,7 @@
     <Compile Include="resources\Data\EmoteItem.cs" />
     <Compile Include="resources\Data\NewRSIItem.cs" />
     <Compile Include="resources\Data\StaticObject.cs" />
-    <Compile Include="resources\Data\VendorItem.cs" />
+    <Compile Include="resources\Data\Vendor.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="databases\mysql\MyAuthDBAccess.cs" />

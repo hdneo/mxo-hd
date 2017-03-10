@@ -170,24 +170,10 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(expbar.getBytes());
         }
 
-        public void processSelfUpdateHealthIS(UInt16 viewID, UInt16 healthC, UInt16 isC)
-        {
-            DynamicArray din = new DynamicArray();
-            din.append(0x03);
-            din.append(NumericalUtils.uint16ToByteArray(viewID, 1));
-            din.append(0x02);
-            din.append(0x80);
-            din.append(0x80);
-            din.append(0x80);
-            din.append(0x50);
-            din.append(NumericalUtils.uint16ToByteArray(isC, 1));
-            din.append(NumericalUtils.uint16ToByteArray(healthC, 1));
-            din.append(0x00);
-            // ToDO SEND PAK and get real health and IS
-        }
 
         public void processSelfUpdateHealth(UInt16 viewId, UInt16 healthC)
         {
+            // ToDo: proove to remove
             DynamicArray din = new DynamicArray();
             din.append(0x03);
             din.append(NumericalUtils.uint16ToByteArray(viewId, 1));
@@ -198,7 +184,7 @@ namespace hds
             din.append(0x40);
             din.append(NumericalUtils.uint16ToByteArray(healthC, 1));
             din.append(0x00);
-            // ToDO SEND PAK and get real health
+
         }
 
 
@@ -207,6 +193,7 @@ namespace hds
         // Shows the Animation of a target Player 
         public void processFXfromPlayer(UInt16 viewID, byte[] animation)
         {
+            // ToDo: proove to remove
             Random rand = new Random();
             ushort updateViewCounter = (ushort)rand.Next(3, 200);
             byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(updateViewCounter);
@@ -231,6 +218,7 @@ namespace hds
         public void processChangeMoaRSI(byte[] rsi)
         {
 
+            // ToDo: proove to remove
             DynamicArray din = new DynamicArray();
             din.append(0x03);
             din.append(0x02);
@@ -294,7 +282,6 @@ namespace hds
             {
                 throw new FormatException("body part or clothes not found");
             }
-
         }
     }
 }

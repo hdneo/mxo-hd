@@ -24,5 +24,8 @@ namespace hds.databases.interfaces{
         UInt16 getFirstNewSlot();
         void addItemToInventory(UInt16 slotId, UInt32 itemGoID);
         void setBackground(string backgroundText);
+        UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId);
+        void updateRsiPartValue(string part, uint value);
+        bool isSlotinUseByItem(UInt16 slotId);
     }
 }

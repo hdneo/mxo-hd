@@ -38,7 +38,8 @@ namespace hds
         CLIENT_LOOT_ALL = 0x117, 
 
         // Inventory
-        CLIENT_ITEM_CHANGE_RSI = 0x63,
+        CLIENT_ITEM_MOUNT_RSI = 0x63,
+        CLIENT_ITEM_UNMOUNT_RSI = 0x64,
         CLIENT_ITEM_MOVE_SLOT = 0x65,
         CLIENT_ITEM_RECYCLE = 0x5D,
         CLIENT_VENDOR_BUY = 0x10e,

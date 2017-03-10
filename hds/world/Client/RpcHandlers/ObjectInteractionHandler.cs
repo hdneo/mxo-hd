@@ -34,9 +34,20 @@ namespace hds{
         }
 
         public void processVendorOpen(ref byte[] objectID){
+            // ToDo: Dynamic Shop Vendors
             PacketContent pak = new PacketContent();
-            pak.addHexBytes("810D7CADD943000000A07EB1D1400000008000BEA940000000E0E74CA7402000140000140080002000800018008000040080002C008000F4118000540680004C088000BC06800000068000AC058000700D8000740D8000900D8000940D8000980D80009C0D8000240080003C0080001C0080");
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+
+            Vendor vendor = DataLoader.getInstance().getVendorByGoIDandMetrId(NumericalUtils.ByteArrayToUint32(objectID,1), 1);
+
+            if (vendor != null)
+            {
+                // ToDo: send the Packet (and give it the items ?)
+                ServerPackets serverPacket = new ServerPackets();
+                serverPacket.sendVendorWindow(Store.currentClient, vendor);
+            }
+
+            //pak.addHexBytes("810D7CADD943000000A07EB1D1400000008000BEA940000000E0E74CA7402000140000140080002000800018008000040080002C008000F4118000540680004C088000BC06800000068000AC058000700D8000740D8000900D8000940D8000980D80009C0D8000240080003C0080001C0080");
+            //Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
         public void processOpenDoor(StaticWorldObject door)
@@ -176,7 +187,7 @@ namespace hds{
                     break;
 
                 case (int)objectTypesStatic.HUMAN_NPC:
-                    pak.sendSystemChatMessage(Store.currentClient, "NPC Interaction (not done yet)!", "MODAL");
+                    pak.sendSystemChatMessage(Store.currentClient, "Open Vendor Dialog", "MODAL");
                     this.processVendorOpen(ref objectID);
                     break;
 
