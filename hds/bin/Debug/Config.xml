@@ -1,6 +1,6 @@
 <HardlineDreams>
 	<DBConfig>
-		<serverHost>vector.mxoemu.com</serverHost>
+		<serverHost>localhost</serverHost>
 		<serverPort>3036</serverPort>
 		<databaseName>reality_hd</databaseName>
 		<databaseUser>reality</databaseUser>
