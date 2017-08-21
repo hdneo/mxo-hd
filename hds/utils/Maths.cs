@@ -94,6 +94,15 @@ namespace hds
 
             return newPos;
         }
+		
+		public static float getDistance(float x1,float y1,float z1,float x2,float y2, float z2)
+		{
+			float deltaX = x1 - x2;
+			float deltaY = y1 - y2;
+			float deltaZ = z1 - z2;
+			float distance = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
+			return distance;
+		}
 
         public LtVector3f RadnomPointInCircle(float xCurrent, float zCurrent, float radius)
         {

@@ -107,12 +107,12 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(perceptionRPC)); // Perception
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(reasonRPC)); // Reason
             */
-            //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("808615A0070000000000000000000000000000000000000000210000000000230000000000"));
+            //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("808615A0070000000000000000000000000000000000000000210000000000230000000000")); // Cew and Faction Window ena
             // Disable later
-            /*
-             * 8167170020001C2200C60111000000000000002900000807006D786F656D750007006D786F656D750002000200000000000000
-            Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2110011000802")); // What is this ? Check it later
 
+            //8167170020001C2200C60111000000000000002900000807006D786F656D750007006D786F656D750002000200000000000000
+            //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2110011000802")); // What is this ? Check it later
+            /*
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc4503110000020000001100110000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc450002000002000000cc00040000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000300000b0000003702330000000000000000"));
@@ -126,14 +126,19 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000b00004c0000001904020000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000c0000530000001504010000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000d0000530000001904010000000000000000"));
-            Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b23a0400000802"));
+            */
+            //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b23a0400000802"));
+            /*
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45033a0400530000003a04000000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000e0000530000000604010000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45000f00005f0000007c04050000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45001000005f0000000704050000000000000000"));
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc4500110000620000000604010000000000000000"));
-            Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2350400000802"));
             */
+            //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2350400000802"));
+
+            ServerPackets pak = new ServerPackets();
+            pak.sendCrewAndFactionEnableWindow(Store.currentClient);
             // Test icon + bonus EDIT DOESNT WORK IN THIS STATE
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc1500450000f70300000702ecffffff0000000000"));
 
@@ -182,5 +187,13 @@ namespace hds
             Store.dbManager.WorldDbHandler.setBackground(backgroundText);
 
         }
+
+        public void processLootAccepted()
+        {
+            // ToDo: persists loot items from mob, and make mob "not lootable" to other players
+            ServerPackets packet = new ServerPackets();
+            packet.sendLootAccepted(Store.currentClient);
+        }
+
     }
 }

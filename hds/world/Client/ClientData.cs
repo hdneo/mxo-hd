@@ -42,8 +42,9 @@ namespace hds
         public UInt16 spawnViewUpdateCounter = 1; // maybe the wording is wrong - need to change this later
         private UInt16 jumpID = 36352;
 
-
-
+		public UInt32 jackoutStartTime;
+		public bool isJackoutInProgress;
+		
         public bool waitForRPCShutDown = false;
         internal ushort selfSpawnIdCounter;
 	    public UInt32 lastSaveTime;

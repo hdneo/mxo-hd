@@ -6,6 +6,7 @@ using MySql.Data.MySqlClient;
 using hds.databases.interfaces;
 using hds.shared;
 using System.Collections.Generic;
+using System.IO;
 
 namespace hds.databases{
 	
@@ -91,9 +92,7 @@ namespace hds.databases{
 			
 		}
 		
-		
 
-		
 		public bool fetchWordList(ref WorldList wl){
 
 			// Doesnt exist by default
@@ -233,10 +232,22 @@ namespace hds.databases{
 				Store.currentClient.playerData.setInfo((long)dr.GetDecimal(16));
 				Store.currentClient.playerData.setDistrict(dr.GetString(17));
                 Store.currentClient.playerData.setDistrictId((uint)dr.GetInt16(18));
-                Store.currentClient.playerInstance.FactionID.setValue((uint)dr.GetInt16(19));
-                Store.currentClient.playerInstance.CrewID.setValue((uint)dr.GetInt16(20));
+				UInt32 factionId = (uint) dr.GetInt16(19);
+				UInt32 crewId = (uint) dr.GetInt16(20);
 
-            }
+				if (factionId > 0)
+				{
+					Store.currentClient.playerInstance.FactionID.enable();
+					Store.currentClient.playerInstance.FactionID.setValue(factionId);
+				}
+
+				if (crewId > 0)
+				{
+					Store.currentClient.playerInstance.CrewID.enable();
+					Store.currentClient.playerInstance.CrewID.setValue(crewId);
+				}
+
+			}
 			
 			dr.Close();
 			
@@ -324,7 +335,6 @@ namespace hds.databases{
 			queryExecuter.CommandText = sqlQuery;
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));
             Output.writeToLogForConsole(queryExecuter.ExecuteNonQuery() + " rows affecting saving");
-			
 						
 			string rsiQuery="update rsivalues set sex='"+rsiValues[0]+"',body='"+rsiValues[1]+"',hat='"+rsiValues[2]+"',face='"+rsiValues[3]+"',shirt='"+rsiValues[4]+"',coat='"+rsiValues[5]+"',pants='"+rsiValues[6]+"',shoes='"+rsiValues[7]+"',gloves='"+rsiValues[8]+"',glasses='"+rsiValues[9]+"',hair='"+rsiValues[10]+"',facialdetail='"+rsiValues[11]+"',shirtcolor='"+rsiValues[12]+"',pantscolor='"+rsiValues[13]+"',coatcolor='"+rsiValues[14]+"',shoecolor='"+rsiValues[15]+"',glassescolor='"+rsiValues[16]+"',haircolor='"+rsiValues[17]+"',skintone='"+rsiValues[18]+"',tattoo='"+rsiValues[19]+"',facialdetailcolor='"+rsiValues[20]+"',leggins='"+rsiValues[21]+"' where charId='"+charID+"';";
 			queryExecuter= conn.CreateCommand();
@@ -338,8 +348,6 @@ namespace hds.databases{
         public void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot)
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();
-
-
             string sqlQuery = "UPDATE inventory SET slot = '" + destSlot.ToString() + "' WHERE slot = '" + sourceSlot.ToString() + "' AND charID = '" + charID.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
@@ -368,6 +376,131 @@ namespace hds.databases{
             return isSlotInUse;
 
         }
+
+        public UInt16 getCrewMemberCountByCrewName(string crewName)
+        {
+            string sqlQuery = "SELECT COUNT(cm.id) as count_members FROM crew_members cm LEFT JOIN crews c ON cm.crew_id=c.id WHERE c.crew_name='" + crewName + "' LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            dr = queryExecuter.ExecuteReader();
+
+            UInt16 countCrewMembers = 0;
+
+            if (dr.Read())
+            {
+                countCrewMembers = (UInt16)dr.GetInt16(0);
+
+            }
+
+            dr.Close();
+            return countCrewMembers;
+        }
+
+	    public ushort getCrewIdByCrewMasterHandle(string playerHandle)
+	    {
+		    // ToDo: we need to proove if this can work this way 
+		    // ToDo: can only the master invite other players ? i am not sure then we need to change this
+		    // ToDo: make DB easier
+		    string sqlQuery = "SELECT c.id, c.crew_name FROM crew_members cm LEFT JOIN crews c ON cm.crew_id=c.id WHERE c.master_player_handle='" + playerHandle + "' LIMIT 1";
+		    queryExecuter = conn.CreateCommand();
+		    queryExecuter.CommandText = sqlQuery;
+		    dr = queryExecuter.ExecuteReader();
+
+		    UInt16 countCrewMembers = 0;
+
+		    if (dr.Read())
+		    {
+			    countCrewMembers = (UInt16)dr.GetInt16(0);
+
+		    }
+
+		    dr.Close();
+		    return countCrewMembers;
+	    }
+
+	    public string getFactionNameById(uint factionId)
+	    {
+		    string sqlQuery = "SELECT name FROM factions WHERE id =" + factionId + " LIMIT 1";
+		    queryExecuter = conn.CreateCommand();
+		    queryExecuter.CommandText = sqlQuery;
+		    dr = queryExecuter.ExecuteReader();
+
+		    string factionName = "";
+
+		    if (dr.Read())
+		    {
+
+			    factionName = dr.GetString(0);
+
+		    }
+		    dr.Close();
+		    return factionName;
+	    }
+
+	    public bool isCrewNameAvailable(string crewName)
+        {
+            bool isCrewNameAvailable = true;
+	        crewName = crewName.Replace("'", @"\'");
+
+            string sqlQuery = "SELECT id,created_at,deleted_at FROM crews WHERE crew_name='" + crewName + "' AND deleted_at > NOW() LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            dr = queryExecuter.ExecuteReader();
+
+            if (dr.Read())
+            {
+                UInt16 memberCount = getCrewMemberCountByCrewName(crewName);
+
+                UInt32 crewId = (UInt32)dr.GetInt32(0);
+                DateTime createdAt = dr.GetDateTime(1);
+                DateTime deletedAt = dr.GetDateTime(2);
+
+                isCrewNameAvailable = false;
+
+	            // Lets check if more than one player is in the crew and if created_at is greater than one day
+                if ((DateTime.Now - deletedAt).TotalHours > 24 && memberCount < 2)
+                {
+                    deleteCrew(crewId);
+	                isCrewNameAvailable = true;
+                }
+
+
+            }
+
+            dr.Close();
+            return isCrewNameAvailable;
+        }
+
+        public void deleteCrew(UInt32 crewId)
+        {
+	        // Delete the Crew
+            string sqlQueryDelete = "UPDATE crews SET deleted_at = NOW() WHERE id=" + crewId + " LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQueryDelete;
+            queryExecuter.ExecuteNonQuery();
+
+	        // Delete the Player Crew ID
+	        string updatePlayers = "UPDATE characters SET crewId = 0 WHERE crewId = " + crewId;
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = updatePlayers;
+	        queryExecuter.ExecuteNonQuery();
+	        
+	        // Delete the Player Crew ID
+	        string deleteMembers = "DELETE FROM crew_members WHERE crew_id = " + crewId;
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = deleteMembers;
+	        queryExecuter.ExecuteNonQuery();
+        }
+
+        public void addCrew(string crewName, string masterHandle)
+        {
+	        crewName = crewName.Replace("'", @"\'");
+            string sqlQueryInsert = "INSERT INTO crews SET crew_name= '" + crewName + "', created_at =NOW() ";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQueryInsert;
+            queryExecuter.ExecuteNonQuery();
+        }
+
         public UInt16 getFirstNewSlot()
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();

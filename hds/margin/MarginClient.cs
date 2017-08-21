@@ -460,6 +460,9 @@ namespace hds{
             Store.dbManager.MarginDbHandler.addAbility(-2147445760, 8, charID, 0, 0);
             Store.dbManager.MarginDbHandler.addAbility(-2146493440, 9, charID, 0, 0);
             Store.dbManager.MarginDbHandler.addAbility(-2146453504, 10, charID, 1, 0);
+            Store.dbManager.MarginDbHandler.addAbility(-2147472384, 11, charID, 10, 1); // Hyperjump
+            Store.dbManager.MarginDbHandler.addAbility(-2147295232, 12, charID, 10, 1); // Hyperspeed
+            Store.dbManager.MarginDbHandler.addAbility(-2147295232,13,charID,10,1); // HyperSprint
         }
 		
 		private void charNameRequest(byte[] packet,NetworkStream client){
@@ -506,58 +509,45 @@ namespace hds{
 
         private byte[] loadBackgroundInfo(int charID){
 
-            Hashtable charInfo = Store.dbManager.MarginDbHandler.getCharInfo(charID);
+            MarginCharacter marginCharacter = Store.dbManager.MarginDbHandler.getCharInfo(charID);
 
-            // in margin packet firstname,lastname are everytime 32 bytes and background 1024 - so we must pad it
-            string firstname        = (string)charInfo["firstname"].ToString().PadRight(32,'\x00');
-            string lastname         = (string)charInfo["lastname"].ToString().PadRight(32, '\x00');
-            string background       = (string)charInfo["background"].ToString().PadRight(1024, '\x00');
-            string district         = (string)charInfo["district"];
-            /*
-            string repMero          = StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray((UInt16)charInfo["repMero"], 1));
-            string repMachine       = StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray((UInt16)charInfo["repMachine"], 1));
-            string repNiobe         = StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray((UInt16)charInfo["repNiobe"], 1));
-            string repGM            = StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray((UInt16)charInfo["repGM"], 1));
-            string repZion          = StringUtils.bytesToString_NS(NumericalUtils.uint16ToByteArray((UInt16)charInfo["repZion"], 1));
-            */
 
-            // Set the default value
-            string worldFlag = "00"; // 01 = onWorld , 00 = LA . In World you have to take care to not spawn the Character in LA State
-            if (district != "la")
+            PacketContent pak = new PacketContent();
+            if (!isNewCreatedChar)
             {
-                worldFlag = "01";
+                pak.addByteArray(StringUtils.hexStringToBytes("01000000640000007B0000006500000000000000000000006C000000000000002B010000"));
             }
+            pak.addStringWithFixedSized(marginCharacter.firstname,32);
+            pak.addStringWithFixedSized(marginCharacter.lastname,32);
+            pak.addStringWithFixedSized(marginCharacter.background,1024);
 
 
-            byte[] firstNameBytes   = StringUtils.stringToBytes(firstname);
-            byte[] lastNameBytes    = StringUtils.stringToBytes(lastname);
-            byte[] backgroundBytes  = StringUtils.stringToBytes(background);
-
-            string firstPart;
-            if (isNewCreatedChar == false)
+            // ToDo: Analyse it and (Rep zion => 82, Rep Machine 2, RepMero 81
+            //pak.addHexBytes("000000000000000000178604E40008AF2F0175020000A39F714A81FF81FF81FF670067006700000003000301310000B402320000B403380000B4044E0000000200510000001600520000001900540000001300");
+            pak.addUint32(marginCharacter.exp,1);
+            pak.addUint32(marginCharacter.cash,1);
+            pak.addHexBytes("0105000000");
+            pak.addByteArray(StringUtils.hexStringToBytes("875D714A")); // Timestamp - Char Creation maybe - lets to it static ToDo: make dynamic
+            pak.addHexBytes("ecfa" + "ecfb" + "ecfc" + "ecfd" + "ecfe" + "ecff");
+            pak.addHexBytes("000003");
+            // 01 = onWorld , 00 = LA . In World you have to take care to not spawn the Character in LA State
+            if (marginCharacter.districtId != 0)
             {
-                firstPart = "01000000640000007B0000006500000000000000000000006C000000000000002B010000";
+                pak.addByte(0x01);
             }
             else
             {
-                firstPart = "";
+                pak.addByte(0x00);
             }
-            
-            string exp              = "E7CBC012";
-            string cash             = "FCBE4BEE";
-            string timestamp        = "875D714A";
-            string repBytes         = "ecfa" + "ecfb" + "ecfc" + "ecfd" + "ecfe" + "ecff";
 
-            // string repBytes = repMero + repMachine + repNiobe + repGM + repZion;
-            string lastPart = exp + cash + "0105000000" + timestamp + repBytes + "000003" + worldFlag + "0301310000b402320000b403380000b403510000000400520000000b00540000000100";
+            pak.addHexBytes("0301310000b402320000b403380000b403510000000400520000000b00540000000100"); // The Last Part
 
-            string fullPacket = firstPart + StringUtils.bytesToString_NS(firstNameBytes) + StringUtils.bytesToString_NS(lastNameBytes) + StringUtils.bytesToString_NS(backgroundBytes) + lastPart;
             if (isNewCreatedChar == true)
             {
-                Output.WriteLine("Load Background Reply for Created Char:\n" + fullPacket); 
+                Output.WriteLine("Load Background Reply for Created Char:\n" + pak.returnFinalPacket());
             }
-            byte[] dataPak = StringUtils.hexStringToBytes(fullPacket);
-            return dataPak;
+
+            return pak.returnFinalPacket();
             
         }
 
@@ -681,7 +671,7 @@ namespace hds{
             byte[] empty = new byte[0];
 
             // New Margin Method to send Data
-            
+
             // Pre-Load Abilities so that we just need to filter the result later
             loadAbilities((int)this.newCharID);
 
@@ -696,8 +686,8 @@ namespace hds{
             sendMarginCharData(loadKnownAbilities(), 0x07, client);             // Known Abilities
             sendMarginCharData(knownHardlines, 0x08, client);                   // Hardlines
             sendMarginCharData(empty, 0x09, client);                            // Access Nodes?
-            //sendMarginCharData(codeArchiveTest, 0x0a, client);                  // Code Storage
-            sendMarginCharData(empty, 0x0a, client);                  // Code Storage CR1
+            //sendMarginCharData(codeArchiveTest, 0x0a, client);                // Code Storage
+            sendMarginCharData(empty, 0x0a, client);                            // Code Storage CR1
             sendMarginCharData(knownContacts, 0x0b, client);                    // Contacts
             sendMarginCharData(empty, 0x0e, client);
 
@@ -801,13 +791,13 @@ namespace hds{
             if (firstnum != 3)
             {
                 //showMarginDebug("FirstNum is not 3, it is" + firstnum);
-                
+
             }
 
             if (authstart != 310)
             {
                 //showMarginDebug("AuthStart is not 0x3601");
-                
+
             }
 
 			

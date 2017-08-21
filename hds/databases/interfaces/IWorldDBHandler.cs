@@ -27,5 +27,12 @@ namespace hds.databases.interfaces{
         UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId);
         void updateRsiPartValue(string part, uint value);
         bool isSlotinUseByItem(UInt16 slotId);
+
+        bool isCrewNameAvailable(string crewName);
+        void addCrew(string crewName, string masterHandle);
+        UInt16 getCrewMemberCountByCrewName(string crewName);
+        UInt16 getCrewIdByCrewMasterHandle(string playerHandle);
+
+        string getFactionNameById(UInt32 factionId);
     }
 }

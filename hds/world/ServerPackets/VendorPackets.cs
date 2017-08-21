@@ -17,7 +17,8 @@ namespace hds
             // ToDo: Research what position should be here - Vendor or Player and why ?
             pak.addByteArray(Store.currentClient.playerInstance.Position.getValue());
             pak.addByteArray(new byte[]{0x20,0x00}); // Always 20 00 (i think its an offset)
-            pak.addUint16((UInt16)vendor.items.Count,1);
+
+            pak.addUint16((UInt16)vendor.items.Length,1);
             foreach (UInt32 item in vendor.items)
             {
                 pak.addUint32(item,1);

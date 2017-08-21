@@ -6,7 +6,7 @@ using System.Text;
 namespace hds.databases.interfaces{
     public interface IMarginDBHandler{
 
-        Hashtable getCharInfo (int charId);
+        MarginCharacter getCharInfo (int charId);
         List<MarginInventoryItem> loadInventory(int charId);
         List<MarginAbilityItem> loadAbilities(int charId);
         string loadAllHardlines();

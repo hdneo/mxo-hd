@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
@@ -39,21 +39,19 @@ namespace hds
         public void processAbilityScript(AbilityItem abilityItem)
         {
 
-            // Lets just test
+            // Display Cast Bar if it is necessary
             ServerPackets pak = new ServerPackets();
             if (this.currentAbility.getCastingTime()>0)
             {
                 pak.sendCastAbilityBar(this.currentAbility.getAbilityID(), this.currentAbility.getCastingTime());
-                this.processSelfAnimation(abilityItem.getAbilityID());
+                this.processSelfAnimation(abilityItem);
             }
-
             this.processCharacterAnimationSelf(abilityItem.getAbilityID());
 
             if (currentAbility.getAbilityID() == 12 || currentAbility.getAbilityID() == 184)
             {
                 pak.sendHyperSpeed();
             }
-            // Test Is
             pak.sendISCurrent(Store.currentClient, 50);
         }
 
@@ -93,14 +91,57 @@ namespace hds
         }
 
 
-        public void processSelfAnimation(UInt16 abilityID)
+        public void processSelfAnimation(AbilityItem ability)
         {
 
+//            ServerPackets serverPackets = new ServerPackets();
+//            serverPackets.sendAbilitySelfAnimation(2, ability.getAbilityID(), (UInt32) ability.getAbilityExecutionFX());
+            
             ServerPackets serverPackets = new ServerPackets();
-            serverPackets.sendAbilitySelfAnimation(2, abilityID, (UInt32) FXList.FX_VIRUSCAST_SPLIT_CODE_NUKE_CODENUKE_START);
+            serverPackets.sendAbilitySelfAnimation(2, ability.getAbilityID(), NumericalUtils.ByteArrayToUint32(ability.getCastAnimStart(),1));
             
         }
 
+
+        public void processHyperJump(ref byte[] rpcData)
+        {
+            double xDest = 0; 
+            double yDest = 0; 
+            double zDest = 0;
+            PacketReader reader = new PacketReader(rpcData);
+            xDest = reader.readDouble(1);
+            yDest = reader.readDouble(1);
+            zDest = reader.readDouble(1);
+            
+            // ToDo: figure out what this 6 bytes are could be
+            // Skip 6 bytes as we currently didnt knew
+            reader.incrementOffsetByValue(6);
+            UInt32 maybeMaxHeight = reader.readUInt32(1);
+            reader.setOffsetOverrideValie(rpcData.Length - 4);
+            UInt32 clientJumpIdUnknown = reader.readUInt32(1);
+
+            // Players current X Z Y
+            double x = 0; double y = 0; double z = 0;
+            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
+            int rotation = (int)Store.currentClient.playerInstance.YawInterval.getValue()[0];
+            float xPos = (float)x;
+            float yPos = (float)y;
+            float zPos = (float)z;
+
+            float distance = Maths.getDistance(xPos, yPos, zPos, (float)xDest, (float)yDest, (float)zDest);
+            UInt16 duration = (UInt16)(distance * 1.5);
+            
+            UInt32 startTime = TimeUtils.getUnixTimeUint32();
+            UInt32 endTime = startTime + duration;
+            
+            ServerPackets packets = new ServerPackets();
+            packets.sendHyperJumpID(clientJumpIdUnknown);
+            packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
+            
+           
         
+           
+        }
     }
 }

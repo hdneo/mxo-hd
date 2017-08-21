@@ -23,7 +23,7 @@ namespace hds{
 		            new PlayerHandler().processSpawn();
 		            new PlayerHandler().processAttributes();
 		            break;
-
+			        
 		        case (int) RPCRequestHeader.CLIENT_CLOSE_COMBAT:
 		            Output.WriteRpcLog("CLOSE COMBAT REQUEST");
 		            new TestUnitHandler().testCloseCombat(ref rpcData);
@@ -48,15 +48,17 @@ namespace hds{
 		            new ObjectInteractionHandler().processObjectStatic(ref rpcData);
 		            Output.writeToLogForConsole("RPCMAIN : Handle OBJECTINTERACTION_STATIC");
 		            break;
-		        case (int) RPCRequestHeader.CLIENT_JUMP:
+		        case (int) RPCRequestHeader.CLIENT_JUMP_START:
 		            Output.writeToLogForConsole("RPCMAIN : Handle JUMP");
 		            //ToDo: Split Jump and Hyperjump
-		            //new TestUnitHandler().processHyperJump(ref rpcData);
-		            new TestUnitHandler().processHyperJump(ref rpcData);
+			        new AbilityHandler().processHyperJump(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_TARGET:
 		            new PlayerHelper().processTargetChange(ref rpcData, Store.currentClient);
 		            break;
+			    case (int) RPCRequestHeader.CLIENT_MISSION_INVITE_PLAYER:
+				    new MissionHandler().processInvitePlayerToMissionTeam(ref rpcData);
+				    break;
 		        case (int) RPCRequestHeader.CLIENT_MISSION_REQUEST:
 		            new MissionHandler().processMissionList(ref rpcData);
 		            break;
@@ -74,10 +76,13 @@ namespace hds{
 
 		        // Team
 		        case (int) RPCRequestHeader.CLIENT_HANDLE_MISSION_INVITE:
-		            new TeamHandler().processTeamInviteAnswer(ref rpcData);
+		            new TeamHandler().processInviteAnswer(ref rpcData);
 		            break;
 
 		        // Faction and Crews
+		        case (int) RPCRequestHeader.CREW_INVITE_PLAYER:
+		            new FCHandler().processInvitePlayerToCrew(ref rpcData);
+		            break;
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
 		            new FCHandler().processLoadFactionName(ref rpcData);
 		            // ToDo: implement response with following format :
@@ -103,6 +108,8 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_HARDLINE_EXIT_LA_CONFIRM:
 		            new TeleportHandler().processHardlineExitConfirm(ref rpcData);
 		            break;
+			    case (int)RPCRequestHeader.CLIENT_EXIT_GAME_FINISH:
+				    
 
 		        case (int) RPCRequestHeader.CLIENT_READY_WORLDCHANGE:
 		            Output.WriteLine("RPCMAIN : RESET_RPC detect");
@@ -173,6 +180,10 @@ namespace hds{
 		            new RegionHandler().processRegionLoaded(ref rpcData);
 		            //new PlayerInitHelper().processRegionSettings();
 		            break;
+
+		         case (int)RPCRequestHeader.CLIENT_LOOT_ACCEPT:
+		             new PlayerHandler().processLootAccepted();
+		             break;
 
 
 		        default:

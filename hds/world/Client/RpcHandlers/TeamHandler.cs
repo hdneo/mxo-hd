@@ -27,12 +27,13 @@ namespace hds
             }
         }
 
-        public void processTeamInviteAnswer(ref byte[] packet)
+        // This is for team and crew invites
+        public void processInviteAnswer(ref byte[] packet)
         {
             // read the important things
-            byte[] unknownUint16_1 = new byte[2];
+            byte[] maybeType = new byte[2]; 
             byte[] sizeString = new byte[2];
-            ArrayUtils.copyTo(packet, 3, unknownUint16_1, 0, 2);
+            ArrayUtils.copyTo(packet, 3, maybeType, 0, 2);
             ArrayUtils.copyTo(packet, 7, sizeString, 0, 2);
             UInt16 sizeCharName = NumericalUtils.ByteArrayToUint16(sizeString, 1);
             byte[] characterNameBytes = new byte[sizeCharName];
@@ -41,21 +42,36 @@ namespace hds
             string characterName = StringUtils.charBytesToString(characterNameBytes);
 
             // if it is 0 - then he has accepted the request - otherwise decline and ..we dont care
-            if (NumericalUtils.ByteArrayToUint16(unknownUint16_1,1) == 0)
-            {
-                lock (WorldSocket.missionTeams)
-                {
-                    foreach (MissionTeam team in WorldSocket.missionTeams)
-                    {
-                        if (team.characterMasterName.Equals(characterName))
-                        {
-                            team.addMember(StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
-                        }
-                    }
-                }
-            }
-            
 
+            switch (NumericalUtils.ByteArrayToUint16(maybeType,1))
+            {
+                    // Team Invites
+                    case 0:
+                        lock (WorldSocket.missionTeams)
+                        {
+                            foreach (MissionTeam team in WorldSocket.missionTeams)
+                            {
+                                if (team.characterMasterName.Equals(characterName))
+                                {
+                                    team.addMember(StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+                                }
+                            }
+                        }
+                        break;
+                     
+                    // Crew Invites
+                    case 2:
+                        // ToDo: add to Crew and maybe to faction (if crew is part of faction)
+                        // ToDo: Generate Repsonse for all connected crew mates and the new member
+                        // ToDo: add to crew and figure out the responses that are necessary (like crew message , player update etc.) 
+                        // ToDo: for this the "2_player_action" logs could be useful.
+                        
+                        break;
+                        
+                     
+            
+                    
+            }
         }
     }
 }

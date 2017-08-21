@@ -24,36 +24,39 @@ namespace hds.databases{
 			
 		}
 
-        public Hashtable getCharInfo(int charId)
+        public MarginCharacter getCharInfo(int charId)
         {
             conn.Open();
-            string sqlQuery = "SELECT firstName,lastName,background, district, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
+            string sqlQuery = "SELECT firstName,lastName,background, district, districtId, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
 
             dr = queryExecuter.ExecuteReader();
 
-            Hashtable data = new Hashtable();
-            while (dr.Read())
+            MarginCharacter marginCharacter = null;
+            if (dr.Read())
             {
-                data.Add("firstname", dr.GetString(0));
-                data.Add("lastname", dr.GetString(1));
-                data.Add("background", dr.GetString(2));
-                data.Add("district", dr.GetString(3));
-                data.Add("repMero",dr.GetInt16(4));
-                data.Add("repMachine", dr.GetInt16(5));
-                data.Add("repNiobe", dr.GetInt16(6));
-                data.Add("repEPN", dr.GetInt16(7));
-                data.Add("repCYPH", dr.GetInt16(8));
-                data.Add("repGM", dr.GetInt16(9));
-                data.Add("repZion", dr.GetInt16(10));
-                data.Add("exp", dr.GetInt32(11));
-                data.Add("cash", dr.GetInt32(12));
+                marginCharacter = new MarginCharacter();
+                marginCharacter.firstname = dr.GetString(0);
+                marginCharacter.lastname = dr.GetString(1);
+                marginCharacter.background = dr.GetString(2);
+                marginCharacter.district = dr.GetString(3);
+                marginCharacter.districtId = (UInt16)dr.GetInt16(4);
+                marginCharacter.repMero = (UInt16)dr.GetInt16(5);
+                marginCharacter.repMachine = (UInt16)dr.GetInt16(6);
+                marginCharacter.repNiobe = (UInt16)dr.GetInt16(7);
+                marginCharacter.repEPN = (UInt16)dr.GetInt16(8);
+                marginCharacter.repCYPH = (UInt16)dr.GetInt16(9);
+                marginCharacter.repGM = (UInt16)dr.GetInt16(10);
+                marginCharacter.repZion = (UInt16)dr.GetInt16(11);
+                marginCharacter.exp = (UInt32)dr.GetInt32(12);
+                marginCharacter.cash = (UInt32)dr.GetInt32(13);
+
             }
             dr.Close();
             conn.Close();
 
-            return data;
+            return marginCharacter;
         }
 
         public List<MarginInventoryItem> loadInventory(int charId)

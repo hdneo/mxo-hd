@@ -130,6 +130,42 @@ namespace hds
             Store.currentClient.flushQueue();
         }
 
+        public void sendHyperJumpID(UInt32 possibleJumpID)
+        {
+            
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_HYPERJUMP_ID, 0);
+            pak.addUint32(possibleJumpID,1);
+            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        public void SendHyperJumpUpdate(float xFromPos, float yFromPos, float zFromPos, float xDestPos, float yDestPos, float zDestPos, UInt32 startTime, UInt32 endTime)
+        {
+            // ToDo: make real repsonse 
+            PacketContent pak = new PacketContent();
+            pak.addByte(0x02);
+            pak.addByte(0x00);
+            pak.addByte(0x03);
+            pak.addByte(0x09);
+            pak.addByte(0x08);
+            pak.addByte(0x00);
+            pak.addFloatLtVector3f(xFromPos, yFromPos, zFromPos);
+            pak.addUint32(startTime, 1);
+            pak.addByte(0x80);
+            pak.addByte(0x80);
+            pak.addByte(0xb8);
+            pak.addByte(0x14); // if 0xb8
+            pak.addByte(0x00); // if 0xb8
+            pak.addUint32(endTime, 1);
+            pak.addDoubleLtVector3d((double)xDestPos, (double)yDestPos, (double)zDestPos);
+            pak.addByteArray(new byte[] { 0x10, 0xff, 0xff });
+            pak.addByte(0x00);
+            pak.addByte(0x00);
+            pak.addByte(0x00);
+            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), true);
+        }
+        
+
         public void sendAbilitySelfAnimation(UInt16 viewId, UInt16 abilityId, UInt32 animId)
         {
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
@@ -145,7 +181,7 @@ namespace hds
 
         public void sendAbilityBuffToEntity()
         {
-
+            
         }
     }
 }

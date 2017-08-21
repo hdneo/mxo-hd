@@ -108,6 +108,8 @@ namespace hds
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
+
+
         public void sendEXPCurrent(WorldClient client, UInt32 exp)
         {
             PacketContent pak = new PacketContent();
@@ -260,6 +262,48 @@ namespace hds
             pak.addSizedTerminatedString(backgroundTextt);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
 
+        }
+
+        // ToDo: Move it to player Packets and make a ?moa command for it
+        public void sendChangeChangeMoaRSI(WorldClient client, byte[] rsi)
+        {
+            // ToDo: proove to remove
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2,1);
+            pak.addHexBytes("0281008080808004");
+            pak.addByteArray(rsi);
+            pak.addByte(0x41);
+            pak.addByte(0x00);
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+
+        }
+
+        public void sendJackoutEffect(WorldClient client)
+        {
+            PacketContent pak = new PacketContent();
+            double x = 0; double y = 0; double z = 0;
+            byte[] Ltvector3d = client.playerInstance.Position.getValue();
+            NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
+            int rotation = (int)client.playerInstance.YawInterval.getValue()[0];
+            float xPos = (float)x;
+            float yPos = (float)y;
+            float zPos = (float)z;
+            
+            pak.addUint16(2,1); // ToDo: we should change this for other views ?
+            pak.addHexBytes("032802C000740010");
+            pak.addFloatLtVector3f(xPos,yPos,zPos);
+            pak.addHexBytes("E93C991E8080808080801001000000"); // ToDo: analyze it more ?
+            client.playerData.isJackoutInProgress = true;
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+        }
+        
+
+        public void sendExitGame(WorldClient client)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_JACKOUT_FINISH,0);
+            pak.addHexBytes("000000000000");
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
 

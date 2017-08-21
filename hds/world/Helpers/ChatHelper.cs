@@ -44,6 +44,12 @@ namespace hds{
 				    pak.sendSystemChatMessage(Store.currentClient, "Rsi changed!", "BROADCAST");
 				}
 
+			    if (command.StartsWith("?spawndatanode"))
+			    {
+			        ServerPackets pak = new ServerPackets();
+			        pak.sendSystemChatMessage(Store.currentClient, "Spawn Datanode!", "BROADCAST");
+			        pak.spawnDataNodeView(Store.currentClient);
+			    }
                 
                 if (command.StartsWith("?message"))
                 {
@@ -53,6 +59,16 @@ namespace hds{
 
                 }
 
+			    if (command.Contains("?moa"))
+			    {
+			        string hexMoa = commands[1];
+			        byte[] moaRSI = StringUtils.hexStringToBytes(hexMoa);
+                    Array.Reverse(moaRSI,0,moaRSI.Length);
+
+			        ServerPackets pak = new ServerPackets();
+			        pak.sendSystemChatMessage(Store.currentClient, "Changed MOA to hexMoa d!", "BROADCAST");
+			        pak.sendChangeChangeMoaRSI(Store.currentClient,moaRSI);
+			    }
                 if (command.Equals("?playanim"))
                 {
                     string animId = commands[1];
@@ -62,7 +78,6 @@ namespace hds{
                         pak.sendPlayerAnimation(Store.currentClient, animId);
                         
                     }
-                    
                 }
 
                 if (command.StartsWith("?playfx"))
@@ -79,7 +94,6 @@ namespace hds{
                     byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(updateViewCounter);
 
                     Output.WriteLine("Check if its really one byte or two : " + StringUtils.bytesToString(updateCount));
-
                     
                     din.append(viewID);
                     din.append(0x02);
@@ -170,8 +184,15 @@ namespace hds{
                     theMob.setRotation(rotation);
                     theMob.setIsDead(false);
                     theMob.setIsLootable(false);
-                    WorldSocket.npcs.Add(theMob);
-                    WorldSocket.gameServerEntities.Add(theMob);
+	                lock (WorldSocket.npcs)
+	                {
+		                WorldSocket.npcs.Add(theMob);
+	                }
+
+	                lock (WorldSocket.gameServerEntities)
+	                {
+		                WorldSocket.gameServerEntities.Add(theMob);
+	                }
 
                     // we use this for a test to see if we can spawn mobs and how we can handle them 
                     // We refactor this 

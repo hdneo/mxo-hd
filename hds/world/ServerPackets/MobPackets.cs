@@ -95,6 +95,30 @@ namespace hds
             client.flushQueue();
         }
 
+        public void sendLootWindow(UInt32 infoAmount, WorldClient client, UInt32[] objectIds)
+        {
+            // ToDo: figure the real object packet out (with more than one object) and show it up
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOOT_WINDOW_RESPONSE,0);
+            pak.addHexBytes("000000001000");
+            pak.addUint32(infoAmount,1);
+            pak.addHexBytes("00000000010000000008");
+            if (objectIds.Length > 0)
+            {
+                pak.addUint32(objectIds[0],1);
+            }
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.flushQueue();
+        }
+
+        public void sendLootAccepted(WorldClient client)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOOT_ACCEPTED_RESPONSE,0);
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.flushQueue();
+        }
+
         
 
         

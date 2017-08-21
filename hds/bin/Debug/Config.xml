@@ -1,10 +1,11 @@
 <HardlineDreams>
 	<DBConfig>
+		
 		<serverHost>localhost</serverHost>
 		<serverPort>3036</serverPort>
 		<databaseName>reality_hd</databaseName>
 		<databaseUser>reality</databaseUser>
-		<databasePassword>reality</databasePassword>
+		<databasePassword></databasePassword>
 		<motd>Hardline Dreams server welcomes you boy!</motd>
 		<dbType>mysql</dbType>
 	</DBConfig>

@@ -24,6 +24,7 @@ namespace hds
         // Collection to store the spawned npcs 
         public static ArrayList npcs = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
+        public static ArrayList tempCrews = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;
         public static ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
         private byte[] buffer;
@@ -57,7 +58,7 @@ namespace hds
         }
 
         /// <summary>
-        /// Send a Message to One Player (like private Message) 
+        /// Send a Message to One Player (like private Message)
         /// </summary>
         /// <param name="charId">CharId to send the Packet</param>
         /// <param name="packet">Packet Stream</param>
@@ -65,7 +66,6 @@ namespace hds
         {
             lock (Clients.SyncRoot)
             {
-                
                 foreach (string clientKey in Clients.Keys)
                 {
                     WorldClient client = Clients[clientKey] as WorldClient;
@@ -76,7 +76,33 @@ namespace hds
                     }
                 }
             }
-            
+        }
+
+        /// <summary>
+        /// Send a Message to One Player (like private Message by Handle)
+        /// </summary>
+        /// <param name="packet">Packet Stream</param>
+        /// <param name="playerHandle">Player Handle to send the Packet</param>
+        public void sendRPCToOnePlayerByHandle(byte[] packet, string playerHandle)
+        {
+            lock (Clients.SyncRoot)
+            {
+
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    string charname = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
+                    Output.writeToLogForConsole("Charname |" + charname + "| PlayerHandle |" + playerHandle + "|");
+                    int lenCharname = charname.Length;
+                    int playerHandleLen = playerHandle.Length;
+                    if (charname == playerHandle)
+                    {
+                        client.messageQueue.addRpcMessage(packet);
+                        client.flushQueue();
+                    }
+                }
+            }
+
         }
 
 

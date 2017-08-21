@@ -11,11 +11,13 @@ namespace hds
         CLIENT_CLOSE_COMBAT = 0x40,
         CLIENT_RANGE_COMBAT = 0x41,
         CLIENT_LEAVE_COMBAT = 0x44,
-        CLIENT_JUMP = 0xc2,
+        CLIENT_JUMP_START = 0xc2,
+        CLIENT_JUMP_CANCLE = 0xc4,
         CLIENT_OBJECTINTERACTION_DYNAMIC = 0xc7,
         CLIENT_OBJECTINTERACTION_STATIC = 0xc8,
         CLIENT_REGION_LOADED = 0xc9,   
         CLIENT_TARGET = 0x151,
+        CLIENT_MISSION_INVITE_PLAYER = 0x8c,
         CLIENT_MISSION_REQUEST = 0x94,
         CLIENT_MISSION_INFO = 0x98,
         CLIENT_MISSION_ACCEPT = 0x9b,
@@ -27,6 +29,7 @@ namespace hds
         // Hardline
         CLIENT_HARDLINE_STATUS_REQUEST = 0x6c,
         CLIENT_HARDLINE_EXIT_LA_CONFIRM = 0xfc,
+        CLIENT_EXIT_GAME_FINISH = 0xfe,
 
         CLIENT_HANDLE_MISSION_INVITE = 0x6f,
 
@@ -35,7 +38,8 @@ namespace hds
         CLIENT_UPGRADE_ABILITY_LEVEL = 0xb7,
         CLIENT_DISABLE_BUFF = 0xB6,
 
-        CLIENT_LOOT_ALL = 0x117, 
+        CLIENT_LOOT_ALL = 0x117,
+        CLIENT_LOOT_ACCEPT = 0x11f,
 
         // Inventory
         CLIENT_ITEM_MOUNT_RSI = 0x63,
@@ -54,8 +58,7 @@ namespace hds
         CLIENT_CMD_WHO = 0x152, // ToDo: implement
         CLIENT_PLAYER_GET_DETAILS = 0x192, // ToDo: implement
         CLIENT_PLAYER_GET_BACKGROUND = 0x194, // ToDo: implement
-        CLIENT_PLAYER_SET_BACKGROUND = 0x196, // ToDo: implement
-        CLIENT_JACKOUT_START = 0x80fc,
+        CLIENT_PLAYER_SET_BACKGROUND = 0x196,
 
         // Char Emotes and things
         CLIENT_CHANGE_MOOD = 0x35,
@@ -75,6 +78,7 @@ namespace hds
 
         // Faction and crew
         CLIENT_FACTION_INFO = 0xf4,
+        CREW_INVITE_PLAYER = 0x84,
     }
 
     public enum RPCResponseHeaders
@@ -85,11 +89,14 @@ namespace hds
         SERVER_LOAD_WORLD = 0x8108,
         SERVER_FLASH_TRAFFIC = 0x81a9,
 
+        // Enviroment
+        SERVER_ELEVATOR_PANEL = 0x813f,
+
         // Player
-        SERVER_PLAYER_ATTRIBUTE = 0x80b2,
+        SERVER_PLAYER_ATTRIBUTE = 0x80b2, 
         SERVER_MANAGE_BONUS = 0xbc,
         SERVER_EXIT_HL = 0x80fb,
-        SERVER_JACKOUT_FINISH = 0x80fe,
+        SERVER_JACKOUT_FINISH = 0x80fd,
         SERVER_PLAYER_EXP   = 0x80e5,
         SERVER_PLAYER_INFO  = 0x80e4,
         SERVER_PLAYER_GET_BACKGROUND = 0x8195,
@@ -106,6 +113,7 @@ namespace hds
         SERVER_MISION_INFO_RESPONSE = 0x8099,
         SERVER_MISION_LOCATION_POSITION = 0x809E,
         SERVER_LOOT_WINDOW_RESPONSE = 0x8119,
+        SERVER_LOOT_ACCEPTED_RESPONSE = 0x811a,
         SERVER_TEAM_CREATE        = 0x808d,
         SERVER_TEAM_INVITE_MEMBER = 0x808f,
 
@@ -113,6 +121,7 @@ namespace hds
         SERVER_CAST_BAR_ABILITY = 0x80ac,
         SERVER_ABILITY_LOAD = 0x80b2,
         SERVER_ABILITY_UNLOAD = 0x80b3,
+        SERVER_HYPERJUMP_ID = 0x80c3,
 
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,
@@ -125,6 +134,7 @@ namespace hds
 
         // Crew & Faction
         SERVER_FACTION_NAME_RESPONSE = 0x80f5,
+        SERVER_FACTION_ENABLED_WINDOW = 0x8086,
 
     }
 

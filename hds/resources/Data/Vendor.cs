@@ -6,7 +6,7 @@ namespace hds
 {
     public class Vendor
     {
-        public List<UInt32> items;
+        public UInt32[] items;
         public UInt16 metrId;
         public UInt32 vendorStaticID;
 
@@ -16,7 +16,7 @@ namespace hds
             this.vendorStaticID = vendorStaticID;
         }
 
-        public Vendor(UInt16 metrId, UInt32 vendorStaticID, List<UInt32> items)
+        public Vendor(UInt16 metrId, UInt32 vendorStaticID, UInt32[] items)
         {
             this.metrId = metrId;
             this.vendorStaticID = vendorStaticID;

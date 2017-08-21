@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-
+using System.Data.Common.CommandTrees;
 using hds.shared;
 
 namespace hds
@@ -69,31 +69,41 @@ namespace hds
 
         public void processHardlineExitConfirm(ref byte[] packet)
         {
-            if (packet[0] == 0x01)
-            {
-                ServerPackets serverPak = new ServerPackets();
-                serverPak.sendSystemChatMessage(Store.currentClient, "Exit to LA init...","MODAL");
-                
-                // Tell client we want to reset
-                byte[] response = { 0x81, 0x07 };
 
-                Store.currentClient.messageQueue.addRpcMessage(response);
+            ServerPackets packets = new ServerPackets();
+            switch (packet[0])
+            {
+                    case 0x01:
+                        ServerPackets serverPak = new ServerPackets();
+                        serverPak.sendSystemChatMessage(Store.currentClient, "Exit to LA init...","MODAL");
+                
+                        // Tell client we want to reset
+                        byte[] response = { 0x81, 0x07 };
+
+                        Store.currentClient.messageQueue.addRpcMessage(response);
+                        break;
+                        
+                    case 0x02:
+                        Store.currentClient.playerData.isJackoutInProgress = true;
+                        Store.currentClient.playerData.jackoutStartTime = TimeUtils.getUnixTimeUint32();
+                        packets.sendJackoutEffect(Store.currentClient);
+                        break;
+                            
             }
 
         }
 
-        public void processHardlineExitRequest(ref byte[] packet)
+        public void processHardlineExitRequest()
         {
-            PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_EXIT_HL, 0);
-            pak.addByte(0x95);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x01);
+            ServerPackets packets = new ServerPackets();
+            packets.sendJackoutEffect(Store.currentClient);
 
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
 
+        public void processGameFinish()
+        {
+            ServerPackets packets = new ServerPackets();
+            packets.sendExitGame(Store.currentClient);
         }
 
 

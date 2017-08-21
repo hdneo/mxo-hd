@@ -34,6 +34,17 @@ namespace hds
             pak.sendMissionList(contactId, orgID, Store.currentClient);
         }
 
+        public void processInvitePlayerToMissionTeam(ref byte[] packet)
+        {
+            // Read the Data
+            PacketReader reader = new PacketReader(packet);
+            UInt32 unknownUint = reader.readUInt32(1); // Maybe its just an offset of uint8 - we dont care and know lol
+            reader.incrementOffsetByValue(1);
+            String handleToInvite = reader.readSizedZeroTerminatedString();
+
+            // ToDo: implement the right response for the player who get the invite
+        }
+
         public void processLoadMissionInfo(ref byte[] packet)
         {
             ServerPackets pak = new ServerPackets();

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace hds
 {
-    class GameObjectItem
+    public class GameObjectItem
     {
         private Int32 GOID;
         private string Name;

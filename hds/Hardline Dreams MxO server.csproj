@@ -117,6 +117,9 @@
     <Compile Include="databases\interfaces\IAuthDBHandler.cs" />
     <Compile Include="databases\interfaces\IMarginDBHandler.cs" />
     <Compile Include="databases\interfaces\IWorldDBHandler.cs" />
+    <Compile Include="margin\Entities\MarginAbilityItem.cs" />
+    <Compile Include="margin\Entities\MarginCharacter.cs" />
+    <Compile Include="margin\Entities\MarginInventoryItem.cs" />
     <Compile Include="monolith\LtTypes.cs" />
     <Compile Include="resources\Data\AbilityItem.cs" />
     <Compile Include="resources\Data\ClothingItem.cs" />
@@ -130,6 +133,8 @@
     <Compile Include="auth\AuthServer.cs" />
     <Compile Include="auth\AuthSocket.cs" />
     <Compile Include="auth\WorldList.cs" />
+    <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes363.cs" />
+    <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes364.cs" />
     <Compile Include="resources\gameobjects\definitions\Object599.cs" />
     <Compile Include="servertype\CR1\GameObjectDefinitions\Object12.cs" />
     <Compile Include="servertype\CR1\NetworkProtocolHeaders.cs" />
@@ -144,8 +149,9 @@
     <Compile Include="utils\encryption\mm_twofish\TwofishBase.cs" />
     <Compile Include="utils\encryption\mm_twofish\TwofishEncryption.cs" />
     <Compile Include="exceptions\AuthException.cs" />
-    <Compile Include="margin\MarginAbilityItem.cs" />
-    <Compile Include="margin\MarginInventoryItem.cs" />
+    <Compile Include="utils\PacketUtils\PacketContent.cs" />
+    <Compile Include="utils\PacketUtils\PacketReader.cs" />
+    <Compile Include="utils\PacketUtils\PacketsUtils.cs" />
     <Compile Include="utils\tests\HealthCheck.cs" />
     <Compile Include="utils\ArrayUtils.cs" />
     <Compile Include="utils\DynamicArray.cs" />
@@ -158,7 +164,6 @@
     <Compile Include="world\Client\RpcHandlers\MissionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\RegionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\TeamHandler.cs" />
-    <Compile Include="world\PacketUtils\PacketContent.cs" />
     <Compile Include="utils\StringUtils.cs" />
     <Compile Include="utils\TimeUtils.cs" />
     <Compile Include="margin\MarginSocket.cs" />
@@ -177,6 +182,8 @@
     <Compile Include="world\Scripting\ScriptManager.cs" />
     <Compile Include="world\ServerPackets\ChatCommandPackets.cs" />
     <Compile Include="world\ServerPackets\ChatPackets.cs" />
+    <Compile Include="world\ServerPackets\DataNodePackets.cs" />
+    <Compile Include="world\ServerPackets\EnviromentPackets.cs" />
     <Compile Include="world\ServerPackets\FCPackets.cs" />
     <Compile Include="world\ServerPackets\InventoryPackets.cs" />
     <Compile Include="world\ServerPackets\MarketplacePackets.cs" />
@@ -191,6 +198,8 @@
     <Compile Include="world\Skill\BuffSkill.cs" />
     <Compile Include="world\Structures\ClientDB.cs" />
     <Compile Include="world\Structures\ClientView.cs" />
+    <Compile Include="world\Structures\Crew.cs" />
+    <Compile Include="world\Structures\FCMember.cs" />
     <Compile Include="world\Structures\MissionTeam.cs" />
     <Compile Include="world\Structures\MxOLocations.cs" />
     <Compile Include="world\Structures\npc.cs" />
@@ -222,7 +231,6 @@
     <Compile Include="removeThis\BootingHelper.cs" />
     <Compile Include="world\Helpers\ChatHelper.cs" />
     <Compile Include="world\Client\RpcManager.cs" />
-    <Compile Include="world\PacketUtils\PacketsUtils.cs" />
     <Compile Include="world\Client\Network\RPCPacket.cs" />
     <Compile Include="world\Client\ClientData.cs" />
     <Compile Include="world\Client\WorldClient.cs" />

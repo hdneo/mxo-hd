@@ -102,74 +102,7 @@ namespace hds
             serverPackets.sendDeleteViewPacket(Store.currentClient, 253);
         }
 
-        public float getDistance(float x1,float y1,float z1,float x2,float y2, float z2)
-        {
-            float deltaX = x1 - x2;
-            float deltaY = y1 - y2;
-            float deltaZ = z1 - z2;
-            float distance = (float)Math.Sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
-            return distance;
-        }
-
-        public void processHyperJump(ref byte[] packet)
-        {
-            byte[] destXBytes = new byte[8];
-            byte[] destYBytes = new byte[8];
-            byte[] destZBytes = new byte[8];
-            byte[] maxHeight = new byte[4];
-            byte[] theLast4 = new byte[4]; // we dont know what this is lol
-
-            ArrayUtils.copy(packet, 0, destXBytes, 0, 8);
-            ArrayUtils.copy(packet, 8, destYBytes, 0, 8);
-            ArrayUtils.copy(packet, 16, destZBytes, 0, 8);
-            ArrayUtils.copy(packet, 30, maxHeight, 0, 4);
-            ArrayUtils.copy(packet, packet.Length - 4,theLast4, 0, 4);
-
-            // Players current X Z Y
-            double x = 0; double y = 0; double z = 0;
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
-            NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-            int rotation = (int)Store.currentClient.playerInstance.YawInterval.getValue()[0];
-            float xPos = (float)x;
-            float yPos = (float)y;
-            float zPos = (float)z;
-
-            float xDestFloat = (float)NumericalUtils.byteArrayToDouble(destXBytes,1);
-            float yDestFloat = (float)NumericalUtils.byteArrayToDouble(destYBytes, 1);
-            float zDestFloat = (float)NumericalUtils.byteArrayToDouble(destZBytes, 1);
-
-            float distance = getDistance(xPos, yPos, zPos, xDestFloat, yDestFloat, zDestFloat);
-            UInt16 duration = (UInt16)(distance * 1.5);
-            //UInt32 startTime = TimeUtils.getUnixTimeUint32() - 100000;
-            //UInt32 endTime = startTime + duration;
-
-            UInt32 startTime = TimeUtils.getUnixTimeUint32();
-            UInt32 endTime = startTime + duration;
-            PacketContent pak = new PacketContent();
-            pak.addByte(0x02);
-            pak.addByte(0x00);
-            pak.addByte(0x03);
-            pak.addByte(0x09);
-            pak.addByte(0x08);
-            pak.addByte(0x00);
-            pak.addFloatLtVector3f(xPos, yPos, zPos);
-            pak.addUint32(startTime, 1);
-            pak.addByte(0x80);
-            pak.addByte(0x80);
-            pak.addByte(0xb8);
-            pak.addByte(0x14); // if 0xb8
-            pak.addByte(0x00); // if 0xb8
-            pak.addUint32(endTime, 1);
-            pak.addByteArray(destXBytes);
-            pak.addByteArray(destYBytes);
-            pak.addByteArray(destZBytes);
-            pak.addByteArray(new byte[] { 0x10, 0xff, 0xff });
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), true);
         
-        }
 
       
 

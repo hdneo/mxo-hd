@@ -101,11 +101,13 @@ namespace hds
 						
 			switch(subview){
 				case 0x01:
+					Output.WriteLine("[MPM] Parsing selfview");
 					//Self view Attributes only
 					offset = parseAttributes(ref buffer,offset);
 				break;
 				
 				case 0x02:
+					Output.WriteLine("[MPM] Parsing 02 View");
 					offset = parseAttributes2(ref buffer,offset);
 				break;
 				
@@ -113,6 +115,7 @@ namespace hds
 				
 				default:
 					//TODO: put something here
+					Output.WriteLine("[MPM] Nothing to Parse autoview so no offset");
 					break;
 			}
 			

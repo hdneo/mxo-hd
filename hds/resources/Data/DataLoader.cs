@@ -34,7 +34,7 @@ namespace hds
             loadGODB("data\\gameobjects.csv");
 
             loadMobs("data\\mob.csv");
-            loadMobs("data\\mob_parsed.csv");
+            //loadMobs("data\\mob_parsed.csv");
 
             
             loadMobs("data\\mob_just_one.csv");
@@ -44,6 +44,7 @@ namespace hds
             loadVendorItems("data\\vendor_items.csv");
             
             // Disabled for Debugging
+            
             /*
             loadWorldObjectsDb("data\\staticObjects_slums.csv");
             loadWorldObjectsDb("data\\staticObjects_it.csv");
@@ -166,7 +167,7 @@ namespace hds
             //return dataTable;
             Output.Write("Loading GameObjects ..");
             ArrayList goDB = loadCSV(path,',');
-            int linecount = 1;
+            int linecount = 0;
             foreach (string[] data in goDB)
             {
 
@@ -386,12 +387,33 @@ namespace hds
 
         public void loadVendorItems(string dataVendorItemsCsv)
         {
-            List<UInt32> items = new List<UInt32>();
-            items.Add(38145);
-            items.Add(38142);
-            items.Add(38146);
-            Vendor theVendor = new Vendor(1,1167065214,items);
-            Vendors.Add(theVendor);
+
+            // metr_id;vendor_static_id;items
+            ArrayList vendorItems = loadCSV(dataVendorItemsCsv,';');
+
+            int linecount = 1;
+
+            // Create a new List
+            foreach (string[] data in vendorItems)
+            {
+
+                if (linecount > 1)
+                {
+                    /*
+                    List<UInt32> items = new List<UInt32>();
+                    items.Add(38145);
+                    items.Add(38142);
+                    items.Add(38146);
+                    */
+
+                    string intValues = data[2];
+                    UInt32[] items = intValues.Split(',').Select(n => Convert.ToUInt32(n)).ToArray();
+                    Vendor theVendor = new Vendor(Convert.ToUInt16(data[0]),Convert.ToUInt32(data[1]),items);
+                    Vendors.Add(theVendor);
+                }
+                linecount++;
+            }
+
 
         }
 
@@ -640,8 +662,12 @@ namespace hds
             Vendor theVendor = null;
 
             // ToDo: find vendor with multiple
-            //theVendor = Vendors.Find(c => (c.vendorStaticID == GoID) && (c.metrId == metrId));
-            theVendor = Vendors.FindLast(c => c.metrId == metrId);
+            theVendor = Vendors.Find(c => (c.vendorStaticID == GoID && c.metrId == metrId));
+            if (theVendor == null)
+            {
+                // Current fallback if nothing could be found
+                theVendor = Vendors.First(c => c.metrId == metrId);
+            }
 
             return theVendor;
 

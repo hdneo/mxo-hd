@@ -48,9 +48,9 @@ namespace hds{
             creationPacket.append(0x00);
             */
 			rsiPacket.append(creationPacket.getBytes());
-            
+
 			return rsiPacket.getBytes();
-			
+
 		}
 
         private static void playerRSIPacket(out DynamicArray rsiPacket, out DynamicArray creationPacket, WorldClient client, ushort spawnIdCounter)

@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 
 //namespace hds.servertype.cr2
 namespace hds
@@ -87,6 +88,7 @@ namespace hds
 
 
 		public Object12 ():base(75,36,11,6,"PlayerCharacter",0x0c,0xFFFFFFFF){
+
 			this.AddAttribute(ref ReputationMerovingian,0,-1);
 			this.AddAttribute(ref ConquestPoints,1,-1);
 			this.AddAttribute(ref CancelAbilityCounter,2,32);

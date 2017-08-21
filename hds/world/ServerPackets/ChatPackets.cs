@@ -49,6 +49,7 @@ namespace hds
             pak.addHexBytes("000000000000000000000000000000000000000000000000");
             pak.addSizedTerminatedString(handle);
             pak.addSizedTerminatedString(message);
+            // ToDo: We need to split this to AREA , WHISPER, CFEW AND FACTION 
             Store.world.sendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.returnFinalPacket()); 
             
         }
