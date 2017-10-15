@@ -36,8 +36,7 @@ namespace hds
             loadMobs("data\\mob.csv");
             //loadMobs("data\\mob_parsed.csv");
 
-            
-            loadMobs("data\\mob_just_one.csv");
+                       
             loadAbilityDB("data\\abilityIDs.csv");
             loadClothingDB("data\\mxoClothing.csv");
 
@@ -322,15 +321,11 @@ namespace hds
                     ClothingItem clothItem = new ClothingItem();
 
                     clothItem.setGoidDecimal(Convert.ToUInt16(data[0]));
-
-                    // As loading the Endians doesnt work well and as we dont need them really just ignored it!
-                    //clothItem.setGoidLittleEndian(Convert.ToByte(data[1].ToString()));
-                    //clothItem.setGoidBigEndian(Convert.ToByte(data[2].ToString()));
-                    clothItem.setClothesType(data[3]);
-                    clothItem.setShortName(data[4]);
-                    clothItem.setItemName(data[5]);
-                    clothItem.setModelId(Convert.ToUInt16(data[6]));
-                    clothItem.setColorId(Convert.ToUInt16(data[7]));
+                    clothItem.setClothesType(data[1]);
+                    clothItem.setShortName(data[2]);
+                    clothItem.setItemName(data[3]);
+                    clothItem.setModelId(Convert.ToUInt16(data[4]));
+                    clothItem.setColorId(Convert.ToUInt16(data[5]));
                     ClothingRSIDB.Add(clothItem);
 
                 }

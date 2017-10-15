@@ -29,9 +29,9 @@ namespace hds{
 		private MarginEncryption marginEncr;
 		  
 		private NetworkStream clientStream;
-		
-		
-		public MarginClient(int hashID){
+        public int marginThreadId;
+
+        public MarginClient(int hashID){
 			
 			this.hashID = hashID;
 			
@@ -308,59 +308,61 @@ namespace hds{
 
         private void createCharacterRSI(byte[] packet, NetworkStream client){
             // Instance the Data Loader
-            DataLoader ItemLoader = DataLoader.getInstance();
+            DataLoader itemLoader = DataLoader.getInstance();
             isNewCreatedChar = true;
-
             string debugHexPacket = StringUtils.bytesToString_NS(packet);
 
+            // ToDo: Replace all with Packet Reader Instance
+            PacketReader reader = new PacketReader(packet);
+	        reader.incrementOffsetByValue(3);
+
+            
+	        UInt16 body = 0;
+	        UInt16 gender = 0;
+
+	        // ToDo: if you know struct - replace the "setOffsetOverrideValues" 
+	        UInt16 skintone = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(7);
+	        UInt16 bodyTypeId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(15);
+	        UInt16 hairId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(19);
+	        UInt16 haircolor = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(23);
+	        UInt16 tattoo = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(27);
+	        UInt16 headId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(31);
+	        UInt16 facialDetail = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(35);
+	        UInt16 facialDetailColor = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(67);
+	        UInt16 profession = reader.readUInt16(1);
+	        
+	        
             // lets read the values
-            // the IDs for the Appeareance is always uint16 goID 
-            byte[] bodyTypeIDByte           = new byte[4];
-            byte[] professionByte           = new byte[4];
-            byte[] facialdetailBytes        = new byte[4];
-            byte[] facialdetailColorBytes   = new byte[4];
-            byte[] hairBytes                = new byte[4];
-            byte[] hairColorBytes           = new byte[4];
-            byte[] skintoneBytes            = new byte[4];
-            byte[] tatooBytes               = new byte[4];
-            byte[] headIDBytes              = new byte[4];
+            // the IDs for the Appeareance is always uint16 goID
+	        // Extra Hint: there are no leggins in Char Creation Process
+	        reader.setOffsetOverrideValue(35);
+	        UInt16 hatId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(39);
+	        UInt16 eyewearId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(43);
+	        UInt16 shirtId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(47);
+	        UInt16 glovesId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(51);
+	        UInt16 outerwearId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(55);
+	        UInt16 pantsId = reader.readUInt16(1);
+	        reader.setOffsetOverrideValue(63);
+	        UInt16 footwearId = reader.readUInt16(1);
 
-            // Clothing
-            byte[] shirtIDBytes             = new byte[4];
-            byte[] pantsIDBytes             = new byte[4];
-            byte[] outerwearIDBytes         = new byte[4];
-            byte[] hatIDBytes               = new byte[4];
-            byte[] eyewearIDBytes           = new byte[4];
-            byte[] footwearIDBytes          = new byte[4];
-            byte[] glovesIDBytes            = new byte[4];
-            //byte[] legginsIDBytes           = new byte[4];
-
-            // RSI 
-            ArrayUtils.copy(packet, 3, skintoneBytes, 0, 2);        // Done!
-            ArrayUtils.copy(packet, 7, bodyTypeIDByte, 0, 2);       // Done!
-            ArrayUtils.copy(packet, 15, hairBytes, 0, 2);           // Done!
-            ArrayUtils.copy(packet, 19, hairColorBytes, 0, 2);      // Done!
-            ArrayUtils.copy(packet, 23, tatooBytes, 0, 2);          // Done!
-            ArrayUtils.copy(packet, 27, headIDBytes, 0, 2);         
-            ArrayUtils.copy(packet, 31, facialdetailBytes, 0, 2);
-            ArrayUtils.copy(packet, 35, facialdetailColorBytes, 0, 2);
-            ArrayUtils.copy(packet, 67, professionByte, 0, 2);
-
-            UInt16 body = 0;
-            UInt16 gender = 0;
-            UInt32 bodyTypeId = NumericalUtils.ByteArrayToUint32(bodyTypeIDByte, 1);
-
-            UInt16 hairId = NumericalUtils.ByteArrayToUint16(hairBytes, 1);
-            UInt16 haircolor = NumericalUtils.ByteArrayToUint16(hairColorBytes, 1);
-            UInt16 tattoo = NumericalUtils.ByteArrayToUint16(tatooBytes, 1);
-            UInt16 facialDetailColor = NumericalUtils.ByteArrayToUint16(facialdetailColorBytes, 1);
-            UInt16 skintone = NumericalUtils.ByteArrayToUint16(skintoneBytes, 1);
-            UInt16 headID = NumericalUtils.ByteArrayToUint16(headIDBytes, 1);
 
             // Get Values by "NewRSI" IDs
-            NewRSIItem hairItem = ItemLoader.getNewRSIItemByTypeAndID("HAIR", hairId);
-            NewRSIItem bodyItem = ItemLoader.getNewRSIItemByTypeAndID("BODY", (ushort)bodyTypeId);
-            NewRSIItem headItem = ItemLoader.getNewRSIItemByTypeAndID("HEAD", headID);
+            NewRSIItem hairItem = itemLoader.getNewRSIItemByTypeAndID("HAIR", hairId);
+            NewRSIItem bodyItem = itemLoader.getNewRSIItemByTypeAndID("BODY", (ushort)bodyTypeId);
+            NewRSIItem headItem = itemLoader.getNewRSIItemByTypeAndID("HEAD", headId);
 
             Store.dbManager.MarginDbHandler.updateRSIValue("body", bodyItem.internalId.ToString(), newCharID);
             Store.dbManager.MarginDbHandler.updateRSIValue("sex", bodyItem.gender.ToString(), newCharID);
@@ -368,41 +370,42 @@ namespace hds{
             Store.dbManager.MarginDbHandler.updateRSIValue("hair", hairItem.internalId.ToString(), newCharID); 
             Store.dbManager.MarginDbHandler.updateRSIValue("haircolor", haircolor.ToString(), newCharID);                   // ToDo: check if it is correct
             Store.dbManager.MarginDbHandler.updateRSIValue("tattoo", tattoo.ToString(), newCharID);                         // ToDo:
+	        Store.dbManager.MarginDbHandler.updateRSIValue("facialdetail", facialDetail.ToString(), newCharID);   			// ToDo:
             Store.dbManager.MarginDbHandler.updateRSIValue("facialdetailcolor", facialDetailColor.ToString(), newCharID);   // ToDo:
             Store.dbManager.MarginDbHandler.updateRSIValue("skintone", skintone.ToString(), newCharID);
-            // Clothing Items
-            // ToDo: GLOVES ARE MISSING!
-            ArrayUtils.copy(packet, 43, shirtIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 47, glovesIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 55, pantsIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 51, outerwearIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 34, hatIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 39, eyewearIDBytes, 0, 2);
-            ArrayUtils.copy(packet, 63, footwearIDBytes, 0, 2);
-
-            ClothingItem shirt      = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(shirtIDBytes,1));
-            ClothingItem pants      = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(pantsIDBytes, 1));
-            ClothingItem outerwear  = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(outerwearIDBytes, 1));
-            ClothingItem hat        = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(hatIDBytes, 1));
-            ClothingItem eyewear    = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(eyewearIDBytes, 1));
-            ClothingItem footwear   = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(footwearIDBytes, 1));
-            ClothingItem gloves     = ItemLoader.getItemValues(NumericalUtils.ByteArrayToUint16(glovesIDBytes, 1));
-
+            
+            
+			// Clothing Items
+            ClothingItem shirt      = itemLoader.getItemValues(shirtId);
+            ClothingItem pants      = itemLoader.getItemValues(pantsId);
+            ClothingItem outerwear  = itemLoader.getItemValues(outerwearId);
+            ClothingItem hat        = itemLoader.getItemValues(hatId);
+            ClothingItem eyewear    = itemLoader.getItemValues(eyewearId);
+            ClothingItem footwear   = itemLoader.getItemValues(footwearId);
+            ClothingItem gloves     = itemLoader.getItemValues(glovesId);
 
             Store.dbManager.MarginDbHandler.updateRSIValue("hat", hat.getModelId().ToString(), newCharID);
             Store.dbManager.MarginDbHandler.updateRSIValue("shirt", shirt.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("shirtcolor", shirt.getModelId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("shirtcolor", shirt.getColorId().ToString(), newCharID);
             Store.dbManager.MarginDbHandler.updateRSIValue("coat", outerwear.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("coatcolor", outerwear.getModelId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("coatcolor", outerwear.getColorId().ToString(), newCharID);
             Store.dbManager.MarginDbHandler.updateRSIValue("pants", pants.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("pantscolor", pants.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("shoes", pants.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("shoecolor", pants.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("glasses", pants.getModelId().ToString(), newCharID);
-            Store.dbManager.MarginDbHandler.updateRSIValue("glassescolor", pants.getModelId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("pantscolor", pants.getColorId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("shoes", footwear.getModelId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("shoecolor", footwear.getColorId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("glasses", eyewear.getModelId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("glassescolor", eyewear.getColorId().ToString(), newCharID);
+            Store.dbManager.MarginDbHandler.updateRSIValue("gloves", gloves.getModelId().ToString(), newCharID);
 
-            // ToDO: Figre out the ITem Slots for "currentlyWearing" Items and add the ITems correctly to the Inventory
-            
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(hatId,0x61,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(eyewearId,0x62,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(shirtId,0x63,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(glovesId,0x64,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(outerwearId,0x65,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(pantsId,0x66,newCharID);
+	        Store.dbManager.MarginDbHandler.AddItemToSlot(footwearId,0x68,newCharID);
+	        
+
             // FirstName
             UInt16 currentOffset = 79;
             byte[] firstNameLenBytes = new byte[2];
@@ -446,6 +449,8 @@ namespace hds{
             // we have all created - lets load the charData 
             loadCharacter(packet, client, this.newCharID);
         }
+
+		
 
 
         private void addStartAbilitys(UInt32 charID){

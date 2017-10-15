@@ -207,9 +207,9 @@ namespace hds.databases{
 				Store.currentClient.playerInstance.CharacterID.setValue(charID);
 				Store.currentClient.playerInstance.CharacterName.setValue(dr.GetString(0));
 
-				double x = (double)(dr.GetFloat(1));
-				double y = (double)(dr.GetFloat(2));
-				double z = (double)(dr.GetFloat(3));
+				double x = dr.GetDouble(1);
+				double y = dr.GetDouble(2);
+				double z = dr.GetDouble(3);
 
 				Store.currentClient.playerInstance.Position.setValue(NumericalUtils.doublesToLtVector3d(x,y,z));
 				Store.currentClient.playerInstance.YawInterval.setValue((byte)dr.GetDecimal(4));	
@@ -330,8 +330,16 @@ namespace hds.databases{
 			
 			int rotation =(int)client.playerInstance.YawInterval.getValue()[0];
 			
-			string sqlQuery="update characters set x = '"+(float)x+"',y='"+(float)y+"',z='"+(float)z+"',rotation='"+rotation+"', districtId='" + client.playerData.getDistrictId()+"' where handle='"+handle+"';";
-			queryExecuter= conn.CreateCommand();
+			string sqlQuery="update characters set x = @xPos ,y= @yPos ,z=@zPos , rotation= @rotation, districtId= @disctrictID where handle=@handle;";
+            MySqlCommand cmd = new MySqlCommand(sqlQuery, (MySqlConnection)conn);
+            cmd.Parameters.Add("@xPos", x);
+            cmd.Parameters.Add("@yPos", y);
+            cmd.Parameters.Add("@zPos", z);
+            cmd.Parameters.Add("@rotation", rotation);
+            cmd.Parameters.Add("@disctrictID", client.playerData.getDistrictId());
+            cmd.Parameters.Add("@handle", handle);
+            queryExecuter = conn.CreateCommand();
+            
 			queryExecuter.CommandText = sqlQuery;
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));
             Output.writeToLogForConsole(queryExecuter.ExecuteNonQuery() + " rows affecting saving");
@@ -519,7 +527,7 @@ namespace hds.databases{
             return freeSlot;
         }
 
-        public void addItemToInventory(UInt16 slotId, UInt32 itemGoID)
+        public void addItemToInventory (UInt16 slotId, UInt32 itemGoID)
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();
 

@@ -63,7 +63,7 @@ namespace hds
             {
                 targetAnim = this.currentAbility.getAbilityExecutionFX();
             }
-            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim);
+            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim,50);
         }
 
         public void processCharacterAnimationSelf(UInt16 abilityID)
@@ -74,7 +74,7 @@ namespace hds
             // see movementAnims.tx - its for codes something (0x31)
             if (currentAbility.getAbilityExecutionFX() > 0)
             {
-                pak.sendCastAbilityOnEntityId(2, currentAbility.getAbilityExecutionFX());
+                pak.sendCastAbilityOnEntityId(2, currentAbility.getAbilityExecutionFX(),200);
             }
             if (currentAbility.getCastingTime() > 0)
             {
@@ -117,7 +117,7 @@ namespace hds
             // Skip 6 bytes as we currently didnt knew
             reader.incrementOffsetByValue(6);
             UInt32 maybeMaxHeight = reader.readUInt32(1);
-            reader.setOffsetOverrideValie(rpcData.Length - 4);
+            reader.setOffsetOverrideValue(rpcData.Length - 4);
             UInt32 clientJumpIdUnknown = reader.readUInt32(1);
 
             // Players current X Z Y

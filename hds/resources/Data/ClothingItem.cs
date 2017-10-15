@@ -8,8 +8,6 @@ namespace hds
     class ClothingItem
     {
         private UInt16 GoidDecimal;
-        private byte GoidLittleEndian;
-        private byte GoidBigEndian;
         private string ClothesType;
         private string ShortName;
         private string ItemName;
@@ -30,20 +28,6 @@ namespace hds
             return this.GoidDecimal;
         }
 
-        public void setGoidLittleEndian(byte GoLittle)
-        {
-            this.GoidLittleEndian = GoLittle;
-        }
-
-        public byte getGoidLittleEndian()
-        {
-            return this.GoidLittleEndian;
-        }
-
-        public void setGoidBigEndian(byte GoBig)
-        {
-            this.GoidBigEndian = GoBig;
-        }
 
         public void setClothesType(string type)
         {

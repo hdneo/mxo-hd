@@ -55,9 +55,19 @@ namespace hds{
 		private void sendPacket(byte[] data){
 			if(this.deadSignals==0){
                 //Output.WriteLine("[SEND PACKET] PSS: " + playerData.getPss().ToString() + " SSEQ : " + playerData.getSseq().ToString() + " CSEQ: " + playerData.getCseq().ToString());
-				socket.SendTo(data, Remote);
+                try
+                {
+                    socket.SendTo(data, Remote);
+                }catch(Exception ex)
+                {
+                    Output.WriteDebugLog("Socket Error " + ex.Message);
+                    alive = false;
+                }
+				
 			}
 		}
+
+     
 
         // Flush the MessageQueue Lists to the Client
         public void flushQueue()
@@ -288,10 +298,7 @@ namespace hds{
 				processedPacket = temp;
 			}
 
-            
-
-
-
+      
 			//clData.setPss((UInt16) decValues[1]);
             playerData.setPss((UInt16)decValues[1]);
 			playerData.setCseq ((UInt16)decValues[2]); 

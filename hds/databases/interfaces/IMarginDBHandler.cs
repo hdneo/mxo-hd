@@ -17,6 +17,8 @@ namespace hds.databases.interfaces{
 
         // NEW
         void addAbility(Int32 abilityID, UInt16 slotID, UInt32 charID, UInt16 level, UInt16 is_loaded);
+
+        void AddItemToSlot(UInt32 itemId, UInt16 slotID, UInt32 charID);
         void deleteCharacter(UInt64 charId);
     }
 }

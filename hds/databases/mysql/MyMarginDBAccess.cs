@@ -229,7 +229,23 @@ namespace hds.databases{
             conn.Close();
         }
 
-        public void deleteCharacter(UInt64 charId)
+
+	    public void AddItemToSlot(UInt32 itemGoId, ushort slotId, UInt32 charId)
+	    {
+
+		    // Faster way instead of checking on every item type 
+		    if (itemGoId != 0 && slotId != 0 && charId != 0)
+		    {
+			    conn.Open();
+			    string sqlQuery = "INSERT INTO inventory SET charId = '" + charId.ToString() + "' , goid = '" + itemGoId.ToString() + "', slot = '" + slotId.ToString() + "', created = NOW() ";
+			    queryExecuter = conn.CreateCommand();
+			    queryExecuter.CommandText = sqlQuery;
+			    queryExecuter.ExecuteNonQuery();   
+			    conn.Close();
+		    }
+	    }
+
+	    public void deleteCharacter(UInt64 charId)
         {
             // This is a "soft-delete" Method. The Data wouldnt be deleted but will be invisible to the users.
             conn.Open();

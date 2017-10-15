@@ -44,6 +44,15 @@ namespace hds{
 				    pak.sendSystemChatMessage(Store.currentClient, "Rsi changed!", "BROADCAST");
 				}
 
+				if (command.Contains("?updatersi"))
+				{
+					int[] current = Store.currentClient.playerData.getRsiValues();
+					byte[] rsiData = PacketsUtils.getRSIBytes(current);
+					
+					ServerPackets packets = new ServerPackets();
+					packets.sendAppeareanceUpdate(Store.currentClient, rsiData);
+				}
+
 			    if (command.StartsWith("?spawndatanode"))
 			    {
 			        ServerPackets pak = new ServerPackets();
@@ -58,6 +67,15 @@ namespace hds{
                     Store.world.sendRPCToAllPlayers(theMessage);
 
                 }
+
+				if (command.Contains("?loot"))
+				{
+					UInt32 objectId = UInt32.Parse(commands[1]);
+					
+					ServerPackets packets = new ServerPackets();
+					packets.sendLootWindowTest(Store.currentClient,objectId);
+
+				}
 
 			    if (command.Contains("?moa"))
 			    {

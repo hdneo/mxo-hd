@@ -75,15 +75,18 @@ namespace hds{
     			// Create a new object when a client arrives
     			TcpClient client = this.tcpListener.AcceptTcpClient();
 				MarginClient marClient = new MarginClient(client.GetHashCode());
+
+                // Define a new thread with the handling method as main loop and start it
+                Thread clientThread = new Thread(new ParameterizedThreadStart(marClient.HandleClientComm));
+                threadList.Add(clientThread);
+
+                clientThread.Start(client);
+
+                marClient.marginThreadId = clientThread.ManagedThreadId;
+                // Add it to the Margin clients list
+                clientList.Add(marClient);
 				
-				// Add it to the Margin clients list
-				clientList.Add(marClient);
 				
-				// Define a new thread with the handling method as main loop and start it
-    			Thread clientThread = new Thread(new ParameterizedThreadStart(marClient.HandleClientComm));
-				threadList.Add(clientThread);
-				
-    			clientThread.Start(client);
   			}
 		}
 
@@ -119,7 +122,7 @@ namespace hds{
             }
             return isActive;
         }
-
+    
         public void removeClientsByCharId(UInt32 charId)
         {
             MarginClient removeClient = null;
@@ -127,12 +130,26 @@ namespace hds{
             {
                 if (resultClient.getCharID() == charId)
                 {
+                    RemoveThreadFromThreadList(resultClient.marginThreadId);
                     removeClient = resultClient;
                     break;
                 }
             }
             clientList.Remove(removeClient);
+            
         }
 
-	}
+        private void RemoveThreadFromThreadList(int ThreadId)
+        {
+            for(int i = 0; i < threadList.Count; i++){
+                Thread tempThread = (Thread)threadList[i];
+                if(tempThread.ManagedThreadId == ThreadId)
+                {
+                    tempThread.Abort();
+                }
+            }
+
+        }
+
+    }
 }

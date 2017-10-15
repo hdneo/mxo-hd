@@ -22,7 +22,7 @@ namespace hds
             offset = offset + value;
         }
 
-        public void setOffsetOverrideValie(int value)
+        public void setOffsetOverrideValue(int value)
         {
             offset = value;
         }

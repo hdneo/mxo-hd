@@ -17,7 +17,9 @@ namespace hds
         private Thread listenThread;
         private int serverport;
         private bool mainThreadWorking;
-        private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        private Socket socket;
+
+        public const int SIO_UDP_CONNRESET = -1744830452;
 
         public static Hashtable Clients { get; set; }
 
@@ -35,21 +37,17 @@ namespace hds
         public WorldSocket()
         {
 
-            serverport = 10000;
-            udplistener = new IPEndPoint(IPAddress.Any, serverport);
-
             Clients = new Hashtable();
-
-            listenThread = new Thread(new ThreadStart(ListenForAllClients));
-            mainThreadWorking = true;
             objMan = new ObjectManager();
 
+            listenThread = new Thread(new ThreadStart(ListenForAllClients));
             Output.WriteLine("[World Server] Set and ready at UDP port 10000");
         }
 
         public void startServer()
         {
             listenThread.Start();
+            mainThreadWorking = true;
         }
 
         public void stopServer()
@@ -223,21 +221,16 @@ namespace hds
         {
             Socket recvSocket = (Socket)iar.AsyncState;
             EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
+            string key = Remote.ToString();
             int msgLen = 0;
 
             try
             {
                 msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
-            }catch(SocketException ex)
-            {
-
-            }
-            finally
-            {
                 byte[] finalMessage = new byte[msgLen];
                 ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
 
-                string key = Remote.ToString();
+                
 
 
                 // TODO CLIENT CHECK AND HANDLING
@@ -269,14 +262,28 @@ namespace hds
                 try
                 {
                     socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
-                }catch(Exception ex)
+                }
+                catch (SocketException ex)
                 {
                     // if we get exception - remove the client
                     // ToDo:
-                    Store.currentClient.Alive = false;
+                    if (ex.ErrorCode == 10054)
+                    {
+                        // Client got removed by timeout
+                        Store.currentClient.Alive = false;
+                    }
 
                 }
-                
+
+            }
+            catch (SocketException ex)
+            {
+                Output.WriteLine("Exception thrown by socket " + ex.SocketErrorCode + " " + ex.Message);
+                if (ex.ErrorCode == 10054)
+                {
+                    // Client got removed by timeout
+                    Store.currentClient.Alive = false;
+                }
             }
                 
         }
@@ -284,11 +291,27 @@ namespace hds
         
         private void ListenForAllClients()
         {
+            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+
+            byte[] byteTrue = new byte[4];
+            byteTrue[byteTrue.Length - 1] = 1;
+            socket.IOControl(SIO_UDP_CONNRESET, byteTrue, null);
+
+            serverport = 10000;
+            udplistener = new IPEndPoint(IPAddress.Any, serverport);
             buffer = new byte[4096];
             socket.Bind(udplistener);
+    
             IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
             EndPoint Remote = sender;
-            socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
+            try
+            {
+                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, new AsyncCallback(finalReceiveFrom), socket);
+            }catch(Exception ex)
+            {
+                Output.WriteDebugLog("Exceeption Thrown ListenForAllClients " + ex.Message);
+            }
+            
             
         }
         

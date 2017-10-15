@@ -58,41 +58,45 @@ namespace hds
             string partColor = null;
             switch (item.getClothesType())
             {
+                case "1950892361":
                 case "FEMALE HAT":
                 case "MALE HAT":
                     partModel = "hat";
                     break;
-
+                case "2001027401":
                 case "FEMALE GLASSES":
                 case "MALE GLASSES":
                     partModel = "glasses";
                     partColor = "glassescolor";
                     break;
+                case "1750286665": // New Way but lets stay old values there
                 case "FEMALE SHIRT":
                 case "MALE SHIRT":
                     partModel = "shirt";
                     partColor = "shirtcolor";
                     break;
+                case "1816609097":
                 case "FEMALE GLOVES":
                 case "MALE GLOVES":
                     partModel = "gloves";
                     break;
-
+                case "2001682761":
                 case "FEMALE COAT":
                 case "MALE COAT":
                     partModel = "coat";
                     partColor = "coatcolor";
                     break;
+                case "1397768521":
                 case "MALE PANTS":
                 case "FEMALE PANTS":
                     partModel = "pants";
                     partColor = "pantscolor";
                     break;
-
+                case "1733050697":
                 case "FEMALE LEGGINGS":
                     partModel = "leggins";
                     break;
-
+                case "2001092937":
                 case "FEMALE SHOES":
                 case "MALE SHOES":
                     partModel = "shoes";
@@ -145,48 +149,53 @@ namespace hds
 
             switch (item.getClothesType())
             {
+                case "1950892361":
                 case "FEMALE HAT":
                 case "MALE HAT":
                     toRealSlotId = 0x61;
                     partModel = "hat";
                     break;
-
+                case "2001027401":
                 case "FEMALE GLASSES":
                 case "MALE GLASSES":
                     toRealSlotId = 0x62;
                     partModel = "glasses";
                     partColor = "glassescolor";
                     break;
+                case "1750286665": // New Way but lets stay old values there
                 case "FEMALE SHIRT":
                 case "MALE SHIRT":
                     toRealSlotId = 0x63;
                     partModel = "shirt";
                     partColor = "shirtcolor";
                     break;
+                case "1816609097":
                 case "FEMALE GLOVES":
                 case "MALE GLOVES":
                     toRealSlotId = 0x64;
                     partModel = "gloves";
                     break;
-
+                    
+                case "2001682761":
                 case "FEMALE COAT":
                 case "MALE COAT":
                     toRealSlotId = 0x65;
                     partModel = "coat";
                     partColor = "coatcolor";
                     break;
+                case "1397768521":
                 case "MALE PANTS":
                 case "FEMALE PANTS":
                     toRealSlotId = 0x66;
                     partModel = "pants";
                     partColor = "pantscolor";
                     break;
-
+                case "1733050697":
                 case "FEMALE LEGGINGS":
                     toRealSlotId = 0x67;
                     partModel = "leggins";
                     break;
-
+                case "2001092937":
                 case "FEMALE SHOES":
                 case "MALE SHOES":
                     toRealSlotId = 0x68;

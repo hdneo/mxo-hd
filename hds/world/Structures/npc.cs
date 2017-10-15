@@ -164,14 +164,9 @@ namespace hds
             this.destination = newPos;
             // Try to calculate rotation
             
-            
             // Oh this seems to match ...needs more testing later when we fixed random pos
-
-
             double yaw = Math.Atan((double)(xNew - getXPos()) / (zNew - getZPos()))*128/Math.PI;
-
             double calcRotation = Math.Atan2(Math.Cos(xNew), Math.Sin(zNew) * Math.Sin(zNew)) * 128/Math.PI;
-
             double testRot = Math.Atan2(xNew, zNew) * 180 / Math.PI;
             double testRot2 = Math.Atan2(xNew, zNew) * 128 / Math.PI;
 
@@ -245,7 +240,27 @@ namespace hds
                 this.updateClient = false;
             }
             return this.updateClient;
+        }
 
+        public void HitEnemyWithDamage(UInt16 hitValue, UInt32 hitFxId)
+        {
+            healthC = (ushort) (healthC - hitValue);
+            // Format 04 80 80 80 80 c0 <uint16 health> c0 <uint32 fxid> 01(but unknown for what it is) <uint8 random>
+            PacketContent pak = new PacketContent();
+            pak.addByte(0x04);
+            pak.addByte(0x80);
+            pak.addByte(0x80);
+            pak.addByte(0x80);
+            pak.addByte(0x80);
+            pak.addByte(0xc0);
+            pak.addUint16(healthC,1);
+            pak.addByte(0xc0);
+            pak.addUint32(hitFxId,1); // FX ID 
+            pak.addByte(0x01);
+            pak.addByte(0x07);
+            this.updateData = pak.returnFinalPacket();
+            
+            
         }
 
         public void updateAnimation(byte animationByte)
@@ -260,6 +275,7 @@ namespace hds
             pak.addFloatLtVector3f((float)this.getXPos(), (float)this.getYPos(), (float)this.getZPos());
             this.updateData = pak.returnFinalPacket();
         }
+        
 
         public void updatePosition()
         {
