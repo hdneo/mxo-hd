@@ -90,12 +90,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lua\LuaInterface.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="MySql.Data, Version=1.0.10.1, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>mysql\libraries\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -142,6 +142,7 @@
     <Compile Include="servertype\CR2\NetworkProtocolHeaders.cs" />
     <Compile Include="shared\Store.cs" />
     <Compile Include="utils\encryption\Crc32.cs" />
+    <Compile Include="utils\encryption\IWorldEncryption.cs" />
     <Compile Include="utils\encryption\Md5.cs" />
     <Compile Include="utils\encryption\MxoRSA.cs" />
     <Compile Include="utils\encryption\MxoTwofish.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="utils\encryption\mm_twofish\TwofishBase.cs" />
     <Compile Include="utils\encryption\mm_twofish\TwofishEncryption.cs" />
     <Compile Include="exceptions\AuthException.cs" />
+    <Compile Include="utils\encryption\WorldEncryption.cs" />
     <Compile Include="utils\PacketUtils\PacketContent.cs" />
     <Compile Include="utils\PacketUtils\PacketReader.cs" />
     <Compile Include="utils\PacketUtils\PacketsUtils.cs" />
@@ -156,7 +158,6 @@
     <Compile Include="utils\ArrayUtils.cs" />
     <Compile Include="utils\DynamicArray.cs" />
     <Compile Include="utils\NumericalUtils.cs" />
-    <Compile Include="world\AI\MobHandler.cs" />
     <Compile Include="world\Client\Network\MessageQueue.cs" />
     <Compile Include="world\Client\Network\SequencedMessage.cs" />
     <Compile Include="world\Client\Network\WorldPacket.cs" />
@@ -214,7 +215,7 @@
     <Compile Include="world\Client\RpcHandlers\VendorHandler.cs" />
     <Compile Include="world\Structures\FX.cs" />
     <Compile Include="world\WorldSocket.cs" />
-    <Compile Include="utils\encryption\WorldEncryption.cs" />
+    <Compile Include="utils\encryption\WorldEncryptionEnigma.cs" />
     <Compile Include="utils\XmlParser.cs" />
     <Compile Include="databases\mysql\MyWorldDbAccess.cs" />
     <Compile Include="console\ConsoleSocket.cs" />

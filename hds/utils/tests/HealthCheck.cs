@@ -149,7 +149,7 @@ namespace hds
 		
 		public int enigmaLibEncryption(){
 			try{
-				WorldEncryption we = new WorldEncryption();
+				WorldEncryptionEnigma we = new WorldEncryptionEnigma();
 				byte[] p = new byte[16];
 				we.encrypt(p,16,15,15,15);
 			
@@ -166,7 +166,7 @@ namespace hds
 		
 		public bool doTests(){
 			int totalPoints = 0;
-			int totalTests = 8;
+			int totalTests = 7;
 			
 			Output.WriteLine("########################");
 			Output.WriteLine("HEALTH CHECKS _ STARTING");
@@ -197,8 +197,9 @@ namespace hds
 			Output.Write("Mysql DB connection check ... ");
 			totalPoints+= mysqlCheck();
 			
-			Output.Write("Enigmalib encryption check ... ");
-			totalPoints+= enigmaLibEncryption();
+			// ToDo: just disabled it
+//			Output.Write("Enigmalib encryption check ... ");
+//			totalPoints+= enigmaLibEncryption();
 			
 			if (totalPoints!=totalTests)
 				return false;

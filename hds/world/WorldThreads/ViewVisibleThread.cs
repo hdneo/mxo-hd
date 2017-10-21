@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using hds.shared;
 
@@ -246,9 +247,13 @@ namespace hds
             if (clientUpdate == true)
             {
                 // Needs to send the packet to every spawned client who has this view 
-                byte[] updateData = thismob.getAndResetUpdateData();
-                ServerPackets pak = new ServerPackets();
-                pak.sendNPCUpdateData(mobView.ViewID, client, updateData);
+                List<PacketContent> updateData = thismob.getAndResetUpdateData();
+                foreach (PacketContent mobUpdate in updateData)
+                {
+                    ServerPackets pak = new ServerPackets();
+                    pak.sendNPCUpdateData(mobView.ViewID, client, mobUpdate.returnFinalPacket());    
+                }
+                
                 
             }
         }

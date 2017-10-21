@@ -12,7 +12,7 @@ namespace hds{
 
 		private EndPoint Remote;
 		private Socket socket;
-		private WorldEncryption cypher;
+		private IWorldEncryption cypher;
         
         private string key;
 		
@@ -330,7 +330,7 @@ namespace hds{
                 }
 
                 Output.WriteLine("\n" + key + " PSS = " + playerData.getPss() + ", Cseq = " + playerData.getCseq() + ", AckSSeq = " + playerData.getACK());
-                Output.WriteLine("D: " + StringUtils.bytesToString(processedPacket));
+                Output.WriteLine("Decrypted Received: " + StringUtils.bytesToString(processedPacket));
                 Output.WritePacketLog(StringUtils.bytesToString(processedPacket), "CLIENT", playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getACK().ToString());
 
                 Store.Mpm.Parse(encrypted, processedPacket);

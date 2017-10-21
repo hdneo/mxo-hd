@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using System.Data;
-using MySql.Data.MySqlClient;
 
 using hds.databases.interfaces;
 using hds.shared;
 using System.Collections.Generic;
 using System.IO;
+using MySql.Data.MySqlClient;
 
 namespace hds.databases{
 	
@@ -309,7 +309,7 @@ namespace hds.databases{
         public void updateRsiPartValue(string part, uint value)
         {
             int charID = (int) Store.currentClient.playerData.getCharID();
-            string sqlQuery = "UPDATE rsivalues SET " + part + "= " + value + " WHERE charid= '" + charID.ToString() + "' LIMIT 1";
+            string sqlQuery = "UPDATE rsivalues SET " + part + "=" + value + " WHERE charid= '" + charID.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
@@ -332,13 +332,13 @@ namespace hds.databases{
 			
 			string sqlQuery="update characters set x = @xPos ,y= @yPos ,z=@zPos , rotation= @rotation, districtId= @disctrictID where handle=@handle;";
             MySqlCommand cmd = new MySqlCommand(sqlQuery, (MySqlConnection)conn);
-            cmd.Parameters.Add("@xPos", x);
-            cmd.Parameters.Add("@yPos", y);
-            cmd.Parameters.Add("@zPos", z);
-            cmd.Parameters.Add("@rotation", rotation);
-            cmd.Parameters.Add("@disctrictID", client.playerData.getDistrictId());
-            cmd.Parameters.Add("@handle", handle);
-            queryExecuter = conn.CreateCommand();
+			cmd.Parameters.Add("@xPos", x);
+			cmd.Parameters.Add("@yPos", y);
+			cmd.Parameters.Add("@zPos", z);
+			cmd.Parameters.Add("@rotation", rotation);
+			cmd.Parameters.Add("@disctrictID", client.playerData.getDistrictId());
+			cmd.Parameters.Add("@handle", handle);
+            cmd.ExecuteNonQuery();
             
 			queryExecuter.CommandText = sqlQuery;
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));

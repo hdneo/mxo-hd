@@ -656,11 +656,16 @@ namespace hds
         {
             Vendor theVendor = null;
 
-            // ToDo: find vendor with multiple
-            theVendor = Vendors.Find(c => (c.vendorStaticID == GoID && c.metrId == metrId));
+            // Finds the Vendor By Id and MetrId
+            // theVendor = Vendors.Find(c => (c.vendorStaticID == GoID && c.metrId == metrId));
+            
+            // Finds the Vendor only by ID as i think that there are so few IDs that the are not double in worlds
+            // Also they could be wrong metrId by the parser so this should work better :)
+            theVendor = Vendors.Find(c => (c.vendorStaticID == GoID));
             if (theVendor == null)
             {
                 // Current fallback if nothing could be found
+                // ToDo: Write the ID, Pos, Metr in a Seperate CSV File to Identify which needs to be "tagged" and filled
                 theVendor = Vendors.First(c => c.metrId == metrId);
             }
 

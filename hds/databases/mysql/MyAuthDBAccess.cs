@@ -1,9 +1,8 @@
 using System;
 using System.Data;
-using MySql.Data.MySqlClient;
-
 using hds.databases.interfaces;
 using hds.shared;
+using MySql.Data.MySqlClient;
 
 namespace hds.databases{
 

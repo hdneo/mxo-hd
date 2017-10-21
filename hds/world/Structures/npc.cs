@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 
 namespace hds
@@ -14,6 +15,7 @@ namespace hds
         private ushort level = 1;
         private UInt16 healthC = 0;
         private UInt16 healthM = 0;
+        private ushort hitCounter = 0;
         private string rsi_hex;
         private uint rotation;
         private double xPos;
@@ -35,7 +37,7 @@ namespace hds
         public double prev_z_pos = 0;  // Important for some calc tests
         public enum statusList : int { WALKING = 0x00, WALKING_BACK = 0x01, STANDING = 0x02, STANDING_BACK = 0x03, STANDING_COMBAT = 0x04 };
         public int currentState = 0x02;
-        public byte[] updateData;
+        public List<PacketContent> updateData;
 
         public int ticksNeeded = 10;
         public int ticksReceived = 0;
@@ -50,6 +52,7 @@ namespace hds
 
         public npc()
         {
+            updateData = new List<PacketContent>();
             this.next_move_time = TimeUtils.getUnixTimeUint32() + (30); // 30 seconds for a move to test
         }
 
@@ -244,22 +247,24 @@ namespace hds
 
         public void HitEnemyWithDamage(UInt16 hitValue, UInt32 hitFxId)
         {
-            healthC = (ushort) (healthC - hitValue);
-            // Format 04 80 80 80 80 c0 <uint16 health> c0 <uint32 fxid> 01(but unknown for what it is) <uint8 random>
-            PacketContent pak = new PacketContent();
-            pak.addByte(0x04);
-            pak.addByte(0x80);
-            pak.addByte(0x80);
-            pak.addByte(0x80);
-            pak.addByte(0x80);
-            pak.addByte(0xc0);
-            pak.addUint16(healthC,1);
-            pak.addByte(0xc0);
-            pak.addUint32(hitFxId,1); // FX ID 
-            pak.addByte(0x01);
-            pak.addByte(0x07);
-            this.updateData = pak.returnFinalPacket();
+            healthC -= hitValue;
+            hitCounter++;
             
+            // Format 04 80 80 80 80 c0 <uint16 health> c0 <uint32 fxid> 01(but unknown for what it is) <uint8 random>
+            // Example Full: send 02 03 <viewID> 04 80 80 80 c0 02 00 c0 c1 01 00 28 01 01 00 00;
+            PacketContent hitPacket = new PacketContent();
+            hitPacket.addByte(0x04);
+            hitPacket.addByte(0x80);
+            hitPacket.addByte(0x80);
+            hitPacket.addByte(0x80);
+            hitPacket.addByte(0xc0);
+            hitPacket.addUint16(healthC,1);
+            hitPacket.addByte(0xc0);
+            hitPacket.addUint32(hitFxId,1); // FX ID 
+            hitPacket.addByte(0x01);
+            hitPacket.addUintShort(hitCounter);  // Animation Count or something - must be an another as before
+           
+            this.updateData.Add(hitPacket);
             
         }
 
@@ -273,7 +278,7 @@ namespace hds
             pak.addByte(animationByte);
             pak.addByte((byte)this.rotation);
             pak.addFloatLtVector3f((float)this.getXPos(), (float)this.getYPos(), (float)this.getZPos());
-            this.updateData = pak.returnFinalPacket();
+            this.updateData.Add(pak);
         }
         
 
@@ -283,15 +288,16 @@ namespace hds
             // aka 0x0c 
         }
 
-        public byte[] getAndResetUpdateData()
+        public List<PacketContent> getAndResetUpdateData()
         {
-            byte[] thedata = this.updateData;          
+            List<PacketContent> thedata = this.updateData;
+            this.updateData = new List<PacketContent>();
             return thedata;
         }
 
         public void flushClientUpdateData()
         {
-            Array.Clear(updateData, 0, this.updateData.Length);
+            updateData.Clear();
         }
 
         public void updateCombat()
