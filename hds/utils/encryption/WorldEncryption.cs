@@ -83,10 +83,6 @@ namespace hds
             byte[] decryptBuffer = readerEncrypted.readBytes(encryptedData.Length - 17);
             tf.decrypt(decryptBuffer,innerBuffer);
 
-            // ToDo: remove its just for debugging
-            string hexData = StringUtils.bytesToString(innerBuffer);
-            Output.writeToLogForConsole(hexData);
-
             // just copy to clean
             byte[] decryptedPacket = innerBuffer;
             innerBuffer = new byte[2048];
@@ -105,7 +101,7 @@ namespace hds
             // as we read the whole packet for verifiy we reset the offset to read the other things
             reader.setOffsetOverrideValue(4);
             UInt16 packetSize = reader.readUInt16(1);
-            UInt32 timeStamp = reader.readUInt32(1); // Well we didnt need it - but just read it as uint32
+//            UInt32 timeStamp = reader.readUInt32(1); // Well we didnt need it - but just read it as uint32
             UInt32 seqValues = reader.readUInt32(0);
             
             cseq = (UInt16)(seqValues&0xFFF);

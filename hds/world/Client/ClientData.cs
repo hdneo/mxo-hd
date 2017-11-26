@@ -1,36 +1,35 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+
 namespace hds
 {
 	public class ClientData
 	{
 		
 		// Mxo coords
-		
 		private int[] rsiValues;
 		
 		// MXO Client values (server data)
 		private string uniqueKey;
 		private UInt16 pss;
 		private UInt16 cseq;
-		private UInt16 sseq = 0;
+		private UInt16 sseq;
 		private UInt16 sseqACKBYCLIENT;
 		private UInt16 RPCCounter;
 		private UInt32 charID;
 		private UInt16 objectID;
         private UInt64 entityId;
+		// Character Player Values
 		private long exp;
 		private long cash;
 		private string district;
-        private uint districtId = 0;
+        private uint districtId;
 		private bool onWorld;
 		private string missionTeam;
         public List<BuffSkill> currentBuffs;
 		private float clientSimTime;
-        public int lastSimTimeSEQ = 0; // Add timed packet every 4 SEQ automatically
         public long lastSimTimeUpdate = 0; // Timer
-        private bool UDPSessionEstablished = false;
+        private bool UDPSessionEstablished;
 
         public UInt16 currentSelectedTargetViewId = 2;
         public ushort currentSelectedTargetSpawnId = 1; // we need both for combat
@@ -45,7 +44,7 @@ namespace hds
 		public UInt32 jackoutStartTime;
 		public bool isJackoutInProgress;
 		
-        public bool waitForRPCShutDown = false;
+        public bool waitForRPCShutDown;
         internal ushort selfSpawnIdCounter;
 	    public UInt32 lastSaveTime;
 
@@ -56,7 +55,7 @@ namespace hds
 			
 			pss = 0x00;
 			onWorld = false;
-
+			setupPlayerData();
 
 		}
 
@@ -72,7 +71,7 @@ namespace hds
         public void setupPlayerData()
         {
             // This init buffs, current skills, missions etc.
-                currentBuffs = new List<BuffSkill>();
+            currentBuffs = new List<BuffSkill>();
 
         }
 		
@@ -88,15 +87,15 @@ namespace hds
 
         public UInt16 getJumpID()
         {
-            return this.jumpID;
+            return jumpID;
         }
 
         public void incrementJumpID()
         {
-            this.jumpID++;
+            jumpID++;
             //Output.WriteLine("JUMP ID IS NOW " + this.jumpID.ToString());
-			if (this.jumpID==65534){ //Safe way
-                this.jumpID = 1;
+			if (jumpID==65534){ //Safe way
+                jumpID = 1;
 			}
         }
 		
@@ -106,11 +105,11 @@ namespace hds
 		
 		
 		public void setRsiValues(int[] newRSI){
-			this.rsiValues = newRSI;
+			rsiValues = newRSI;
 		}
 		
 		public int[] getRsiValues(){
-			return this.rsiValues;
+			return rsiValues;
 		}
 		
 		public void setOnWorld(bool newValue){
@@ -134,26 +133,17 @@ namespace hds
 
         public void setUDPSessionEstablished(bool value)
         {
-            this.UDPSessionEstablished = value;
+            UDPSessionEstablished = value;
         }
 
         public bool getUDPSEssionEstablished()
         {
-            return this.UDPSessionEstablished;
-        }
-
-        public void DecrementSseq()
-        {
-            // For the MessageQueue if we need 
-            if (this.sseq > 0 && this.sseq < 4096)
-            {
-                this.sseq--;
-            }
+            return UDPSessionEstablished;
         }
 
         public UInt16 calculateNextPossibleSseq()
         {
-            UInt16 futureSseq = this.sseq;
+            UInt16 futureSseq = sseq;
             futureSseq++;
             if(futureSseq==4096)
             {
@@ -163,26 +153,26 @@ namespace hds
         }
 
 		public void IncrementSseq(){
-			this.sseq++;
-			if (this.sseq==4096){ //Safe way
-				this.sseq = 0;
+			sseq++;
+			if (sseq==4096){ //Safe way
+				sseq = 0;
 			}
 		}
 		
 		public UInt16 getPss(){
-			return this.pss;
+			return pss;
 		}
 		
 		public UInt16 getCseq(){
-			return this.cseq;
+			return cseq;
 		}
 		
 		public UInt16 getSseq(){
-			return this.sseq;
+			return sseq;
 		}
 		
 		public UInt16 getACK(){
-			return this.sseqACKBYCLIENT;
+			return sseqACKBYCLIENT;
 		}
 		
 		public void setPss(UInt16 pss){
@@ -198,19 +188,19 @@ namespace hds
 		}
 		
 		public void setACK(UInt16 ack){
-			this.sseqACKBYCLIENT = ack;
+			sseqACKBYCLIENT = ack;
 		}
 		
 		public void setRPCCounter(UInt16 rpc){
-			this.RPCCounter = rpc;
+			RPCCounter = rpc;
 		}
 		
 		public UInt16 getRPCCounter(){
-			return this.RPCCounter;
+			return RPCCounter;
 		}
 		
 		public UInt32 getCharID(){
-			return this.charID;
+			return charID;
 		}
 		
 		public void setCharID(UInt32 charID){
@@ -218,7 +208,7 @@ namespace hds
 		}
 		
 		public UInt16 getObjectID(){
-			return this.objectID;
+			return objectID;
 		}
 		
 		public void setObjectID(UInt16 objectID){
@@ -227,65 +217,65 @@ namespace hds
 
         public UInt64 getEntityId()
         {
-            return this.entityId;
+            return entityId;
         }
 
         public void setEntityId(UInt64 _entityId)
         {
-            this.entityId = _entityId;
+            entityId = _entityId;
         }
 		
 		public void setUniqueKey(string key){
-			this.uniqueKey = key;
+			uniqueKey = key;
 		}
 		
 		public string getUniqueKey(string key){
-			return this.uniqueKey;
+			return uniqueKey;
 		}
 		
 		
 		public void setExperience(long _exp){
-			this.exp = _exp;
+			exp = _exp;
 		}
 		public long getExperience(){
-			return this.exp;
+			return exp;
 		}
 		
 		public void setInfo(long _cash){
-			this.cash = _cash;
+			cash = _cash;
 		}
 		
 		public long getInfo(){
-			return this.cash;
+			return cash;
 		}
 		
 		public void setDistrict(string _dist){
-			this.district = _dist;
+			district = _dist;
 		}
 		
 		public string getDistrict(){
-			return this.district;
+			return district;
 		}
 
         public void setDistrictId(uint _districtId)
         {
-            this.districtId = _districtId;
+            districtId = _districtId;
         }
 
         public uint getDistrictId()
         {
-            return this.districtId;
+            return districtId;
         }
 		
 
         public bool getRPCShutDown()
         {
-            return this.waitForRPCShutDown;
+            return waitForRPCShutDown;
         }
 
         public void setRPCShutDown(bool state)
         {
-            this.waitForRPCShutDown = state;
+            waitForRPCShutDown = state;
         }
 	}
 }

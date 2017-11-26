@@ -21,12 +21,12 @@ namespace hds
             {
                 for (int i = 0; i < npcCount; i++)
                 {
-                    npc thismob = (npc)WorldSocket.npcs[i];
+                    Mob thismob = (Mob)WorldSocket.npcs[i];
                     // Check if Client has a view for this mob
 
                     if (thismob.getIsSpawned() == true)
                     {
-                        thismob.doTick();
+                        thismob.DoMobUpdate(thismob);
                     }
 
                 }

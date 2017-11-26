@@ -10,12 +10,21 @@ namespace hds
             while (true)
             {
                 // ToDo: This should update "timers" like Buffs, Skill Execution or something
-                Thread.Sleep(1000);
-                // Update Client Data (Buffs ?)
+                Thread.Sleep(2000);
                 lock (WorldSocket.Clients.SyncRoot)
                 {
+                    CheckAndResendClients();
                     SavePlayers();
                 }
+            }
+        }
+        
+        private static void CheckAndResendClients()
+        {
+            foreach (string client in WorldSocket.Clients.Keys)
+            {
+                WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
+                otherclient.CheckAndResend();
             }
         }
 

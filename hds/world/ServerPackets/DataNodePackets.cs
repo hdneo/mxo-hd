@@ -35,7 +35,7 @@ namespace hds
             pak.addUint16(view.ViewID, 1);
             pak.addByte(0x00);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
         }
     }
 

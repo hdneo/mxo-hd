@@ -33,48 +33,74 @@ namespace hds
 			return offset;
 		}
 		
-		public int parseAttributes(ref byte[] buffer, int _offset){
-			int offset = _offset;
+		public int parseAttributes(ref byte[] buffer, int _offset)
+		{
+			_offset++;
 			byte flag = 0x00;
-			flag = BufferHandler.readByte(ref buffer,ref offset);
+			flag = BufferHandler.readByte(ref buffer,ref _offset);
 
-            byte[] stateData = new byte[buffer.Length - offset+2];
-            ArrayUtils.copy(buffer, offset-2, stateData, 0, buffer.Length - offset+2);
+            byte[] stateData = new byte[buffer.Length - _offset+2];
+            ArrayUtils.copy(buffer, _offset-2, stateData, 0, buffer.Length - _offset+2);
 			//Flag Bits{0,0,0,0,Vector3f Position Update,  Yaw Update,Animation Update, AttributesPacked Update?}
 
+			double x = 0;
+			double y = 0;
+			double z = 0;
             
             switch (flag)
             {
                 case 0x02:
-                    Action.setValue(BufferHandler.readBytes(ref buffer, ref offset, Action.getSize()));
+                    Action.setValue(BufferHandler.readBytes(ref buffer, ref _offset, Action.getSize()));
                 break;
 
 
                 case 0x04:
-                    YawInterval.setValue(BufferHandler.readBytes(ref buffer, ref offset, YawInterval.getSize()));
+                    YawInterval.setValue(BufferHandler.readBytes(ref buffer, ref _offset, YawInterval.getSize()));
                 break;
 
 
                 case 0x08:
-                    double x = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
-                    double y = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
-                    double z = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
+                    x = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+                    y = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+                    z = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
                     Position.setValue(NumericalUtils.doublesToLtVector3d(x, y, z));
                 break;
+	                
+	            case 0x0a:
+		            YawInterval.setValue(BufferHandler.readByte(ref buffer, ref _offset));
+		            x = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+		            y = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+		            z = (double)NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+		            Position.setValue(NumericalUtils.doublesToLtVector3d(x, y, z));
+		         break;
 
                 case 0x0e:
                     // UInt16 unknown + LtVector3f
-                    UInt16 unknown = NumericalUtils.ByteArrayToUint16(BufferHandler.readBytes(ref buffer, ref offset, 2), 1);
-                    float xPos = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
-                    float yPos = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
-                    float zPos = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref offset, 4), 1);
-                    Position.setValue(NumericalUtils.doublesToLtVector3d((double)xPos, (double)yPos, (double)zPos));
+                    UInt16 unknown = NumericalUtils.ByteArrayToUint16(BufferHandler.readBytes(ref buffer, ref _offset, 2), 1);
+                    x = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+                    y = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+                    z = NumericalUtils.byteArrayToFloat(BufferHandler.readBytes(ref buffer, ref _offset, 4), 1);
+                    Position.setValue(NumericalUtils.doublesToLtVector3d(x, y, z));
                 break;
+	            
+	                default:
+		                // ToDo: we need a proper way to proove if there is a 00 00 04 somewhere (and if set the offset to it)
+		                
+		                // If this doesnt match we need to write this somewhere...
+		                string message = "RPCMAIN : Unknown Client 03 Request Packet \r\n" +
+		                                 "Flag: " + flag + "\r\n " +
+		                                 "Content: \n" +
+		                                 StringUtils.bytesToString(stateData) + "\r\n";
+		                Output.WriteClientViewRequestLog(message);
+		                
+		                // ...and we dont want to crash so we just say "offset is full packet"
+		                _offset = buffer.Length - 1;
+		                break;
             }
 			
 			// TODO: update player attribute packets someday (announce it to my spawners)
             Store.world.sendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
-			return offset;
+			return _offset;
 		}
 		
 		public int parseAttributes2(ref byte[] buffer, int _offset){
@@ -94,24 +120,24 @@ namespace hds
 		}
 		
 		
-		public int parseAutoView(ref byte[] buffer, int _offset){
-			int offset = _offset;
-			
-			byte subview =  BufferHandler.readByte(ref buffer,ref offset);
+		public int parseAutoView(ref byte[] buffer, int _offset)
+		{
+
+			_offset = _offset +2;
+			byte subview = buffer[_offset];
+			Output.WriteLine("[MPM] Parse AutoView (offset:" + _offset + " Buffer " + StringUtils.bytesToString(buffer) + " )");
 						
 			switch(subview){
 				case 0x01:
-					Output.WriteLine("[MPM] Parsing selfview");
+					Output.WriteLine("[MPM] Parsing selfview Attributes");
 					//Self view Attributes only
-					offset = parseAttributes(ref buffer,offset);
+					_offset = parseAttributes(ref buffer,_offset);
 				break;
 				
 				case 0x02:
 					Output.WriteLine("[MPM] Parsing 02 View");
-					offset = parseAttributes2(ref buffer,offset);
+					_offset = parseAttributes2(ref buffer,_offset);
 				break;
-				
-				
 				
 				default:
 					//TODO: put something here
@@ -119,7 +145,7 @@ namespace hds
 					break;
 			}
 			
-			return offset;
+			return _offset;
 		}
 		
 	}

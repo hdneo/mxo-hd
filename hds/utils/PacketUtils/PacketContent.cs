@@ -13,6 +13,11 @@ namespace hds
             packet.append(StringUtils.hexStringToBytes(hexbytes));
         }
 
+        public void addInt16(Int16 value, int reversed)
+        {
+            packet.append(NumericalUtils.int16ToByteArray(value, reversed));
+        }
+
         public void addInt32(Int32 value, int reversed)
         {
             packet.append(NumericalUtils.int32ToByteArray(value, reversed));

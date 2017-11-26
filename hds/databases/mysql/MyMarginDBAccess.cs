@@ -27,7 +27,7 @@ namespace hds.databases{
         public MarginCharacter getCharInfo(int charId)
         {
             conn.Open();
-            string sqlQuery = "SELECT firstName,lastName,background, district, districtId, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
+            string sqlQuery = "SELECT firstName,lastName,background, district, districtId, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash,created FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
 

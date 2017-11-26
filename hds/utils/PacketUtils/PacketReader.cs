@@ -27,6 +27,11 @@ namespace hds
             offset = value;
         }
 
+        public int getOffset()
+        {
+            return offset;
+        }
+
         public uint readUint8()
         {
             uint value = 0;

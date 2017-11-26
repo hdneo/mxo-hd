@@ -78,41 +78,57 @@ namespace hds{
                 handler.processAttributes();
                 handler.processPlayerSetup();
             }
-       
 
-            if (packetData.Length > 1 && AckFlags.Get(1)==true){ //Not just ACK nor Resetting
-                
-                if (packetData[offset] == 0x05)
-                {
-                    offset = offset+4;
-                    Output.writeToLogForConsole("Its a 05 Packet");
-                    Store.currentClient.messageQueue.ackOnlyCount = Store.currentClient.messageQueue.ackOnlyCount + 1;
-                    Store.currentClient.flushQueue();
-                    // We dont need a handler for 05 Packets (as there is only one as i see lol)
-                    
-                }
 
-				if (packetData[offset]==0x03){ // Is a 03 packet
-					offset++;
-					offset = man03.parse(offset,ref buffer);
+			if (packetData.Length > 1 && AckFlags.Get(1) == true)
+			{
+				//Not just ACK nor Resetting
+
+				if (packetData[offset] == 0x05)
+				{
+					offset = offset + 4;
+					Output.writeToLogForConsole("Its a 05 Packet");
+					Store.currentClient.messageQueue.ackOnlyCount = Store.currentClient.messageQueue.ackOnlyCount + 1;
+					Store.currentClient.FlushQueue();
+					// We dont need a handler for 05 Packets (as there is only one as i see lol)
+
 				}
-				
 
-				if (offset<packetData.Length){	// There is no more info if we'r out of offset
+				if (packetData[offset] == 0x03)
+				{
+					// Is a 03 packet
+					offset++;
+					Output.WriteLine("[MPM] 03 Packet (offset:" + offset + " PackData " + StringUtils.bytesToString(packetData) +
+					                 " )");
+					offset = man03.parse(offset, ref buffer);
+				}
 
-					if (packetData[offset]==0x04){ // Is a 04 packet
+
+				if (offset < packetData.Length)
+				{
+					// There is no more info if we'r out of offset
+
+					if (packetData[offset] == 0x04)
+					{
+						// Is a 04 packet
 						offset++;
-						offset = man04.parse(offset,ref buffer);
+						offset = man04.parse(offset, ref buffer);
 					}
 				}
 
-                if (Store.currentClient.messageQueue.ObjectMessagesQueue.Count == 0 && Store.currentClient.messageQueue.RPCMessagesQueue.Count == 0)
-                {
-                    // nothing to send ? we should really ack something then
-                    Store.currentClient.messageQueue.ackOnlyCount = Store.currentClient.messageQueue.ackOnlyCount + 1;
-                    Store.currentClient.flushQueue();
-                }
+				if (Store.currentClient.messageQueue.ObjectMessagesQueue.Count == 0 &&
+				    Store.currentClient.messageQueue.RPCMessagesQueue.Count == 0)
+				{
+					// nothing to send ? we should really ack something then
+					Store.currentClient.messageQueue.ackOnlyCount = Store.currentClient.messageQueue.ackOnlyCount + 1;
+					Store.currentClient.FlushQueue();
+				}
 
+			}
+			else
+			{
+				// we have just ackonly but we need to send it 
+				Store.currentClient.messageQueue.ackOnlyCount++;
 			}
 			
 		}

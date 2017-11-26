@@ -39,6 +39,19 @@ namespace hds
 			return res;
 		}
 
+        static public byte[] int16ToByteArray(Int32 data, int reversed)
+        {
+
+            byte[] res = BitConverter.GetBytes(data);
+
+            if (reversed == 1)
+                return res;
+            else
+                reverse2ByteArray(res);
+
+            return res;
+        }
+
         static public byte[] int32ToByteArray(Int32 data, int reversed){
 
             byte[] res = BitConverter.GetBytes(data);

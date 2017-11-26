@@ -64,10 +64,10 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Test our skies
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Genereal Summer Sky
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3");
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2");
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3"); // Winter is coming to MxO
+            
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
             packets.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
@@ -166,7 +166,7 @@ namespace hds
             Store.currentClient.messageQueue.addRawMessage(response);
             Store.currentClient.messageQueue.addRawMessage(response);
             Store.currentClient.messageQueue.addRawMessage(response);
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
             Store.margin.sendUDPSessionReply(Store.currentClient.playerData.getCharID());
         }
 
@@ -174,6 +174,16 @@ namespace hds
         {
             ServerPackets packet = new ServerPackets();
             packet.sendGetBackgroundMessage(Store.currentClient);
+        }
+
+        public void IncrementPlayerExp(UInt32 expToIncrement)
+        {
+            long newExperienceValue = Store.currentClient.playerData.getExperience() + expToIncrement;
+            Store.currentClient.playerData.setExperience(newExperienceValue);
+            Store.dbManager.WorldDbHandler.SaveExperience(Store.currentClient, newExperienceValue);
+
+            ServerPackets packets = new ServerPackets();
+            packets.sendEXPCurrent(Store.currentClient, (UInt32)newExperienceValue);
         }
 
         public void processSetBackgroundRequest(ref byte[] packetData)
@@ -190,9 +200,20 @@ namespace hds
 
         public void processLootAccepted()
         {
-            // ToDo: persists loot items from mob, and make mob "not lootable" to other players
+             
+            ClientView theMobView = Store.currentClient.viewMan.getViewById(Store.currentClient.playerData.currentSelectedTargetViewId);
+            
+            // ToDo: we currently not know what items and money we should have - we give everytime 5000 currently
+            UInt32 value = 5000; 
+            UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() + value;
+            // Update Info
+            Store.dbManager.WorldDbHandler.SaveInfo(Store.currentClient,newMoneyAmount);
+            Store.currentClient.playerData.setInfo(newMoneyAmount);
+                        
             ServerPackets packet = new ServerPackets();
-            packet.sendLootAccepted(Store.currentClient);
+            packet.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
+            packet.SendLootAccepted(Store.currentClient);
+            // ToDo: send "loot disabled" 
         }
 
     }

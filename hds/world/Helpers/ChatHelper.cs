@@ -9,7 +9,6 @@ namespace hds{
 	public class ChatCommandsHelper{
 		
 		public void parseCommand(string data){
-			Output.WriteLine("[Chat Command helper] Chat command is: '"+data+"'");
 			string[] commands = data.Split(' ');
 			
 			string command = commands[0].ToLower();
@@ -23,6 +22,7 @@ namespace hds{
 
 					    ServerPackets pak = new ServerPackets();
 					    pak.sendSystemChatMessage(Store.currentClient, "Trying to fix!", "BROADCAST");
+						
 					}
 					
 				}
@@ -62,7 +62,6 @@ namespace hds{
                 
                 if (command.StartsWith("?message"))
                 {
-                    Output.WriteLine("[COMMAND HELPER]MESSAGE RECEIVED");
                     byte[] theMessage = PacketsUtils.createSystemMessageWithoutRPC(commands[1]);
                     Store.world.sendRPCToAllPlayers(theMessage);
 
@@ -111,7 +110,6 @@ namespace hds{
                     ushort updateViewCounter = (ushort)rand.Next(3, 200);
                     byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(updateViewCounter);
 
-                    Output.WriteLine("Check if its really one byte or two : " + StringUtils.bytesToString(updateCount));
                     
                     din.append(viewID);
                     din.append(0x02);
@@ -183,7 +181,7 @@ namespace hds{
                     WorldSocket.entityIdCounter++;
                     uint rotation = 0;
                     
-                    npc theMob = new npc();
+                    Mob theMob = new Mob();
                     theMob.setEntityId(currentEntityId);
                     theMob.setDistrict(Convert.ToUInt16(data[0].ToString()));
                     theMob.setDistrictName(Store.currentClient.playerData.getDistrict());
@@ -266,9 +264,11 @@ namespace hds{
                         din.append(0x00);
 
                         Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
-
+						
+						#if DEBUG
                         ServerPackets pak = new ServerPackets();
                         pak.sendSystemChatMessage(Store.currentClient, "Test RPC Header : " + Store.currentClient.playerData.currentTestRPC.ToString(),"MODAL");
+	                    #endif
 
                         Store.currentClient.playerData.currentTestRPC++;
                     }

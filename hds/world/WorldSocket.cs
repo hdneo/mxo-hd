@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections;
 using System.Net.Sockets;
 using System.Threading;
@@ -17,8 +16,8 @@ namespace hds
         private Thread listenThread;
         private int serverport;
         private bool mainThreadWorking;
-        private Socket socket;
-
+        private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            
         public const int SIO_UDP_CONNRESET = -1744830452;
 
         public static Hashtable Clients { get; set; }
@@ -40,7 +39,8 @@ namespace hds
             Clients = new Hashtable();
             objMan = new ObjectManager();
 
-            listenThread = new Thread(new ThreadStart(ListenForAllClients));
+            listenThread = new Thread(ListenForAllClients);
+            mainThreadWorking = true;
             Output.WriteLine("[World Server] Set and ready at UDP port 10000");
         }
 
@@ -70,7 +70,7 @@ namespace hds
                     if (client.playerData.getCharID() == charId)
                     {
                         client.messageQueue.addRpcMessage(packet);
-                        client.flushQueue();
+                        client.FlushQueue();
                     }
                 }
             }
@@ -96,7 +96,7 @@ namespace hds
                     if (charname == playerHandle)
                     {
                         client.messageQueue.addRpcMessage(packet);
-                        client.flushQueue();
+                        client.FlushQueue();
                     }
                 }
             }
@@ -123,17 +123,71 @@ namespace hds
                     {
 
                         // create the RPC Message
-                        ArrayList content = new ArrayList();
-                        content.Add(data);
-                        
                         client.messageQueue.addRpcMessage(data);
-                        client.flushQueue();
+                        client.FlushQueue();
                     }
 
                 }
             }
-            
         }
+
+        public void sendRPCToCrewMembers(WorldClient myself, byte[] data)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock(Clients.SyncRoot){
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.CrewID == myself.playerInstance.CrewID)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+
+                }
+            }
+        }
+        
+        public void sendRPCToFactionMembers(WorldClient myself, byte[] data)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock(Clients.SyncRoot){
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.FactionID == myself.playerInstance.FactionID)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+
+                }
+            }
+        }
+        
+        public void sendRPCToMissionTeamMembers(WorldClient myself, byte[] data)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock(Clients.SyncRoot){
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.MissionTeamID == myself.playerInstance.MissionTeamID)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+
+                }
+            }
+        }
+        
 
         /// <summary>
         /// Sends a RPC Message to all connected players including the sender
@@ -148,7 +202,7 @@ namespace hds
                 {
                     WorldClient client = Clients[clientKey] as WorldClient;
                     client.messageQueue.addRpcMessage(data);
-                    client.flushQueue();
+                    client.FlushQueue();
                 }
             }
         }
@@ -210,18 +264,37 @@ namespace hds
                         // ToDo: handle viewId for packets (For creation it needs to be append to the end, for update at the start )
                         // ToDo: Complete this :)
                         client.messageQueue.addObjectMessage(content.getBytes(), false);
-                        client.flushQueue();
+                        client.FlushQueue();
                         Output.WriteLine("[World View Server] CharId: " + client.playerData.getCharID().ToString() + " )");
                     }
                 }
             }
         }
 
+        public void SendViewUpdateToClientsWhoHasSpawnedView(PacketContent packet, Mob mob)
+        {
+            lock (Clients.SyncRoot)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    ClientView mobView = client.viewMan.getViewForEntityAndGo(mob.getEntityId(), NumericalUtils.ByteArrayToUint16(mob.getGoId(), 1));
+                    if (mobView.viewCreated == true && mob.getDistrict() == client.playerData.getDistrictId() && client.playerData.getOnWorld())
+                    {
+                        ServerPackets pak = new ServerPackets();
+                        pak.SendNpcUpdateData(mobView.ViewID, client, packet.returnFinalPacket());
+                    }
+                }
+            }
+        }
+
+        
         private void finalReceiveFrom(IAsyncResult iar)
         {
+            
             Socket recvSocket = (Socket)iar.AsyncState;
             EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
-            string key = Remote.ToString();
+            
             int msgLen = 0;
 
             try
@@ -230,27 +303,24 @@ namespace hds
                 byte[] finalMessage = new byte[msgLen];
                 ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
 
-                
-
-
                 // TODO CLIENT CHECK AND HANDLING
                 lock (Clients.SyncRoot)
                 {
                     WorldClient value;
-                    if (Clients.ContainsKey(key))
+                    if (Clients.ContainsKey(Remote.ToString()))
                     {
-                        value = Clients[key] as WorldClient;
-                        Store.currentClient = Clients[key] as WorldClient;
+                        value = Clients[Remote.ToString()] as WorldClient;
+                        Store.currentClient = Clients[Remote.ToString()] as WorldClient;
                     }
                     else
                     {
 
-                        objMan.PushClient(key); // Push first, then create it
-                        value = new WorldClient(Remote, socket, key);
-                        gameServerEntities.Add(objMan.GetAssignedObject(key));
+                        objMan.PushClient(Remote.ToString()); // Push first, then create it
+                        value = new WorldClient(Remote, socket, Remote.ToString());
+                        gameServerEntities.Add(objMan.GetAssignedObject(Remote.ToString()));
                         value.playerData.setEntityId(entityIdCounter++);
 
-                        Clients.Add(key, value);
+                        Clients.Add(Remote.ToString(), value);
                     }
                     // Once one player enters, clean all 
                     Store.currentClient = value; // BEFORE processing
@@ -291,8 +361,6 @@ namespace hds
         
         private void ListenForAllClients()
         {
-            socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
             byte[] byteTrue = new byte[4];
             byteTrue[byteTrue.Length - 1] = 1;
             socket.IOControl(SIO_UDP_CONNRESET, byteTrue, null);

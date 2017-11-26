@@ -165,7 +165,7 @@ namespace hds{
             }else{
                 data = packet;
             }
-            Output.WritePacketLog(StringUtils.bytesToString(data), "MARGINCLIENT", "0", "0", "0");
+            Output.WritePacketLog(data, "MARGINCLIENT", "0", "0", "0");
             opcode = data[2];
             
 			//TODO: check if this needs "packet" or "data"
@@ -274,7 +274,7 @@ namespace hds{
 
             // Do the viewData 
             byte[] response = StringUtils.hexStringToBytes(pakData);
-            Output.WritePacketLog(StringUtils.bytesToString(response), "MARGINSERVER", "0", "0", "0");
+            Output.WritePacketLog(response, "MARGINSERVER", "0", "0", "0");
             Output.WriteDebugLog("[MARGIN SERVER RESPONSE] for OPCODE " + opcode + " : " + StringUtils.bytesToString(response)); 
             byte[] encryptedResponse = marginEncr.encrypt(response);
             sendTCPVariableLenPacket(encryptedResponse, client);
@@ -531,10 +531,20 @@ namespace hds{
             //pak.addHexBytes("000000000000000000178604E40008AF2F0175020000A39F714A81FF81FF81FF670067006700000003000301310000B402320000B403380000B4044E0000000200510000001600520000001900540000001300");
             pak.addUint32(marginCharacter.exp,1);
             pak.addUint32(marginCharacter.cash,1);
-            pak.addHexBytes("0105000000");
-            pak.addByteArray(StringUtils.hexStringToBytes("875D714A")); // Timestamp - Char Creation maybe - lets to it static ToDo: make dynamic
-            pak.addHexBytes("ecfa" + "ecfb" + "ecfc" + "ecfd" + "ecfe" + "ecff");
-            pak.addHexBytes("000003");
+            pak.addUintShort(0x01); // Flag - always 1
+            pak.addUint32(200,1); // CQ Points
+            pak.addByteArray(StringUtils.hexStringToBytes("875D714A")); // Last Changed Timestamp - current its static - needs to be dynamic
+
+            // Rputation Bytes (int16[7])
+            pak.addInt16(-116,1);
+            pak.addInt16(-117, 1);
+            pak.addInt16(-20, 1);
+            pak.addInt16(-59, 1);
+            pak.addInt16(-58, 1);
+            pak.addInt16(-57, 1);
+            pak.addInt16(2, 1);
+            pak.addByte(0x03);
+            
             // 01 = onWorld , 00 = LA . In World you have to take care to not spawn the Character in LA State
             if (marginCharacter.districtId != 0)
             {
@@ -737,12 +747,12 @@ namespace hds{
 			this.waitingForWorld = true;
 			
 			while(this.waitingForWorld){
-				System.Threading.Thread.Sleep(25);
+				Thread.Sleep(25);
 			}
 			
 		}
 
-        public void EstablishUDPSessionReply(byte[] packet, NetworkStream client){
+        public void EstablishUdpSessionReply(byte[] packet, NetworkStream client){
             Console.WriteLine("Establish UDP Session Reply for CharID:" + newCharID);
             byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00 };
             byte[] encryptedResponse = marginEncr.encrypt(response);

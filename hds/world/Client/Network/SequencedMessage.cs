@@ -8,10 +8,12 @@ namespace hds
     public class SequencedMessage
     {
         public byte[] content;
-        private UInt16 sendCounter;
+        public UInt16 sendCounter;
         private int resendTime;
+        private int lastSentTime;
         private UInt16 neededAck;
         public bool isTimed;
+        public bool isSent = false;
 
         public SequencedMessage(byte[] _content)
         {
@@ -23,10 +25,7 @@ namespace hds
             isTimed = false;
         }
 
-        public void increaseSendCounter()
-        {
-            sendCounter++;
-        }
+        
 
         public void setNeededAck(UInt16 ackSSeq)
         {
@@ -38,9 +37,14 @@ namespace hds
             return neededAck;
         }
 
+        public void IncreaseSentCounter()
+        {
+            sendCounter++;
+        }
+        
         public void increaseResendTime()
         {
-            resendTime = resendTime + 2000;
+            resendTime = resendTime + 4000;
         }
 
         public int getResendTime()

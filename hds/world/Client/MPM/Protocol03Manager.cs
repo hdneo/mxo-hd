@@ -4,42 +4,36 @@ using hds.shared;
 
 namespace hds{
 
-	public class Protocol03Manager{
+	public class Protocol03Manager
+	{
 
-		private byte[] buffer;
-		private int offset;
-		
+		private PacketReader reader;
 			
 		public int parse(int _offset, ref byte[] packetData){
-			offset = _offset;
-			buffer = packetData;
-			    
-			int viewId = (int)BufferHandler.readByte(ref packetData,ref offset);
-			viewId += (int) (BufferHandler.readByte(ref packetData,ref offset)<<8);
 			
-			while (viewId!=0x00 && offset < packetData.Length){
+			PacketReader reader = new PacketReader(packetData);
+			reader.setOffsetOverrideValue(_offset);
+
+			UInt16 viewId = reader.readUInt16(1);
+
+			while (viewId!=0 && _offset < packetData.Length){
                 
 				Output.WriteLine("Parsing View ID " + viewId);
-				if (viewId==0x02){
-					Output.WriteLine("[MPM] Parsing selfview");
-					offset = Store.currentClient.playerInstance.parseAutoView(ref packetData,offset);
+				if (viewId==2){
+					Output.WriteLine("[MPM] Parsing selfview (offset:" + _offset + " PackData " + StringUtils.bytesToString(packetData) + " )");
+					_offset = Store.currentClient.playerInstance.parseAutoView(ref packetData,_offset);
 				}
 				
-				//Keep reading  
-				// ToDo: This could cause a crash or bug (and there will no more be viewData but 
-                viewId = (int)BufferHandler.readByte(ref packetData, ref offset);
-
-                
-                // Prevent the crash issue
-                if (offset < packetData.Length)
-                {
-                    viewId += (int)(BufferHandler.readByte(ref packetData, ref offset) << 8);
-                    //Output.WriteLine("[MPM] Parsing view: " + viewId);
-                }
-//                
+				//Keep reading ViewID - if viewId is greater 2 it is not okay (this can happen as we dont handle all ViewUpdateRequests maybe)
+				viewId = reader.readUInt16(1);
+				if (viewId > 2)
+				{
+					viewId = 0;
+				}      
 				
 			}
-			return offset;
+			
+			return _offset;
 		}
 
       

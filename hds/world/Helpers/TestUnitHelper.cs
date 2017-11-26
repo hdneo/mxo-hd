@@ -79,7 +79,7 @@ namespace hds
             ilCombatHandler.addHexBytes("cdec4023"); // Time starts i think
             ilCombatHandler.addHexBytes("fd0000"); // view ID fd00
             Store.currentClient.messageQueue.addObjectMessage(ilCombatHandler.returnFinalPacket(), false);
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
             // The other 03 Packet for combat
             PacketContent unknownCreatePak = new PacketContent();
             unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("010002A700"));
@@ -92,7 +92,7 @@ namespace hds
             unknownCreatePak.addUint16(Store.currentClient.playerData.selfSpawnIdCounter, 1); 
             unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01010207030000200BF5C2000020C19420B9C300000000000020C100000000070001001201000007037608E00603145200008B0B0024145200008B0B0024882300008B0B00240000000000000000000000000000000064000000640000000010001010000000020000001000000002000000000000000000000000"));
             Store.currentClient.messageQueue.addObjectMessage(unknownCreatePak.returnFinalPacket(), false);
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
 
         }
 

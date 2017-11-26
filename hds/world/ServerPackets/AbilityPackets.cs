@@ -20,8 +20,8 @@ namespace hds
         {
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
 
-            Random rand = new Random();
-            ushort randomHealth = (ushort) rand.Next(3, 1800);
+            Random randomObject = new Random();
+            ushort randomHealth = (ushort) randomObject.Next(3, 1800);
             // RSI Health FX "send 02 03 02 00 02 80 80 80 90 ed 00 30 22 0a 00 28 06 00 00;"
             PacketContent pak = new PacketContent();
             if (viewId == 0)
@@ -57,33 +57,30 @@ namespace hds
                     break;
 
                 case 599:
-                    pak.addByte(0x04);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
-                    pak.addByte(0xc0);
-                    pak.addUint16(randomHealth, 1); // health
-                    pak.addByte(0xc0);
-                    pak.addUint32(animationId, 1);
-                    pak.addUintShort(Store.currentClient.playerData.assignSpawnIdCounter());
-                    pak.addByte(0x05);
-                    pak.addByte(0x00);
-                    pak.addByte(0x00);
 
                     // Its more a demo - we "one hit" the mob currently so we must update this 
                     lock (WorldSocket.npcs.SyncRoot)
                     {
                         for (int i = 0; i < WorldSocket.npcs.Count; i++)
                         {
-                            npc thismob = (npc) WorldSocket.npcs[i];
+                            Mob thismob = (Mob) WorldSocket.npcs[i];
                             if (theView != null && thismob.getEntityId() == theView.entityId)
                             {
                                 thismob.HitEnemyWithDamage(value, animationId);
 
-                                if (thismob.getHealthC() == 0)
+                                if (thismob.getHealthC() <= 0)
                                 {
                                     thismob.setIsDead(true);
-                                    this.sendNPCDies(theView.ViewID, Store.currentClient, thismob);
+                                    this.SendNpcDies(theView.ViewID, Store.currentClient, thismob);
+
+                                    // We got some Exp for it - currently we just make a simple trick to calculate some exp
+                                    // Just take currentLevel * modifier
+                                    Random rand = new Random();
+
+                                    UInt32 expModifier = (UInt32)rand.Next(100, 500);
+                                    UInt32 expGained = thismob.getLevel() * expModifier;
+                                    // Update EXP
+                                    new PlayerHandler().IncrementPlayerExp(expGained);
                                     thismob.setIsLootable(true);
                                 }
                                 WorldSocket.npcs[i] = thismob;
@@ -114,7 +111,7 @@ namespace hds
 
             string hex = StringUtils.bytesToString(pak.returnFinalPacket());
             Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
         }
 
         public void sendHyperSpeed()
@@ -127,7 +124,7 @@ namespace hds
             pak.addByteArray(updateCount);
             pak.addHexBytes("0200000000");
             Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
         }
 
         public void sendHyperJumpID(UInt32 possibleJumpID)

@@ -98,6 +98,7 @@ namespace hds
         SERVER_EXIT_HL = 0x80fb,
         SERVER_JACKOUT_FINISH = 0x80fd,
         SERVER_PLAYER_EXP   = 0x80e5,
+        SERVER_PLAYER_EXP_ANIM   = 0x80e6,
         SERVER_PLAYER_INFO  = 0x80e4,
         SERVER_PLAYER_GET_BACKGROUND = 0x8195,
 

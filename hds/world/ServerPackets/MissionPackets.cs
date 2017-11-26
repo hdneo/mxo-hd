@@ -37,7 +37,7 @@ namespace hds
             ArrayList possibleMissions = new ArrayList();
             possibleMissions.Add("Assassination");
             possibleMissions.Add("Hack the Duality");
-            possibleMissions.Add("Welcome to 2015");
+            possibleMissions.Add("Welcome to HDS Experimental!");
             possibleMissions.Add("Party like '99");
 
             UInt16 i = 0;
@@ -70,7 +70,7 @@ namespace hds
             pak.addHexBytes("42000001000002000D001300020002030200FFFFFDFF");
             pak.addSizedTerminatedString("Eliminate Agent Smith");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
 
         public void sendMissionAccept(WorldClient client, UInt16 contactId, ushort missionId)
@@ -107,7 +107,7 @@ namespace hds
             pakWayPoint.addHexBytes("01000213001200020C9DE1B8D747F0BF2D443752BA450000");
             client.messageQueue.addObjectMessage(pakWayPoint.returnFinalPacket(),false);
             */
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
@@ -116,7 +116,7 @@ namespace hds
             PacketContent pak = new PacketContent();
             pak.addHexBytes("80a20800000000b4658db5000000000000000000000000000000");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
 
 

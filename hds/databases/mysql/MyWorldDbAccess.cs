@@ -5,6 +5,7 @@ using System.Data;
 using hds.databases.interfaces;
 using hds.shared;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using MySql.Data.MySqlClient;
 
@@ -174,7 +175,6 @@ namespace hds.databases{
                 double y = (double)(dr.GetFloat(1));
                 double z = (double)(dr.GetFloat(2));
                 string disKey = dr.GetString(4);
-                Output.WriteLine("USER DIS IS NOW " + disKey);
                 Store.currentClient.playerData.setDistrict(disKey);
                 Store.currentClient.playerData.setDistrictId((uint)dr.GetInt16(5));
                 Store.currentClient.playerInstance.Position.setValue(NumericalUtils.doublesToLtVector3d(x, y, z));
@@ -318,8 +318,11 @@ namespace hds.databases{
 		
 
 		public void savePlayer(WorldClient client){
-			
-			UInt32 charID = NumericalUtils.ByteArrayToUint32(client.playerInstance.CharacterID.getValue(),1);
+            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulture.NumberFormat.NumberDecimalSeparator = ".";
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
+            UInt32 charID = NumericalUtils.ByteArrayToUint32(client.playerInstance.CharacterID.getValue(),1);
 			string handle = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
 			
 			int [] rsiValues = client.playerData.getRsiValues();
@@ -330,17 +333,9 @@ namespace hds.databases{
 			
 			int rotation =(int)client.playerInstance.YawInterval.getValue()[0];
 			
-			string sqlQuery="update characters set x = @xPos ,y= @yPos ,z=@zPos , rotation= @rotation, districtId= @disctrictID where handle=@handle;";
-            MySqlCommand cmd = new MySqlCommand(sqlQuery, (MySqlConnection)conn);
-			cmd.Parameters.Add("@xPos", x);
-			cmd.Parameters.Add("@yPos", y);
-			cmd.Parameters.Add("@zPos", z);
-			cmd.Parameters.Add("@rotation", rotation);
-			cmd.Parameters.Add("@disctrictID", client.playerData.getDistrictId());
-			cmd.Parameters.Add("@handle", handle);
-            cmd.ExecuteNonQuery();
-            
+			string sqlQuery="update characters set x =" + x + " ,y=" + y + " ,z="+ z + " , rotation="+ rotation +", districtId=" + client.playerData.getDistrictId() + " where handle='" + handle + "' ";
 			queryExecuter.CommandText = sqlQuery;
+			queryExecuter.ExecuteNonQuery();
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));
             Output.writeToLogForConsole(queryExecuter.ExecuteNonQuery() + " rows affecting saving");
 						
@@ -555,7 +550,15 @@ namespace hds.databases{
         }
 
 
-        public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
+	    public void SaveInfo(WorldClient client, long cash)
+	    {
+		    string sqlQuery = "UPDATE characters SET cash =" + cash + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
+		    queryExecuter = conn.CreateCommand();
+		    queryExecuter.CommandText = sqlQuery;
+		    queryExecuter.ExecuteNonQuery();
+	    }
+
+	    public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
         {
             UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "";
@@ -568,6 +571,14 @@ namespace hds.databases{
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
 
+        }
+
+        public void SaveExperience(WorldClient client, long exp)
+        {
+            string sqlQuery = "UPDATE characters SET exp =" + exp + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
+            queryExecuter = conn.CreateCommand();
+            queryExecuter.CommandText = sqlQuery;
+            queryExecuter.ExecuteNonQuery();
         }
     }
 }

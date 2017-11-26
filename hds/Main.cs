@@ -9,7 +9,9 @@ namespace hds{
 	public class MainClass{
 
 		public static void Main(string[] args){
-			
+			System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+			customCulture.NumberFormat.NumberDecimalSeparator = ".";
+			System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
             HealthCheck hc = new HealthCheck();
 	
 			if (hc.doTests()){
@@ -38,10 +40,7 @@ namespace hds{
                     Store.dbManager.AuthDbHandler = new databases.MyAuthDBAccess();
                     Store.dbManager.MarginDbHandler = new databases.MyMarginDBAccess();
                     Store.dbManager.WorldDbHandler = new databases.MyWorldDbAccess();
-                }
-                else {
-                    //HAHA this part crashes later like a delayed time bomb :D
-                }
+                }                
 				
                 /* Initialize the MPM object */
 
@@ -70,7 +69,8 @@ namespace hds{
 				
 
 				// Capture Ctrl C key to clean and then end the program
-				Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs e) {
+				Console.CancelKeyPress += delegate
+				{
 					Output.WriteLine("Closing Auth server and threads");
 					Store.auth.stopServer();
 					

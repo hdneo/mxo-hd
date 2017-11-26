@@ -8,7 +8,7 @@ namespace hds
 {
     public partial class ServerPackets 
     {
-        public void spawnMobView(WorldClient client, npc thismob, ClientView mobView)
+        public void SpawnMobView(WorldClient client, Mob thismob, ClientView mobView)
         {
             Object599 viewData = thismob.getCreationData();
             PacketContent pak = new PacketContent();
@@ -19,10 +19,10 @@ namespace hds
             pak.addByte(0x00);
 
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
         }
 
-        public void sendNPCUpdateData(UInt16 viewId, WorldClient client, byte[] updateData)
+        public void SendNpcUpdateData(UInt16 viewId, WorldClient client, byte[] updateData)
         {
             PacketContent pak = new PacketContent();
             
@@ -32,11 +32,11 @@ namespace hds
             string hexStringTest = StringUtils.bytesToString(pak.returnFinalPacket());
             
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
             
         }
 
-        public void sendNPCUpdateAnimation(UInt16 viewId, WorldClient client, npc theMob, byte animation )
+        public void SendNpcUpdateAnimation(UInt16 viewId, WorldClient client, Mob theMob, byte animation )
         {
             PacketContent pak = new PacketContent();
             pak.addUint16(viewId, 1);
@@ -48,11 +48,11 @@ namespace hds
 
 
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
-        public void sendNPCDies(UInt16 viewId, WorldClient client, npc theMob)
+        public void SendNpcDies(UInt16 viewId, WorldClient client, Mob theMob)
         {
             // Falls to ground like dead lol
             // 02010d000000000000000000000000000000
@@ -63,27 +63,24 @@ namespace hds
             pak.addUint16(viewId, 1);
             pak.addHexBytes("0501c20200808100000000e0010000c0830000de810303fd070000000000000000");
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-
-            // lie on the ground
-            /*
-            PacketContent pak2 = new PacketContent();
-            pak2.addUint16(viewId, 1);
-            pak2.addHexBytes("02010d000000000000000000000000000000");
-            client.messageQueue.addObjectMessage(pak2.returnFinalPacket(), false);
-            */
             
             PacketContent fallToGroundPak = new PacketContent();
             fallToGroundPak.addUint16(viewId, 1);
             fallToGroundPak.addHexBytes("02010d000000000000000000000000000000");
             client.messageQueue.addObjectMessage(fallToGroundPak.returnFinalPacket(), false);
             
+            // lie on the ground
+            PacketContent pak2 = new PacketContent();
+            pak2.addUint16(viewId, 1);
+            pak2.addHexBytes("02010d000000000000000000000000000000");
+            client.messageQueue.addObjectMessage(pak2.returnFinalPacket(), false);
 
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
 
-        public void sendNPCUpdatePos(UInt16 viewId, WorldClient client, npc theMob)
+        public void SendNpcUpdatePos(UInt16 viewId, WorldClient client, Mob theMob)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16(viewId, 1);
@@ -94,10 +91,10 @@ namespace hds
 
 
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
         }
 
-        public void sendLootWindow(UInt32 infoAmount, WorldClient client, UInt32[] objectIds)
+        public void SendLootWindow(UInt32 infoAmount, WorldClient client, UInt32[] objectIds)
         {
             // ToDo: figure the real object packet out (with more than one object) and show it up
             PacketContent pak = new PacketContent();
@@ -110,15 +107,15 @@ namespace hds
                 pak.addUint32(objectIds[0],1);
             }
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
 
-        public void sendLootAccepted(WorldClient client)
+        public void SendLootAccepted(WorldClient client)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOOT_ACCEPTED_RESPONSE,0);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
 
         

@@ -18,7 +18,7 @@ namespace hds
         public UInt16 repZion;
         public UInt32 exp;
         public UInt32 cash;
-
+        public DateTime created;
     }
 }
 

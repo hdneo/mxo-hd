@@ -22,7 +22,7 @@ namespace hds
             pak.addByte(0x00);
 
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
@@ -67,7 +67,7 @@ namespace hds
                 pak.addByte(0x00);
                 //pak.addByteArray(client.playerInstance.Position.getValue());
                 client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-                client.flushQueue();
+                client.FlushQueue();
             }
             
 
@@ -82,7 +82,7 @@ namespace hds
             pak.addByte(0x02);
             pak.addByteArray(moodPak);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
@@ -95,7 +95,7 @@ namespace hds
             pak.addByteArray(rsibytes);
 
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
         }
 
         public void sendAttribute(WorldClient client, UInt16 attributeValue, byte type)
@@ -117,6 +117,13 @@ namespace hds
             pak.addUint32(exp, 1);
             pak.addHexBytes("00000000");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            
+            PacketContent pakAnimation = new PacketContent();
+            pakAnimation.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP_ANIM, 0);
+            pakAnimation.addUint32(exp, 1);
+            pakAnimation.addByte(0x01); // Gain Type
+            pakAnimation.addHexBytes("000000");
+            client.messageQueue.addRpcMessage(pakAnimation.returnFinalPacket());
         }
 
         public void sendInfoCurrent(WorldClient client, UInt32 info)
@@ -138,7 +145,7 @@ namespace hds
             pak.addByte(0x10);
             pak.addUint16(innerStrengthValue,1);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
 
         }
 
@@ -204,7 +211,7 @@ namespace hds
             pak.addByteArray(new byte[] {0x20, 0x9f, 0x1e, 0x20});
             pak.addUint16(0, 1);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            client.flushQueue();
+            client.FlushQueue();
         }
 
         public void sendPlayerAttributes(WorldClient client)
@@ -235,7 +242,7 @@ namespace hds
             pak.addUint16(viewId,1);
             pak.addByte(0x00);
             receiverClient.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
-            receiverClient.flushQueue();
+            receiverClient.FlushQueue();
         }
 
         public void sendSaveCharDataMessage(WorldClient client, string handle)

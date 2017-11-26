@@ -49,8 +49,26 @@ namespace hds
             pak.addHexBytes("000000000000000000000000000000000000000000000000");
             pak.addSizedTerminatedString(handle);
             pak.addSizedTerminatedString(message);
-            // ToDo: We need to split this to AREA , WHISPER, CFEW AND FACTION 
-            Store.world.sendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.returnFinalPacket()); 
+
+            switch (typeByte)
+            {
+                case 0x02:
+                    Store.world.sendRPCToCrewMembers(Store.currentClient, pak.returnFinalPacket());
+                    break;
+                case 0x03:
+                    Store.world.sendRPCToFactionMembers(Store.currentClient, pak.returnFinalPacket());
+                    break;
+                    
+                case 0x05:
+                    Store.world.sendRPCToMissionTeamMembers(Store.currentClient, pak.returnFinalPacket());
+                    break;
+            
+                default:
+                    Store.world.sendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.returnFinalPacket());
+                    break;
+                           
+            }
+             
             
         }
         
@@ -91,7 +109,7 @@ namespace hds
             pak.addSizedTerminatedString(message);
                         
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
         
 

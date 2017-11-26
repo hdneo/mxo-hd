@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -22,7 +21,6 @@ namespace hds
         public List<EmoteItem> Emotes = new List<EmoteItem>();
         public List<NewRSIItem> newRSIItemsDb = new List<NewRSIItem>();
         public List<Vendor> Vendors = new List<Vendor>();
-        public SQLiteConnection mxoSqliteDb = null;
 
         public bool useSQLiteDatabase = false;
 
@@ -34,16 +32,14 @@ namespace hds
             loadGODB("data\\gameobjects.csv");
 
             loadMobs("data\\mob.csv");
-            //loadMobs("data\\mob_parsed.csv");
-
-                       
+            loadMobs("data\\mob_parsed.csv");
+           
             loadAbilityDB("data\\abilityIDs.csv");
             loadClothingDB("data\\mxoClothing.csv");
 
             loadVendorItems("data\\vendor_items.csv");
             
             // Disabled for Debugging
-            
             /*
             loadWorldObjectsDb("data\\staticObjects_slums.csv");
             loadWorldObjectsDb("data\\staticObjects_it.csv");
@@ -109,16 +105,25 @@ namespace hds
                   
                     if (data[4].Length > 0 && data[5].Length > 0)
                     {
-                        npc theMob = new npc();
+                        bool error = false;
+                        Mob theMob = new Mob();
                         theMob.setEntityId(currentEntityId);
                         theMob.setDistrict(Convert.ToUInt16(data[0]));
                         theMob.setDistrictName(data[1]);
                         theMob.setName(data[2]);
                         theMob.setLevel(ushort.Parse(data[3]));
                         theMob.setHealthM(UInt16.Parse(data[4]));
-                        theMob.setHealthC(UInt16.Parse(data[5]));
+                        theMob.setHealthC(UInt16.Parse(data[4])); // As max Health should be the current onload
+                        if (UInt16.Parse(data[4]) == 0)
+                        {
+                            error = true;
+                        }
                         theMob.setMobId((ushort)linecount);
                         theMob.setRsiHex(data[6]);
+                        if (!isNumberEven(data[6].Length))
+                        {
+                            error = true;
+                        }
                         theMob.setXPos(double.Parse(data[7]));
                         theMob.setYPos(double.Parse(data[8]));
                         theMob.setZPos(double.Parse(data[9]));
@@ -128,12 +133,23 @@ namespace hds
                         theMob.setRotation(rotation);
                         theMob.setIsDead(bool.Parse(data[11]));
                         theMob.setIsLootable(bool.Parse(data[12]));
-                        WorldSocket.npcs.Add(theMob);
-                        WorldSocket.gameServerEntities.Add(theMob);
+                        // Init the Mob Update
+                        if (!error)
+                        {
+                            theMob.DoMobUpdate(theMob);
+                            WorldSocket.npcs.Add(theMob);
+                            WorldSocket.gameServerEntities.Add(theMob);
+                        }
+                        
                     }
                 }
                 linecount++;
             }
+        }
+
+        private bool isNumberEven(int value)
+        {
+            return value % 2 == 0;
         }
 
         public ArrayList loadCSV(string path, char seperator)
@@ -196,8 +212,6 @@ namespace hds
 
             foreach (string[] data in abilityDB)
             {
-
-                //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " Ability ID:  " + data[0].ToString() + " GOID " + data[1].ToString() + " Ability Name : " + data[2].ToString());
                 AbilityItem ability = new AbilityItem();
                 // we want to skip the first line as it should have the Names
                 if (linecount > 1)
@@ -214,9 +228,8 @@ namespace hds
                     {
                         if (data[4].Length > 0)
                         {
-                            CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
-                            ci.NumberFormat.CurrencyDecimalSeparator = ".";
-                            ability.setCastingTime(float.Parse(data[4], NumberStyles.Any, ci));
+                            
+                            ability.setCastingTime(float.Parse(data[4], CultureInfo.InvariantCulture));
                         }
                     }
 

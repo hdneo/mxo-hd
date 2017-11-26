@@ -35,7 +35,7 @@ namespace hds
                 pak.addUint32(objectId,1);
             }
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            client.flushQueue();
+            client.FlushQueue();
         }
 
     }

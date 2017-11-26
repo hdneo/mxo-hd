@@ -127,7 +127,6 @@ namespace hds
                 // ToDo: Figure out what the "Lists" Count should handle ...maybe different types?
                 // Why not having just one List and adding them all ? Maybe a list has a limit ? 
                 content.append(0x01); // List Count for RPC Messages
-                Output.WriteLine(" RPC COUNTER BYTES :" +  StringUtils.bytesToString(NumericalUtils.uint16ToByteArray(playerData.getRPCCounter(),0)));
                 content.append(NumericalUtils.uint16ToByteArray(playerData.getRPCCounter(),0));
                 content.append(NumericalUtils.uint16ToByteArrayShort((UInt16)RPCMessages.Count));
                 foreach (SequencedMessage message in RPCMessages)

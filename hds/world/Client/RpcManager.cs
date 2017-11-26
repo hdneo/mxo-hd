@@ -15,7 +15,9 @@ namespace hds{
 
 		public void HandleRpc(int header,ref byte[] rpcData){
             ServerPackets pak = new ServerPackets();
+			#if DEBUG
             pak.sendSystemChatMessage(Store.currentClient, "Handle RPC Client Request Header " + StringUtils.bytesToString_NS(NumericalUtils.int32ToByteArray(header,0)) , "BROADCAST");
+			#endif
 		    switch (header)
 		    {
 
@@ -85,9 +87,6 @@ namespace hds{
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
 		            new FCHandler().processLoadFactionName(ref rpcData);
-		            // ToDo: implement response with following format :
-		            // size + 80 f5 + uint32 factionId + String(40 size? unusual...)
-		            // Example: 30 80 f5 11 ba 00 00 48 79 50 6e 30 74 69 5a 65 44 20 4d 69 4e 64 5a 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 		            break;
 
 		        // Abilitys
@@ -112,7 +111,6 @@ namespace hds{
 				    
 
 		        case (int) RPCRequestHeader.CLIENT_READY_WORLDCHANGE:
-		            Output.WriteLine("RPCMAIN : RESET_RPC detect");
 		            new TeleportHandler().processTeleportReset(ref rpcData);
 		            break;
 
@@ -190,10 +188,9 @@ namespace hds{
 		            //PASS :D
 		            byte[] headers = NumericalUtils.int32ToByteArray(header, 1);
 
-		            string message = "RPCMAIN : Unknown Header " +
+		            string message = "RPCMAIN : Unknown Header " + 
 		                             StringUtils.bytesToString_NS(new byte[] {headers[0], headers[1]}) + " \n Content:\n " +
 		                             StringUtils.bytesToString_NS(rpcData);
-		            Output.WriteLine(message);
 		            Output.WriteRpcLog(message);
 
 		            break;

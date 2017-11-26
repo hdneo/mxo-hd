@@ -34,7 +34,7 @@ namespace hds
             string charname = StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
             UInt16 crewOffset = (UInt16) (charname.Length + 7 + 3);
             PacketContent pak = new PacketContent();
-            pak.addHexBytes("8088");
+            pak.addHexBytes("8088"); // ToDo: is this the RPC Response Header ?
             pak.addUint16(7,1); // Start Offsset for Charactername
             pak.addUint16(crewOffset,1);
             pak.addByte(0x01);
