@@ -112,12 +112,7 @@ namespace hds
 			{
 				returnPacketString += hexString + "\r\n";
 			}
-			
-			// ToDo: this prints non-printable characters too so we disabled this just for now
-//			foreach (string humanString in readablePacketStrings)
-//			{
-//				returnPacketString += humanString + "\r\n";
-//			}
+		
 			return returnPacketString;
 
 		}

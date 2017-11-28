@@ -313,8 +313,10 @@ namespace hds
 
             // First choose a new pos in the range
             var newPos = math.RandomPointOnCircle((float) xBase, (float) yBase, (float) zBase, 5.0f * 100);
+            #if DEBUG
             Output.WriteDebugLog("Mob Goes from X: " + getXPos() + " , Z: " + getZPos() + " to X: " + newPos.a +
                                  ", Z: " + newPos.c);
+            #endif
 
 
             var xNew = (double) newPos.a;
@@ -329,28 +331,37 @@ namespace hds
             var testRot = Math.Atan2(xNew, zNew) * 180 / Math.PI;
             var testRot2 = Math.Atan2(xNew, zNew) * 128 / Math.PI;
 
-
+            #if DEBUG
             Output.WriteDebugLog("Test Rot with 360 : " + testRot + "| 255 : " + testRot2 + " AND THE YAW: " + yaw +
                                  " (Cast to uint16 : " + Convert.ToInt16(yaw) + " )");
+            #endif
 
 
             var yawVal = (int) Convert.ToInt16(yaw);
 
             if (zNew < getZPos() || xNew < getXPos())
             {
+                #if DEBUG
                 Output.WriteDebugLog("Need to adjust YAW + 128 from :" + yawVal + " to: " + (yawVal + 128));
+                #endif
                 yawVal = yawVal + 128;
             }
             else
             {
+                #if DEBUG
                 Output.WriteDebugLog("Need to adjust YAW - 128 from :" + yawVal + " to: " + (yawVal - 128));
+                #endif
                 yawVal = yawVal - 128;
             }
-
+            
+            #if DEBUG
             Output.WriteDebugLog("YAW VAL :" + yawVal);
+            #endif
 
             rotation = (ushort) yawVal;
+            #if DEBUG
             Output.WriteDebugLog("Calc Rotation : " + calcRotation + " and to UINT : " + (uint) calcRotation);
+            #endif
 
             // Calculate the distance for seconds to move
             var requiredSeconds = (int) (math.distance2Coords((float) xPos, (float) xNew, (float) zPos, (float) zNew) /

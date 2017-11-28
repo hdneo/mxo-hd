@@ -18,9 +18,7 @@ namespace hds{
 
 			while (viewId!=0 && _offset < packetData.Length){
                 
-				Output.WriteLine("Parsing View ID " + viewId);
 				if (viewId==2){
-					Output.WriteLine("[MPM] Parsing selfview (offset:" + _offset + " PackData " + StringUtils.bytesToString(packetData) + " )");
 					_offset = Store.currentClient.playerInstance.parseAutoView(ref packetData,_offset);
 				}
 				

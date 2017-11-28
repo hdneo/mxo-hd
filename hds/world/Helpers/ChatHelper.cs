@@ -225,7 +225,6 @@ namespace hds{
                     string hexContent = tr.ReadToEnd();
                     hexContent = hexContent.Replace(" ", string.Empty);
                     hexContent = hexContent.Replace(" ", Environment.NewLine);
-                    Output.Write("SEND RPC COMMAND : CONTENT : "+ hexContent);
                     tr.Close();
 
                     if (hexContent.Length > 0)
@@ -284,8 +283,10 @@ namespace hds{
 			}
 			catch(Exception e){
                 Store.currentClient.messageQueue.addRpcMessage(PacketsUtils.createSystemMessage("Error parsing command!", Store.currentClient));
+				#if DEBUG
 				Output.WriteLine("[CHAT COMMAND PARSER] Error parsing request: "+data);
 				Output.WriteLine("[CHAT COMMAND PARSER] DEBUG: "+e.Message+"\n"+e.StackTrace);
+				#endif
 			}
 			
 			

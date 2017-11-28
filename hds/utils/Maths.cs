@@ -104,7 +104,7 @@ namespace hds
 			return distance;
 		}
 
-        public LtVector3f RadnomPointInCircle(float xCurrent, float zCurrent, float radius)
+        public LtVector3f RandomPointInCircle2D(float xCurrent, float zCurrent, float radius)
         {
             // calc http://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere
             // http://freespace.virgin.net/hugo.elias/routines/r_dist.htm - Distance

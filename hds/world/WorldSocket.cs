@@ -223,49 +223,44 @@ namespace hds
                     WorldClient client = Clients[clientKey] as WorldClient;
                     if (client.playerData.getCharID() != charId)
                     {
+                        #if DEBUG
                         Output.Write("[ViewThread] Handle View For all Packet for charId : " + charId.ToString());
+                        #endif
                         // Get or generate a View for the GoID 
                         ClientView view = client.viewMan.getViewForEntityAndGo(entityId, goId);
-                        DynamicArray content = new DynamicArray();
+                        PacketContent viewPacket = new PacketContent();
 
                         if (view.viewCreated == false)
                         {
-                            Output.WriteDebugLog("Created View Id : " + view.ViewID.ToString());
                             // if view is new , add the viewId at the end (cause its creation)
                             // Remove the 03 01 00 (as it was generate previosly)
-                            content.append(data);
-                            content.append(NumericalUtils.uint16ToByteArray(view.ViewID, 1));
-                            content.append(0x00); // View Zero  
+                            viewPacket.addByteArray(data);
+                            viewPacket.addUint16(view.ViewID,1);
+                            viewPacket.addByte(0x00);
 
                         }
                         else
                         {
                             // Update View
-                            content.append(NumericalUtils.uint16ToByteArray(view.ViewID, 1));
-                            content.append(data);
-                            content.append(0x00); // View Zero  
-                            
-                            Output.WriteDebugLog("Update View Id : " + view.ViewID.ToString());
+                            viewPacket.addUint16(view.ViewID,1);
+                            viewPacket.addByteArray(data);
+                            viewPacket.addByte(0x00);  
                         }
 
                         if (view.viewNeedsToBeDeleted == true)
                         {
-                            
-                            content.append(0x01);
-                            content.append(0x00);
-                            content.append(0x01); // Comand (Delete)
-                            content.append(0x01); // NumViews (1 currently)
-                            content.append(0x00);
-                            content.append(NumericalUtils.uint16ToByteArray(view.ViewID, 1));
-                            content.append(0x00);
+                            // Delete one View
+                            viewPacket.addByte(0x01);
+                            viewPacket.addByte(0x00);
+                            viewPacket.addByte(0x01); // Comand (Delete)
+                            viewPacket.addUint16(1,1); // NumViews to Delete
+                            viewPacket.addUint16(view.ViewID,1);
+                            viewPacket.addByte(0x00);
                         }
 
                         
-                        // ToDo: handle viewId for packets (For creation it needs to be append to the end, for update at the start )
-                        // ToDo: Complete this :)
-                        client.messageQueue.addObjectMessage(content.getBytes(), false);
+                        client.messageQueue.addObjectMessage(viewPacket.returnFinalPacket(), false);
                         client.FlushQueue();
-                        Output.WriteLine("[World View Server] CharId: " + client.playerData.getCharID().ToString() + " )");
                     }
                 }
             }
@@ -377,7 +372,7 @@ namespace hds
                 socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, new AsyncCallback(finalReceiveFrom), socket);
             }catch(Exception ex)
             {
-                Output.WriteDebugLog("Exceeption Thrown ListenForAllClients " + ex.Message);
+                Output.WriteDebugLog("Exception Thrown ListenForAllClients " + ex.Message);
             }
             
             

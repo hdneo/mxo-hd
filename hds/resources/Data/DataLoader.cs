@@ -40,13 +40,9 @@ namespace hds
             loadVendorItems("data\\vendor_items.csv");
             
             // Disabled for Debugging
-            /*
             loadWorldObjectsDb("data\\staticObjects_slums.csv");
             loadWorldObjectsDb("data\\staticObjects_it.csv");
             loadWorldObjectsDb("data\\staticObjects_dt.csv");
-            */
-            
-            
         }
 
         public void loadNewRSIIDs(string path)

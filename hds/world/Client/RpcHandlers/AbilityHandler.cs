@@ -63,7 +63,7 @@ namespace hds
             {
                 targetAnim = this.currentAbility.getAbilityExecutionFX();
             }
-            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim,50);
+            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim,150);
         }
 
         public void processCharacterAnimationSelf(UInt16 abilityID)

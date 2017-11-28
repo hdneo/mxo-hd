@@ -465,9 +465,9 @@ namespace hds{
             Store.dbManager.MarginDbHandler.addAbility(-2147445760, 8, charID, 0, 0);
             Store.dbManager.MarginDbHandler.addAbility(-2146493440, 9, charID, 0, 0);
             Store.dbManager.MarginDbHandler.addAbility(-2146453504, 10, charID, 1, 0);
-            Store.dbManager.MarginDbHandler.addAbility(-2147472384, 11, charID, 10, 1); // Hyperjump
-            Store.dbManager.MarginDbHandler.addAbility(-2147295232, 12, charID, 10, 1); // Hyperspeed
-            Store.dbManager.MarginDbHandler.addAbility(-2147295232,13,charID,10,1); // HyperSprint
+            Store.dbManager.MarginDbHandler.addAbility(-2147472384, 11, charID, 20, 1); // Hyperjump
+            Store.dbManager.MarginDbHandler.addAbility(-2147295232, 12, charID, 20, 1); // Hyperspeed
+            Store.dbManager.MarginDbHandler.addAbility(-2147295232,13,charID,20,1); // HyperSprint
         }
 		
 		private void charNameRequest(byte[] packet,NetworkStream client){
@@ -557,10 +557,12 @@ namespace hds{
 
             pak.addHexBytes("0301310000b402320000b403380000b403510000000400520000000b00540000000100"); // The Last Part
 
+	        #if DEBUG
             if (isNewCreatedChar == true)
             {
                 Output.WriteLine("Load Background Reply for Created Char:\n" + pak.returnFinalPacket());
             }
+			#endif
 
             return pak.returnFinalPacket();
             

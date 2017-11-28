@@ -68,7 +68,9 @@ namespace hds.auth{
 				break;
 				
 				default:
+					#if DEBUG
 					Output.WriteLine("Received: "+StringUtils.bytesToString(data,receivedBytes));
+					#endif
 					throw new AuthException("OPcode not developped");
 			}
 			return response;

@@ -27,7 +27,9 @@ namespace hds{
 		            break;
 			        
 		        case (int) RPCRequestHeader.CLIENT_CLOSE_COMBAT:
+					#if DEBUG
 		            Output.WriteRpcLog("CLOSE COMBAT REQUEST");
+					#endif
 		            new TestUnitHandler().testCloseCombat(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_LEAVE_COMBAT:
@@ -35,7 +37,9 @@ namespace hds{
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_RANGE_COMBAT:
+			        #if DEBUG
 		            Output.WriteRpcLog("RANGE COMBAT REQUEST");
+					#endif
 		            new TestUnitHandler().testCloseCombat(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_CHAT:
@@ -44,14 +48,11 @@ namespace hds{
 
 		        case (int) RPCRequestHeader.CLIENT_OBJECTINTERACTION_DYNAMIC:
 		            new ObjectInteractionHandler().processObjectDynamic(ref rpcData);
-		            Output.writeToLogForConsole("RPCMAIN : Handle OBJECTINTERACTION_DYNAMIC");
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_OBJECTINTERACTION_STATIC:
 		            new ObjectInteractionHandler().processObjectStatic(ref rpcData);
-		            Output.writeToLogForConsole("RPCMAIN : Handle OBJECTINTERACTION_STATIC");
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_JUMP_START:
-		            Output.writeToLogForConsole("RPCMAIN : Handle JUMP");
 		            //ToDo: Split Jump and Hyperjump
 			        new AbilityHandler().processHyperJump(ref rpcData);
 		            break;
@@ -97,7 +98,7 @@ namespace hds{
 		            new AbilityHandler().processAbility(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_CHANGE_CT:
-		            new PlayerHelper().processUpdateExp();
+			        // ToDo: Implement Change of CT
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_ABILITY_LOADER:
@@ -108,7 +109,8 @@ namespace hds{
 		            new TeleportHandler().processHardlineExitConfirm(ref rpcData);
 		            break;
 			    case (int)RPCRequestHeader.CLIENT_EXIT_GAME_FINISH:
-				    
+				    new TeleportHandler().processGameFinish();
+				    break;
 
 		        case (int) RPCRequestHeader.CLIENT_READY_WORLDCHANGE:
 		            new TeleportHandler().processTeleportReset(ref rpcData);
@@ -188,10 +190,12 @@ namespace hds{
 		            //PASS :D
 		            byte[] headers = NumericalUtils.int32ToByteArray(header, 1);
 
+			        #if DEBUG
 		            string message = "RPCMAIN : Unknown Header " + 
 		                             StringUtils.bytesToString_NS(new byte[] {headers[0], headers[1]}) + " \n Content:\n " +
 		                             StringUtils.bytesToString_NS(rpcData);
 		            Output.WriteRpcLog(message);
+					#endif
 
 		            break;
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Security;
 using System.Text;
 
 using hds.shared;
@@ -93,7 +94,7 @@ namespace hds{
                     // ToDo: We make a little Entity "Hack" so that we have a unique id : metrid + fullmxostatic_id is entity
                     String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
                     UInt64 entityId = UInt64.Parse(entityMxOHackString);
-
+                    
                     packets.sendSpawnStaticObject(Store.currentClient,door364,entityId);
 
                     break;
@@ -127,23 +128,6 @@ namespace hds{
                       
                   default:
                       new ServerPackets().sendSystemChatMessage(Store.currentClient, "Unknown Object Interaction with Object Type " + staticWorldObject.type + " and Name " + item.getName(), "MODAL");
-                      // We take 364 as fallback
-//                      ObjectAttributes364 fallbackDoor = new ObjectAttributes364("DOOR364",typeId,staticWorldObject.mxoId);
-//                      fallbackDoor.DisableAllAttributes();
-//                      fallbackDoor.Orientation.enable();
-//                      fallbackDoor.Position.enable();
-//                      fallbackDoor.CurrentState.enable();
-//                      // Set Values
-//                      fallbackDoor.Position.setValue(NumericalUtils.doublesToLtVector3d(staticWorldObject.pos_x, staticWorldObject.pos_y, staticWorldObject.pos_z));
-//                      fallbackDoor.CurrentState.setValue(StringUtils.hexStringToBytes("34080000"));
-//                      //fallbackDoor.Orientation.setValue(StringUtils.hexStringToBytes("000000000000803F0000000000000000")); // ToDo: Replace it with staticWorldObject.quat when it is okay
-//                      fallbackDoor.Orientation.setValue(StringUtils.hexStringToBytes(staticWorldObject.quat));
-//
-//                      // ToDo: We make a little Entity "Hack" so that we have a unique id : metrid + fullmxostatic_id is entity
-//                      String entityFallbackMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
-//                      UInt64 entityFallbackId = UInt64.Parse(entityFallbackMxOHackString);
-//                      packets.sendSpawnStaticObject(Store.currentClient,fallbackDoor,entityFallbackId);
-
                       break;
 
             }
@@ -213,8 +197,7 @@ namespace hds{
                 case (int)objectTypesStatic.HARDLINE_LAEXIT:
                     // Exit LA
                     pak.sendSystemChatMessage(Store.currentClient, "Exit to LA Dialog should popup", "MODAL");
-                    new TeleportHandler().processHardlineExitRequest();
-                    //new TestUnitHandler().processTestCombat(ref packet);
+                    new TeleportHandler().processHardlineExitRequest();                    
                     break;
 
                 case (int)objectTypesStatic.HUMAN_NPC:
@@ -277,14 +260,18 @@ namespace hds{
 
             // create a new System message but fill it in the switch block
             ServerPackets pak = new ServerPackets();
+            
+            #if DEBUG
             pak.sendSystemChatMessage(Store.currentClient,"Object Type ID IS " + objectTypeID.ToString() + " Dynamic Object RPC : " + StringUtils.bytesToString_NS(packet), "BROADCAST");
+            #endif
+            
             switch (objectTypeID)
             {
 
                 case (int)objectTypesDynamic.LOOT:
                     UInt32[] theTestArrayLoots = new UInt32[2];
                     theTestArrayLoots[0] = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes("8e220000"), 1);
-                    pak.sendLootWindow(5000,Store.currentClient,theTestArrayLoots);
+                    pak.SendLootWindow(5000,Store.currentClient,theTestArrayLoots);
                     break;
 
 

@@ -56,14 +56,16 @@ namespace hds
             Store.dbManager.WorldDbHandler.updateLocationByHL(destDIS, destHL);
             Store.dbManager.WorldDbHandler.updateSourceHlForObjectTracking(sourceDIS, sourceHL, Store.currentClient.playerData.lastClickedObjectId);
 
+            #if DEBUG
             ServerPackets serverPak = new ServerPackets();
             serverPak.sendSystemChatMessage(Store.currentClient,"User wants teleport from : HL ID: " + sourceHL.ToString() + " (DIS: " + sourceDIS.ToString() + " ) TO HL ID: " + destHL.ToString() + " (DIS: " + destDIS.ToString() + ") ","MODAL");
+            #endif
 
             // Tell client we want to unload the World
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOAD_RPC_RESET, 0);
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            Store.currentClient.flushQueue();
+            Store.currentClient.FlushQueue();
 
         }
 
@@ -75,7 +77,9 @@ namespace hds
             {
                     case 0x01:
                         ServerPackets serverPak = new ServerPackets();
+                        #if DEBUG
                         serverPak.sendSystemChatMessage(Store.currentClient, "Exit to LA init...","MODAL");
+                        #endif
                 
                         // Tell client we want to reset
                         byte[] response = { 0x81, 0x07 };

@@ -27,9 +27,10 @@ namespace hds
             float zPos = pakReader.readFloat(1);
 
             ServerPackets pak = new ServerPackets();
+            #if DEBUG
             pak.sendSystemChatMessage(Store.currentClient,"Region Object ID " + objectID + " in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos,"BROADCAST");
             Output.WriteDebugLog("Region Object ID " + objectID + " in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos);
-
+            #endif
 
             //Store.currentClient.messageQueue.addObjectMessage(StringUtils.hexStringToBytes("020002808080808010110000"));
             /*

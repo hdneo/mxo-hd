@@ -10,7 +10,6 @@ namespace hds
     class CommandHandler{
 
         public void processWhereamiCommand(ref byte[] packet){
-            Output.WriteLine("[COMMAND HELPER] WHERE AM I ");
 
             double x = 0; double y = 0; double z = 0;
             byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();

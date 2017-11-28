@@ -157,7 +157,9 @@ namespace hds.databases{
                     queryExecuter = conn.CreateCommand();
                     queryExecuter.CommandText = updateQuery;
                     queryExecuter.ExecuteNonQuery();
+	                #if DEBUG
                     Output.WriteLine("[WORLD DB] UPDATE Hardline " + hardlineId.ToString() + " in District " + districtId.ToString() + " with Object ID : "+lastObjectId.ToString());
+					#endif
                 }
             
         }

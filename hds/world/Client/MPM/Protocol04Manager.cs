@@ -53,7 +53,9 @@ namespace hds
                 length--; // discount another byte for the header (2nd byte)
             }
             byte[] rpcValues = BufferHandler.readBytes(ref buffer, ref offset, length);
+	        #if DEBUG
             Output.WriteLine("RPC (Header " + header + " | Content:" + StringUtils.bytesToString(rpcValues));
+			#endif
             rpcManager.HandleRpc(header, ref rpcValues);
 
 

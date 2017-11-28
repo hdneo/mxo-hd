@@ -37,20 +37,10 @@ namespace hds
             din.append(0x30);
             din.append(animationId);
             din.append(updateCount);
-
             Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
         
         }
 
-        public void processAnimation()
-        {
-
-        }
-
-        public void processJackout()
-        {
-            string jackoutMessage = "02 03 02 00 03 28 03 c0 00 74 00 10 3a 8f 7f c7 00 00 be 42 04 81 93 46 25 6f 82 23 80 80 80 80 80 80 10 <state>01</state> 00 00";
-        }
 
     }
 }

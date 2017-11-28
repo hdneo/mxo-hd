@@ -13,6 +13,7 @@ namespace hds
             Object599 viewData = thismob.getCreationData();
             PacketContent pak = new PacketContent();
             
+            Output.WriteDebugLog("Spawn MobView Data ( Entity ID : " + thismob.getEntityId() + " Name:" + thismob.getName() + " ID: " + thismob.getMobId() + " RSI HEX: " + thismob.getRsiHex());
             pak.addUint16(1, 1);
             pak.addByteArray(Store.world.objMan.GenerateCreationPacket(viewData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
             pak.addUint16(mobView.ViewID, 1);

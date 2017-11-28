@@ -63,7 +63,9 @@ namespace hds
                 }
                 catch (Exception ex)
                 {
+                    #if DEBUG
                     Output.WriteDebugLog("Socket Error " + ex.Message);
+                    #endif
                     alive = false;
                 }
             }
@@ -256,7 +258,9 @@ namespace hds
             // We have now PacketObjects - time to send them
             if (worldPackets.Count > 0)
             {
+                #if DEBUG
                 Output.WriteLine("[CLIENT] Flush the final Queue with " + worldPackets.Count.ToString() + " Packets");
+                #endif 
                 foreach (WorldPacket thePacket in worldPackets)
                 {
                     playerData.IncrementSseq();
@@ -277,8 +281,6 @@ namespace hds
                     Output.WritePacketLog(finalData, "SERVER",
                         playerData.getPss().ToString(), playerData.getCseq().ToString(),
                         playerData.getSseq().ToString(), ts.TotalMilliseconds.ToString(), "ENCRYPT");
-                    Output.WriteDebugLog("PACKET SEND FINALLY (WC AFTER sendPacket):" +
-                                         StringUtils.bytesToString(finalData));
                 }
             }
 

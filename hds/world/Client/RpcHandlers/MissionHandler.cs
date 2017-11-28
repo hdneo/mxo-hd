@@ -14,7 +14,9 @@ namespace hds
             UInt16 contactId = NumericalUtils.ByteArrayToUint16(contactBytes, 1);
             ushort missionId = packet[2];
 
+            #if DEBUG
             Output.WriteRpcLog("Mission Accept Data:" + StringUtils.bytesToString(packet));
+            #endif
             ServerPackets pak = new ServerPackets();
 
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);

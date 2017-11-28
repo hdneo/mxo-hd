@@ -9,7 +9,6 @@ namespace hds
 {
     public partial class ServerPackets
     {
-        // Place Methods here for Skills
         public void sendSpawnStaticObject(WorldClient client, GameObject creationObjectData, UInt64 entityID)
         {
 

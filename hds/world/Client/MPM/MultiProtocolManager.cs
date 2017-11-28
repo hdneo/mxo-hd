@@ -66,7 +66,9 @@ namespace hds{
 
             if (AckFlags.Get(6) == true)
             {
+	            #if DEBUG
                 Output.WriteDebugLog("[CLIENT]CLIENTFLAGS_RESETDONE found - we can init new RCC Comm ");
+				#endif
                 // Reset comm
                 Store.currentClient.playerData.setCseq(0);
                 Store.currentClient.playerData.setSseq(0);
@@ -98,8 +100,6 @@ namespace hds{
 				{
 					// Is a 03 packet
 					offset++;
-					Output.WriteLine("[MPM] 03 Packet (offset:" + offset + " PackData " + StringUtils.bytesToString(packetData) +
-					                 " )");
 					offset = man03.parse(offset, ref buffer);
 				}
 
