@@ -179,7 +179,7 @@ namespace hds
                                 // Spawn player
                                 ServerPackets pak = new ServerPackets();
                                 pak.sendSystemChatMessage(currentClient,
-                                    "Player " + otherClient.playerInstance.GetName() + " with new View ID " +
+                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance.CharacterName.getValue()) + " with new View ID " +
                                     clientView.ViewID + " jacked in", "BROADCAST");
                                 pak.sendPlayerSpawn(currentClient, otherClient, clientView.ViewID);
                                 clientView.spawnId = currentClient.playerData.spawnViewUpdateCounter;
@@ -192,7 +192,7 @@ namespace hds
                                 // ToDo: delete mob
                                 ServerPackets packets = new ServerPackets();
                                 packets.sendSystemChatMessage(currentClient,
-                                    "Player " + otherClient.playerInstance.GetName() + " with View ID " + clientView.ViewID +
+                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance.CharacterName.getValue()) + " with View ID " + clientView.ViewID +
                                     " jacked out!", "MODAL");
                                 packets.sendDeleteViewPacket(currentClient, clientView.ViewID);
                                 currentClient.viewMan.removeViewByViewId(clientView.ViewID);

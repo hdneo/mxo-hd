@@ -163,8 +163,54 @@ namespace hds
 	    }
 
 
-		
-		
+
+		static public void WriteUnencryptedPacketLog(byte[] obj, string type)
+		{
+			string messageConverted = ConvertByteToReadablePacket(obj);
+			string header = "";
+
+			switch (type)
+			{
+				case "CLIENT":
+					header = "Client->Server";
+					break;
+
+				case "SERVER":
+					header = "Server -> Client";
+					break;
+
+				case "MARGINSERVER":
+					header = "MarginServer -> MarginClient";
+					break;
+
+				case "MARGINCLIENT":
+					header = "MarginClient -> MarginServer";
+					break;
+			}
+			
+			try{
+				StreamWriter w = File.AppendText("PacketLog.txt");
+				if (type == "CLIENT" || type == "SERVER")
+				{
+					w.WriteLine(header + "[{0} {1} UNENCRYPTED PACKET]", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());
+				}
+
+				if (type == "MARGINSERVER" || type == "MARGINCLIENT")
+				{
+					w.WriteLine(header + "[{0} {1} ]", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString());
+				}
+				
+				w.Write(messageConverted);
+				w.WriteLine();
+				w.Flush();
+				w.Close();
+			}
+			catch (Exception exception)
+			{
+				// just pass
+				string message = exception.Message;
+			}
+		}
 		
 	    
         static public void WritePacketLog(byte[] obj, string type, string pss, string cseq, string sseq){

@@ -145,6 +145,7 @@ namespace hds{
             if (!Store.currentClient.playerData.getUDPSEssionEstablished() && !encryptedPacket){
                 var tempIniHelper = new PlayerHandler();
                 tempIniHelper.processInitUDPSession(ref packetData);
+	            Output.WriteUnencryptedPacketLog(packetData,"CLIENT");
                 Store.currentClient.playerData.setUDPSessionEstablished(true);
                 Store.currentClient.playerData.setPss(0x00);
                 tempIniHelper.processPlayerSetup();
@@ -153,13 +154,13 @@ namespace hds{
             }
 
             if (!encryptedPacket){
+	            Output.WriteUnencryptedPacketLog(packetData,"CLIENT");
                 ParsePlainContent(ref packetData);
                 return;
             }
 
-            if (encryptedPacket){
-                ParseContent(ref packetData);
-            }
+			// Parse encrypted
+            ParseContent(ref packetData);
 
 		}
 		

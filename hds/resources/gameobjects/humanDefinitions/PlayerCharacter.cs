@@ -125,11 +125,12 @@ namespace hds
 
 			_offset = _offset +2;
 			byte subview = buffer[_offset];
-			Output.WriteLine("[MPM] Parse AutoView (offset:" + _offset + " Buffer " + StringUtils.bytesToString(buffer) + " )");
 						
 			switch(subview){
 				case 0x01:
+					#if DEBUG
 					Output.WriteLine("[MPM] Parsing selfview Attributes");
+					#endif
 					//Self view Attributes only
 					_offset = parseAttributes(ref buffer,_offset);
 				break;
@@ -141,7 +142,9 @@ namespace hds
 				
 				default:
 					//TODO: put something here
+					#if DEBUG
 					Output.WriteLine("[MPM] Nothing to Parse autoview so no offset");
+					#endif
 					break;
 			}
 			

@@ -295,6 +295,7 @@ namespace hds
                 {
                     foreach (byte[] message in messageQueue.rawMessages)
                     {
+                        Output.WriteUnencryptedPacketLog(message, "SERVER");
                         sendPacket(message);
                     }
                 }

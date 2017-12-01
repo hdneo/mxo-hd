@@ -320,7 +320,7 @@ namespace hds{
 	        UInt16 body = 0;
 	        UInt16 gender = 0;
 
-	        // ToDo: if you know struct - replace the "setOffsetOverrideValues" 
+	        
 	        UInt16 skintone = reader.readUInt16(1);
 	        reader.setOffsetOverrideValue(7);
 	        UInt16 bodyTypeId = reader.readUInt16(1);
@@ -335,7 +335,10 @@ namespace hds{
 	        reader.setOffsetOverrideValue(31);
 	        UInt16 facialDetail = reader.readUInt16(1);
 	        reader.setOffsetOverrideValue(35);
+	        // ToDo: it has a bug - figure out correct position
 	        UInt16 facialDetailColor = reader.readUInt16(1);
+	        // ToDo: Remove this when facialDetailColor is parsed properly
+	        facialDetailColor = 0;
 	        reader.setOffsetOverrideValue(67);
 	        UInt16 profession = reader.readUInt16(1);
 	        
