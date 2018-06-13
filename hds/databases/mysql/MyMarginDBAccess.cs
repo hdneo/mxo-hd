@@ -133,8 +133,15 @@ namespace hds.databases{
 
         public UInt32 getNewCharnameID(string handle, UInt32 userId)
         {
+	        try
+	        {
+		        conn.Open();
+	        }
+	        catch (Exception ex)
+	        {
+		        Output.WriteDebugLog("MySQL Connection was already open");
+	        }
 			
-			conn.Open();
 
             string sqlQuery = "SELECT count( * ) AS number FROM characters WHERE LOWER( handle ) = LOWER( '" + handle + "' ) AND is_deleted='0' ;";
 			queryExecuter= conn.CreateCommand();

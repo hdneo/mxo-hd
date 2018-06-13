@@ -14,8 +14,7 @@ namespace hds
             Output.WriteLine("[WORLD SERVER]View Visible Thread started");
             while (true)
             {
-                ArrayList deadPlayers = new ArrayList();
-                ArrayList removeEntities = new ArrayList();
+                ArrayList deadPlayers = new ArrayList();                
 
                 // Clean 
                 lock (WorldSocket.Clients.SyncRoot)
@@ -44,22 +43,26 @@ namespace hds
 
         private static void CheckForServerEntites()
         {
+            // This can later replace ALL Methods 
             lock (WorldSocket.gameServerEntities)
             {
                 foreach (var serverEntity in WorldSocket.gameServerEntities)
                 {
-
-                    if (serverEntity.GetType() == typeof(Mob))
+                    lock (WorldSocket.Clients.SyncRoot)
                     {
-                        // ToDo: implement
-                        continue;
+                        foreach (var clientKey in WorldSocket.Clients.Keys)
+                        {
+                            WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                            if (thisclient != null)
+                            {
+                                // ToDo: Server Entity doesnt match a real rule currently so we need a class or something
+                                //ClientView clientEntityView = thisclient.viewMan.getViewForEntityAndGo(serverEntity, NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
+                            }
+                            
+                        }
                     }
 
-                    if (serverEntity.GetType() == typeof(PlayerCharacter))
-                    {
-                        // ToDo: implement
-                        continue;
-                    }
+                    
                 }
             }
         }
@@ -109,15 +112,6 @@ namespace hds
                                     thismob.isUpdateable = true;
                                     thismob.DoMobUpdate(thismob);
                                 }
-
-                                // Update Mob with State Data
-//                                if (mobView.viewCreated == true && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld()){
-//                                    // ToDo: We need to involve the Statuslist here and we need to move them finaly
-//                                    if (thismob.getIsDead() == false)
-//                                    {
-//                                        UpdateMob(thisclient, ref thismob, mobView);
-//                                    }
-//                                }
 
                                 // Delete Mob's View from Client if we are outside
                                 if (mobView.viewCreated == true && !mobIsInCircle && thismob.getDistrict() == thisclient.playerData.getDistrictId())

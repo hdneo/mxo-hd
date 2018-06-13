@@ -113,7 +113,7 @@ namespace hds{
 				
   			}
 			working = false;
-  			Output.WriteLine("Margin thread closing");
+  			Output.WriteLine("Margin Client Disconnected");
   			tcpClient.Close();
 			clientStream.Close();
 		}	
@@ -153,6 +153,13 @@ namespace hds{
                 }
                 // Get the IV from encrypted Packet and set it in encryptor/decryptor
                 byte[] decrypted = marginEncr.decryptMargin(encryptedPacket);
+	            if (decrypted == null)
+	            {
+		            // This shouldnt happen - but can happen
+		            tcpClient.Close();
+		            clientStream.Close();
+                    return;
+	            }
                 // Just 2 zero bytes for opcode handling later (As we use third byte for both state, encrypted or not
                 byte[] spacer = { 0x00, 0x00 };
 
@@ -166,55 +173,59 @@ namespace hds{
                 data = packet;
             }
             Output.WritePacketLog(data, "MARGINCLIENT", "0", "0", "0");
-            opcode = data[2];
-            
-			//TODO: check if this needs "packet" or "data"
-			switch (opcode)
-            {
-                case 0x01:
-                    certConnectRequest(packet, client);
+
+	        if (data.Length >= 3)
+	        {
+				opcode = data[2];
+				
+				//TODO: check if this needs "packet" or "data"
+				switch (opcode)
+				{
+					case 0x01:
+						certConnectRequest(packet, client);
+						
+					break;
+	
+					case 0x03:
+						certConnectReply(packet, client);
 					
-                break;
-
-                case 0x03:
-                    certConnectReply(packet, client);
-				
-                break;
-
-                case 0x06:
-                    connectChallenge(packet, client);
-				
-                break;
-
-                case 0x08:
-                    ConnectChallengeResponse(packet, client);
-                break;
-				
-				case 0x0a:
-					//CharNameRequest
-					charNameRequest(data,client);
-				break;
-				
-				case 0x0c:
-					//TODO: this is creation. must be done someday
-					Output.writeToLogForConsole("CREATECHAR RSI VALUES:"+ StringUtils.bytesToString(data));
-                    //loadCharacter(data, client);
-                    createCharacterRSI(data, client);
-                    // Add the first abilitys
-                    // AbilityID : 2147485696 (Awakened) Level 2
-                    // AbilityID : 
+					break;
+	
+					case 0x06:
+						connectChallenge(packet, client);
 					
-                break;
-
-                case 0x0d:
-                    // Delete Charname Request
-                    deleteCharName(data, client);
-                break;
-				
-                case 0x0f:
-                    loadCharacter(data, client, 0);
-                break;
-            }
+					break;
+	
+					case 0x08:
+						ConnectChallengeResponse(packet, client);
+					break;
+					
+					case 0x0a:
+						//CharNameRequest
+						charNameRequest(data,client);
+					break;
+					
+					case 0x0c:
+						//TODO: this is creation. must be done someday
+						Output.writeToLogForConsole("CREATECHAR RSI VALUES:"+ StringUtils.bytesToString(data));
+						//loadCharacter(data, client);
+						createCharacterRSI(data, client);
+						// Add the first abilitys
+						// AbilityID : 2147485696 (Awakened) Level 2
+						// AbilityID : 
+						
+					break;
+	
+					case 0x0d:
+						// Delete Charname Request
+						deleteCharName(data, client);
+					break;
+					
+					case 0x0f:
+						loadCharacter(data, client, 0);
+					break;
+				}
+	        }
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using hds.shared;
@@ -52,14 +53,39 @@ namespace hds
             
         }
 
-        public void sendSetWeather(WorldClient client)
+        public void SendServerSettingUInt(WorldClient client, string key, UInt32 value)
         {
-
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            int fullLen = key.Length + 2 + 4;
+            pak.addInt16((short)fullLen,1);
+            pak.addSizedString(key);
+            pak.addUint16(4,1);
+            pak.addUint32(value,1);
+            
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
+        
+        public void SendServerSettingString(WorldClient client, string key, string value)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            int fullLen = key.Length + value.Length;
+            pak.addInt16((short)fullLen,1);
+            pak.addSizedString(key);
+            pak.addSizedString(value);
+            
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
 
         public void sendWorldSetup(WorldClient client)
         {
             // The Packet with PVP Flag etc. 
+            // ToDo: load world setting and define it
+            this.SendServerSettingUInt(client, "PvPServer", 6);
+            this.SendServerSettingUInt(client, "PvPMaxSafeLevel", 1);
+
         }
 
         public void createFlashTraffic(WorldClient client, string url)

@@ -143,14 +143,18 @@ namespace hds{
 
             // UDP Session is not established and packet is not encrypted - so its the first packet we know
             if (!Store.currentClient.playerData.getUDPSEssionEstablished() && !encryptedPacket){
-                var tempIniHelper = new PlayerHandler();
-                tempIniHelper.processInitUDPSession(ref packetData);
-	            Output.WriteUnencryptedPacketLog(packetData,"CLIENT");
-                Store.currentClient.playerData.setUDPSessionEstablished(true);
-                Store.currentClient.playerData.setPss(0x00);
-                tempIniHelper.processPlayerSetup();
-                tempIniHelper.processAttributes();
-                return;
+	            if (packetData.Length >= 15)
+	            {
+		            var tempIniHelper = new PlayerHandler();
+		            tempIniHelper.processInitUDPSession(ref packetData);
+		            Output.WriteUnencryptedPacketLog(packetData,"CLIENT");
+		            Store.currentClient.playerData.setUDPSessionEstablished(true);
+		            Store.currentClient.playerData.setPss(0x00);
+		            tempIniHelper.processPlayerSetup();
+		            tempIniHelper.processAttributes();
+		            return;    
+	            }
+                
             }
 
             if (!encryptedPacket){

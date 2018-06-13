@@ -1,5 +1,6 @@
 
 using System;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 
 
@@ -121,7 +122,12 @@ namespace hds
 		
 		public byte[] decryptMargin(byte[] packet)
         {
-			           
+
+	        if (packet.Length < 17)
+	        {
+		        // This happens - but shouldnt happen. 
+		        return null; 
+	        }
 			ArrayUtils.copy(packet,1,IV,0,16);
 			
             int decryptBuffer = packet.Length - 17;

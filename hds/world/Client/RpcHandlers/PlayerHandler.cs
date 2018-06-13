@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing.Printing;
 using System.Text;
 
 using hds.shared;
@@ -64,10 +65,15 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Genereal Summer Sky
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Genereal Summer Sky
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive,WinterSky3"); // Winter is coming to MxO
-            
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"WinterSky3"); // Winter is coming to MxO
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Winter3HalloweenFlyEyeTSEC"); // Winter is coming to MxO
+            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "WinterSky3"); // Winter is coming to MxO
+            packets.SendServerSettingString(Store.currentClient,"WR_RezEvents","bluesky2");
+
+            // This is more a test
+            packets.sendWorldSetup(Store.currentClient);
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
             packets.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
@@ -154,7 +160,6 @@ namespace hds
             cIDHex[3] = packetData[14];
 
             Store.currentClient.playerData.setCharID(NumericalUtils.ByteArrayToUint32(cIDHex, 1));
-            //_playerData.setObjectID((UInt16)(_playerData.getCharID() + (UInt16)8000));
 
             Store.dbManager.WorldDbHandler.setPlayerValues();
             Store.dbManager.WorldDbHandler.setRsiValues();

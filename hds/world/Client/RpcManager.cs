@@ -166,9 +166,12 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_CMD_WHEREAMI:
 		            new CommandHandler().processWhereamiCommand(ref rpcData);
 		            break;
+                case (int)RPCRequestHeader.CLIENT_CMD_WHO:
+                    new CommandHandler().processWhoCommand(ref rpcData);
+                    break;
 
-		        // Emote and Mood Helpers
-		        case (int) RPCRequestHeader.CLIENT_CHANGE_MOOD:
+                // Emote and Mood Helpers
+                case (int) RPCRequestHeader.CLIENT_CHANGE_MOOD:
 		            new PlayerHandler().processMood(ref rpcData);
 		            break;
 

@@ -22,5 +22,14 @@ namespace hds
             ServerPackets serverpacket = new ServerPackets();
             serverpacket.sendWhereami(Store.currentClient, xPos, yPos, zPos);
         }
+
+        public void processWhoCommand(ref byte[] packet)
+        {
+            // ToDo: implement
+            ServerPackets serverpacket = new ServerPackets();
+            
+            serverpacket.SendWhoCMD(Store.currentClient);
+
+        }
     }
 }

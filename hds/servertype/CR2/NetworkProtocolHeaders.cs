@@ -54,6 +54,7 @@ namespace hds
         CLIENT_MP_OPEN = 0x121,
 
         //Commands
+
         CLIENT_CMD_WHEREAMI = 0x154,
         CLIENT_CMD_WHO = 0x152, // ToDo: implement
         CLIENT_PLAYER_GET_DETAILS = 0x192, // ToDo: implement
@@ -83,6 +84,9 @@ namespace hds
 
     public enum RPCResponseHeaders
     {
+        // Server Features
+        SERVER_FEATURE_EVENT = 0x3a05,
+        
         // World
         SERVER_LOAD_WORLD_CMD = 0x06,
         SERVER_LOAD_RPC_RESET = 0x8107,
@@ -127,6 +131,9 @@ namespace hds
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,
         SERVER_CHAT_WHEREAMI_RESPONSE = 0x8154, // CR2: 0x8154
+        SERVER_CHAT_WHO_RESPONSE = 0x8153,
+        
+        
 
 
         // Marketplace

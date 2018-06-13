@@ -73,6 +73,9 @@ namespace hds.servertype.cr1
 
     public enum RPCResponseHeaders
     {
+        // Server Features
+        SERVER_FEATURE_EVENT = 0x3a05,
+        
         // World
         SERVER_LOAD_WORLD_CMD = 0x06,                       // ToDo: CR1 Convert
         SERVER_LOAD_RPC_RESET = 0x8106,
