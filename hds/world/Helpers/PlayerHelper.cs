@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Text;
-
 using hds.shared;
 using System.Collections.Generic;
 
@@ -12,13 +11,11 @@ namespace hds
      */
     class PlayerHelper
     {
-
-
         public void processIncreaseCash(UInt16 amount, UInt16 type)
         {
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
-            byte[] header = { 0x80, 0xe4 };
-            long newCash = Store.currentClient.playerData.getInfo() + (long)amount;
+            byte[] header = {0x80, 0xe4};
+            long newCash = Store.currentClient.playerData.getInfo() + (long) amount;
             Store.currentClient.playerData.setInfo(newCash);
 
             Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
@@ -26,7 +23,7 @@ namespace hds
             DynamicArray din = new DynamicArray();
 
             din.append(header);
-            din.append(NumericalUtils.uint32ToByteArray((UInt32)newCash, 1));
+            din.append(NumericalUtils.uint32ToByteArray((UInt32) newCash, 1));
             din.append(NumericalUtils.uint16ToByteArray(type, 1));
             din.append(0x00);
             din.append(0x00);
@@ -36,17 +33,16 @@ namespace hds
 
         public void processDecreaseCash(UInt16 amount, UInt16 type)
         {
-
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
-            byte[] header = { 0x80, 0xe4 };
-            long newCash = Store.currentClient.playerData.getInfo() - (long)amount;
+            byte[] header = {0x80, 0xe4};
+            long newCash = Store.currentClient.playerData.getInfo() - (long) amount;
             Store.currentClient.playerData.setInfo(newCash);
 
             Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
 
             DynamicArray din = new DynamicArray();
             din.append(header);
-            din.append(NumericalUtils.uint32ToByteArray((UInt32)newCash, 1));
+            din.append(NumericalUtils.uint32ToByteArray((UInt32) newCash, 1));
             din.append(NumericalUtils.uint16ToByteArray(type, 1));
             din.append(0x00);
             din.append(0x00);
@@ -56,31 +52,18 @@ namespace hds
 
         public void processLoadAbility(ref byte[] packet)
         {
-            // read the values from the packet 
-            byte[] staticObjectByteID = new byte[4];
-            ArrayUtils.copyTo(packet, 0, staticObjectByteID, 0, 4);
-
-            byte[] unloadFlagByte = new byte[2];
-            ArrayUtils.copyTo(packet, 4, unloadFlagByte, 0, 2);
-
-            byte[] loadFlagByte = new byte[2];
-            ArrayUtils.copyTo(packet, 6, loadFlagByte, 0, 2);
-
-            byte[] countAbilityBytes = new byte[2];
-            ArrayUtils.copyTo(packet, 8, countAbilityBytes, 0, 2);
-            UInt16 countAbilities = NumericalUtils.ByteArrayToUint16(countAbilityBytes, 1);
-            
-            // Get the Ability Related Header Data
-            UInt32 staticObjectID = NumericalUtils.ByteArrayToUint32(staticObjectByteID, 1);
-            UInt16 unloadFlag = NumericalUtils.ByteArrayToUint16(unloadFlagByte, 1);
-            UInt16 loadFlag = NumericalUtils.ByteArrayToUint16(loadFlagByte, 1);
+            // read the values from the packet
+            PacketReader reader = new PacketReader(packet);
+            UInt32 staticObjectID = reader.readUInt32(1);
+            UInt16 unloadFlag = reader.readUInt16(1);
+            UInt16 loadFlag = reader.readUInt16(1);
+            UInt16 countAbilities = reader.readUInt16(1);
 
             int pointer = 11; // Start at index 11
             List<UInt16> abilitySlots = new List<UInt16>();
 
             for (int i = 1; i <= countAbilities; i++)
             {
-
                 // This must be looped 
                 byte[] slotByteID = new byte[2];
                 ArrayUtils.copyTo(packet, pointer, slotByteID, 0, 2);
@@ -102,23 +85,21 @@ namespace hds
                 PacketContent pak = new PacketContent();
                 if (unloadFlag > 0)
                 {
-                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
+                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
                     pak.addByteArray(abilityByteID);
-
                 }
                 else
                 {
-                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
+                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
                     pak.addByteArray(abilityByteID);
                     pak.addByteArray(abilityByteLevel);
                     pak.addByteArray(slotByteID);
                 }
                 abilitySlots.Add(slotID);
                 Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
-
             }
 
-           
+
             if (unloadFlag > 0)
             {
                 Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 0);
@@ -127,26 +108,24 @@ namespace hds
             {
                 Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 1);
             }
-            
-
         }
 
         public void processTargetChange(ref byte[] rpcData, WorldClient currentClient)
         {
-            
-            UInt16 viewId = NumericalUtils.ByteArrayToUint16(new byte[] { rpcData[0], rpcData[1] }, 1);
+            UInt16 viewId = NumericalUtils.ByteArrayToUint16(new byte[] {rpcData[0], rpcData[1]}, 1);
             ushort spawnId = rpcData[2];
             // ToDo: add this to the ClientData 
             currentClient.playerData.currentSelectedTargetViewId = viewId;
             currentClient.playerData.currentSelectedTargetSpawnId = spawnId;
             ServerPackets pak = new ServerPackets();
-            pak.sendSystemChatMessage(Store.currentClient, "TARGET CHANGE For ViewID " + viewId.ToString() + " AND SPAWN ID : " + spawnId.ToString(), "MODAL");
+            pak.sendSystemChatMessage(Store.currentClient,
+                "TARGET CHANGE For ViewID " + viewId.ToString() + " AND SPAWN ID : " + spawnId.ToString(), "MODAL");
         }
 
         public void processUpdateExp()
         {
             Random rand = new Random();
-            UInt32 expval = (UInt32)rand.Next(1000, 200000);
+            UInt32 expval = (UInt32) rand.Next(1000, 200000);
             ArrayList content = new ArrayList();
 
             // ToDo  : Save new EXP Value in the Database and update mpm exp
@@ -184,10 +163,7 @@ namespace hds
             din.append(0x40);
             din.append(NumericalUtils.uint16ToByteArray(healthC, 1));
             din.append(0x00);
-
         }
-
-
 
 
         // Shows the Animation of a target Player 
@@ -195,7 +171,7 @@ namespace hds
         {
             // ToDo: proove to remove
             Random rand = new Random();
-            ushort updateViewCounter = (ushort)rand.Next(3, 200);
+            ushort updateViewCounter = (ushort) rand.Next(3, 200);
             byte[] updateCount = NumericalUtils.uint16ToByteArrayShort(updateViewCounter);
 
             DynamicArray din = new DynamicArray();
@@ -211,13 +187,11 @@ namespace hds
             din.append(0x00);
 
             Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
-
         }
 
         // ToDo: Move it to player Packets and make a ?moa command for it
         public void processChangeMoaRSI(byte[] rsi)
         {
-
             // ToDo: proove to remove
             DynamicArray din = new DynamicArray();
             din.append(0x03);
@@ -227,7 +201,6 @@ namespace hds
             din.append(rsi);
             din.append(0x41);
             din.append(0x00);
-
         }
 
 
@@ -241,16 +214,18 @@ namespace hds
 
         public byte[] teleport(int x, int y, int z)
         {
-
             return PacketsUtils.createTeleportPacket(x, y, z);
-
         }
 
 
         public byte[] changeRsi(string part, int value)
         {
-
-            string[] keys = { "sex", "body", "hat", "face", "shirt", "coat", "pants", "shoes", "gloves", "glasses", "hair", "facialdetail", "shirtcolor", "pantscolor", "coatcolor", "shoecolor", "glassescolor", "haircolor", "skintone", "tattoo", "facialdetailcolor", "leggins" };
+            string[] keys =
+            {
+                "sex", "body", "hat", "face", "shirt", "coat", "pants", "shoes", "gloves", "glasses", "hair",
+                "facialdetail", "shirtcolor", "pantscolor", "coatcolor", "shoecolor", "glassescolor", "haircolor",
+                "skintone", "tattoo", "facialdetailcolor", "leggins"
+            };
 
             int pos = -1;
 
@@ -271,12 +246,11 @@ namespace hds
                 byte[] rsiData = PacketsUtils.getRSIBytes(current);
 
                 DynamicArray din = new DynamicArray();
-                byte[] rsiChangeHeader = { 0x02, 0x00, 0x02, 0x80, 0x89 };
+                byte[] rsiChangeHeader = {0x02, 0x00, 0x02, 0x80, 0x89};
                 din.append(rsiChangeHeader);
                 din.append(rsiData);
 
                 return din.getBytes();
-
             }
             else
             {
