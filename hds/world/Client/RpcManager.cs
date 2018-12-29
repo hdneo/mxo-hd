@@ -56,6 +56,10 @@ namespace hds{
 		            //ToDo: Split Jump and Hyperjump
 			        new AbilityHandler().processHyperJump(ref rpcData);
 		            break;
+		        case (int) RPCRequestHeader.CLIENT_JUMP_CANCEL:
+					// ToDo: 
+					new AbilityHandler().processHyperJumpCancel(ref rpcData);
+			        break;
 		        case (int) RPCRequestHeader.CLIENT_TARGET:
 		            new PlayerHelper().processTargetChange(ref rpcData, Store.currentClient);
 		            break;
