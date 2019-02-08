@@ -141,8 +141,17 @@ namespace hds
 			
 			byte[] decryptedBytes = new byte[packetToDecrypt.Length];
 			tf.decrypt(packetToDecrypt,decryptedBytes);
-			
-            byte[] decryptedPacket = new byte[decryptedBytes.Length - 10];
+
+            byte[] decryptedPacket;
+            if (decryptedBytes.Length > 10)
+            {
+                decryptedPacket = new byte[decryptedBytes.Length - 10];
+            }
+            else
+            {
+                decryptedPacket = new byte[decryptedBytes.Length];
+            }
+            
             
 			ArrayUtils.copy(decryptedBytes,10,decryptedPacket,0,decryptedBytes.Length-10);
 			

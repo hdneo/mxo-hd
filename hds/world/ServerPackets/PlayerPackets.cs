@@ -177,6 +177,17 @@ namespace hds
             }
         }
 
+        public void sendPlayerMoveAnim(WorldClient client, byte animationId)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2, 1);
+            pak.addByte(0x02);
+            pak.addByteArray(new byte[] { 0x01, 0x02 });
+            pak.addByte(animationId);
+            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.FlushQueue();
+        }
+
         public void sendPlayerAnimation(WorldClient client, String hexAnimation)
         {
             // See animations.txt - hex animation is the first Id

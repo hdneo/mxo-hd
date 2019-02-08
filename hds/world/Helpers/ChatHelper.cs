@@ -97,6 +97,19 @@ namespace hds{
                     }
                 }
 
+                if (command.Equals("?playmove"))
+                {
+                    string animIdString = commands[1];
+                    
+                    // Should just one byte
+                    if(animIdString.Length == 2)
+                    {
+                        byte animId = Byte.Parse(animIdString);
+                        ServerPackets pak = new ServerPackets();
+                        pak.sendPlayerMoveAnim(Store.currentClient, animId);
+                    }
+                }
+
                 if (command.StartsWith("?playfx"))
                 {
                     string fxHEDID =  commands[1];
