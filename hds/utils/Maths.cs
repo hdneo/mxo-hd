@@ -127,6 +127,14 @@ namespace hds
             newPos.c = z;
             return newPos;
         }
+
+        public LtVector3f[] CalculateJumpPoints(float xCurrent, float yCurrent, float zCurrent, float xDestination, float yDestination, float zDestination, long maxHeight, int countParts, long timeEstimation)
+        {
+            LtVector3f[] Points = new LtVector3f[countParts+1];
+            // ToDo: Calculate the positions between
+
+            return Points;
+        }
 		
 	}
 }

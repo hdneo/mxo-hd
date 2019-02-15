@@ -56,8 +56,6 @@ namespace hds
         public void SendNpcDies(UInt16 viewId, WorldClient client, Mob theMob)
         {
             // Falls to ground like dead lol
-            // 02010d000000000000000000000000000000
-
 
             //activate loot+f
             PacketContent pak = new PacketContent();

@@ -32,8 +32,6 @@ namespace hds
             pak.addUintShort(1);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             
-
-            
         }
 
         public void sendInventoryItemDelete()
