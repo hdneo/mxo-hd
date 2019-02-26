@@ -112,12 +112,12 @@ namespace hds
             xDest = reader.readDouble(1);
             yDest = reader.readDouble(1);
             zDest = reader.readDouble(1);
-            
+
             // ToDo: figure out what this 6 bytes are could be
             // Skip 6 bytes as we currently didnt knew
-            reader.incrementOffsetByValue(6);
-            UInt32 maybeMaxHeight = reader.readUInt32(1);
-            reader.setOffsetOverrideValue(rpcData.Length - 4);
+            byte[] unknownJumpBytes = reader.readBytes(6);
+            float maybeMaxHeight = reader.readFloat(1);
+            reader.incrementOffsetByValue(1);
             UInt32 clientJumpIdUnknown = reader.readUInt32(1);
 
             // Players current X Z Y
@@ -129,6 +129,8 @@ namespace hds
             float yPos = (float)y;
             float zPos = (float)z;
 
+            LtVector3f[] JumpMovements = Maths.ParabolicMovement(new LtVector3f(xPos, yPos, zPos), new LtVector3f((float)xDest, (float)yDest, (float)zDest), 50, 12);
+
             float distance = Maths.getDistance(xPos, yPos, zPos, (float)xDest, (float)yDest, (float)zDest);
             UInt16 duration = (UInt16)(distance * 0.5f);
             
@@ -137,10 +139,17 @@ namespace hds
             
             ServerPackets packets = new ServerPackets();
             packets.sendHyperJumpID(clientJumpIdUnknown);
-            packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
+            foreach (LtVector3f currentJumpPos in JumpMovements)
+            {
+                packets.SendHyperJumpStepUpdate(currentJumpPos, xDest, yDest, zDest, maybeMaxHeight, endTime);
+            }
 
+            //packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
+            #if DEBUG
+                        Output.WriteRpcLog("Finished the HyperJumps");
+            #endif
         }
-        
+
         public void processHyperJumpCancel(ref byte[] rpcData)
         {
             

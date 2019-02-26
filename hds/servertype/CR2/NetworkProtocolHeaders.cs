@@ -90,6 +90,7 @@ namespace hds
         
         // World
         SERVER_LOAD_WORLD_CMD = 0x06,
+        SERVER_PLAYER_JUMP_ID = 0xc3,
         SERVER_LOAD_RPC_RESET = 0x8107,
         SERVER_LOAD_WORLD = 0x8108,
         SERVER_FLASH_TRAFFIC = 0x81a9,

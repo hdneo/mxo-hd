@@ -24,27 +24,42 @@ namespace hds {
 
     public class LtVector3f : LtType {
 
-        public float a { get; set; }
-        public float b { get; set; }
-        public float c { get; set; }
+        public float x { get; set; }
+        public float y { get; set; }
+        public float z { get; set; }
 
         public int _Size { get { return 12; } }
 
         public LtVector3f() {
-            a = b = c = 0;
+            x = y = z = 0;
         }
+
+        public LtVector3f(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
     }
 
     public class LtVector3d : LtType {
 
-        public double a { get; set; }
-        public double b { get; set; }
-        public double c { get; set; }
+        public double x { get; set; }
+        public double y { get; set; }
+        public double z { get; set; }
 
         public int _Size { get { return 24; } }
 
         public LtVector3d() {
-            a = b = c = 0;
+            x = y = z = 0;
+        }
+
+        public LtVector3d(double x, double y, double z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     }
 

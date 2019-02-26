@@ -61,8 +61,8 @@ namespace hds
         {
             // new vector
             LtVector3f newPos = new LtVector3f();
-            newPos.a = 0.0f;
-            newPos.c = 0.0f;
+            newPos.x = 0.0f;
+            newPos.z = 0.0f;
 
             int u = this.rand.Next(1,32000);
             int v = this.rand.Next(1,32000);
@@ -71,9 +71,9 @@ namespace hds
             double x = xCurrent + (radius * Math.Sin(phi) * Math.Cos(theta));
             double y = 95.0;
             double z = zCurrent + (radius * Math.Cos(phi));
-            newPos.a = (float)x;
-            newPos.b = (float)y;
-            newPos.c = (float)z;
+            newPos.x = (float)x;
+            newPos.y = (float)y;
+            newPos.z = (float)z;
             return newPos;
         }
 
@@ -88,9 +88,9 @@ namespace hds
         {
             double angle = (double)RandomBetween(0.0f, (float)Math.PI*2);
             LtVector3f newPos = new LtVector3f();
-            newPos.a = xCurrent + radius * (float)Math.Cos(angle);
-            newPos.b = yCurrent;
-            newPos.c = zCurrent + radius * (float)Math.Sin(angle);
+            newPos.x = xCurrent + radius * (float)Math.Cos(angle);
+            newPos.y = yCurrent;
+            newPos.z = zCurrent + radius * (float)Math.Sin(angle);
 
             return newPos;
         }
@@ -106,11 +106,11 @@ namespace hds
 
         public LtVector3f RandomPointInCircle2D(float xCurrent, float zCurrent, float radius)
         {
-            // calc http://stackoverflow.com/questions/5531827/random-point-on-a-given-sphere
+            // calc http://stackoverflow.com/questions/5531827/random-point-on-x-given-sphere
             // http://freespace.virgin.net/hugo.elias/routines/r_dist.htm - Distance
             LtVector3f newPos = new LtVector3f();
-            newPos.a = 0.0f;
-            newPos.c = 0.0f;
+            newPos.x = 0.0f;
+            newPos.z = 0.0f;
 
             
             int randMax = 254;
@@ -123,8 +123,8 @@ namespace hds
 
             Output.WriteDebugLog("Distance : " + distance);
 
-            newPos.a = x;
-            newPos.c = z;
+            newPos.x = x;
+            newPos.z = z;
             return newPos;
         }
 
@@ -135,7 +135,54 @@ namespace hds
 
             return Points;
         }
-		
-	}
+
+        // https://gamedev.stackexchange.com/questions/133794/parabolic-movement-of-a-gameobject-in-unity
+        public static LtVector3f[] ParabolicMovement(LtVector3f startingPos, LtVector3f arrivingPos, float maxHeight, int framesCount)
+        {
+            // float ANIMATION_DURATION = 2.0f;
+            // float FRAMES_PER_SECOND = 30.0f;
+            // int framesNum = (int)(ANIMATION_DURATION * FRAMES_PER_SECOND);
+            int framesNum = framesCount;
+            LtVector3f[] frames = new LtVector3f[framesNum];
+        
+
+            //PROJECTING ON Z AXIS
+            LtVector3f stP = new LtVector3f(0, startingPos.y, startingPos.z);
+            LtVector3f arP = new LtVector3f(0, arrivingPos.y, arrivingPos.z);
+
+            LtVector3f diff = new LtVector3f((arP.x - stP.x)/ 2 + maxHeight, (arP.y - stP.y) / 2 + maxHeight, (arP.z - stP.z) / 2 + maxHeight);
+
+            LtVector3f vertex = new LtVector3f(stP.x + diff.x, stP.y + diff.y, stP.z + diff.z);
+
+            float x1 = startingPos.z;
+            float y1 = startingPos.y;
+            float x2 = arrivingPos.z;
+            float y2 = arrivingPos.y;
+            float x3 = vertex.z;
+            float y3 = vertex.y;
+
+            float denom = (x1 - x2) * (x1 - x3) * (x2 - x3);
+
+            var z_dist = (arrivingPos.z - startingPos.z) / framesNum;
+            var x_dist = (arrivingPos.x - startingPos.x) / framesNum;
+
+            float A = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / denom;
+            float B = (float)(Math.Pow(x3, 2) * (y1 - y2) + Math.Pow(x2, 2) * (y3 - y1) + Math.Pow(x1, 2) * (y2 - y3)) / denom;
+            float C = (x2 * x3 * (x2 - x3) * y1 + x3 * x1 * (x3 - x1) * y2 + x1 * x2 * (x1 - x2) * y3) / denom;
+
+            float newX = startingPos.z;
+            float newZ = startingPos.x;
+
+            for (int i = 0; i < framesNum; i++)
+            {
+                newX += z_dist;
+                newZ += x_dist;
+                float yToBeFound = A * (newX * newX) + B * newX + C;
+                frames[i] = new LtVector3f(newZ, yToBeFound, newX);
+            }
+            return frames;
+        }
+
+    }
 }
 

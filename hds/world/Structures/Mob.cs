@@ -314,13 +314,13 @@ namespace hds
             // First choose a new pos in the range
             var newPos = math.RandomPointOnCircle((float) xBase, (float) yBase, (float) zBase, 5.0f * 100);
             #if DEBUG
-            Output.WriteDebugLog("Mob Goes from X: " + getXPos() + " , Z: " + getZPos() + " to X: " + newPos.a +
-                                 ", Z: " + newPos.c);
+            Output.WriteDebugLog("Mob Goes from X: " + getXPos() + " , Z: " + getZPos() + " to X: " + newPos.x +
+                                 ", Z: " + newPos.z);
             #endif
 
 
-            var xNew = (double) newPos.a;
-            var zNew = (double) newPos.c;
+            var xNew = (double) newPos.x;
+            var zNew = (double) newPos.z;
 
             destination = newPos;
             // Try to calculate rotation
@@ -381,8 +381,8 @@ namespace hds
                     case (int) statusList.WALKING:
                         // stop npc
                         currentState = (int) statusList.STANDING;
-                        setXPos(destination.a);
-                        setZPos(destination.c);
+                        setXPos(destination.x);
+                        setZPos(destination.z);
                         updateAnimation((byte) Animations.STAND);
                         nextMoveTime = rand.Next(5, 15);
                         break;

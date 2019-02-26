@@ -135,6 +135,29 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
+        public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos, float jumpHeight, UInt32 endtime)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16(2, 1);
+            pak.addByte(0x03);
+            pak.addByte(0x0d);
+            pak.addByte(0x08);
+            pak.addByte(0x00);
+            pak.addFloatLtVector3f(currentPos.x, currentPos.y, currentPos.z);
+            pak.addByte(0x8a);
+            pak.addByte(0x04);
+            pak.addByte(0x80);
+            pak.addByte(0x88);
+            pak.addByteArray(new byte[]{ 0x00, 0x00, 0x00, 0x00, 0xbc });
+            pak.addFloat(jumpHeight, 1);
+            pak.addUint16(4, 1);
+            pak.addUint32(endtime,1);
+            pak.addDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
+            pak.addByteArray(new byte[] { 0x80, 0x81, 0x00, 0x02, 0x01, 0x00 });
+            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            Store.currentClient.FlushQueue();
+        }
+
         public void SendHyperJumpUpdate(float xFromPos, float yFromPos, float zFromPos, float xDestPos, float yDestPos,
             float zDestPos, UInt32 startTime, UInt32 endTime)
         {
