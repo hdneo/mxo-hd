@@ -135,15 +135,21 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos, float jumpHeight, UInt32 endtime)
+        public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos,
+            float jumpHeight, uint endtime, ushort stepJumpId, uint maybeTimeBasedValue, bool isLastStep = false)
         {
+
             PacketContent pak = new PacketContent();
             pak.addUint16(2, 1);
             pak.addByte(0x03);
             pak.addByte(0x0d);
             pak.addByte(0x08);
             pak.addByte(0x00);
+            pak.addUintShort(Store.currentClient.playerData.getJumpID());
             pak.addFloatLtVector3f(currentPos.x, currentPos.y, currentPos.z);
+            pak.addUintShort(stepJumpId);
+            pak.addUint32(maybeTimeBasedValue,1);
+            // ToDo: Insert 2 missing bytes (or 4 as the next 2 bytes MAYBE wrong)
             pak.addByte(0x8a);
             pak.addByte(0x04);
             pak.addByte(0x80);
@@ -153,7 +159,17 @@ namespace hds
             pak.addUint16(4, 1);
             pak.addUint32(endtime,1);
             pak.addDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
-            pak.addByteArray(new byte[] { 0x80, 0x81, 0x00, 0x02, 0x01, 0x00 });
+            pak.addByteArray(new byte[] { 0x80, 0x81, 0x00, 0x02});
+            if (isLastStep)
+            {
+                pak.addByte(0x00);
+                Store.currentClient.playerData.isJumping = false;
+            }
+            else
+            {
+                pak.addByte(0x01);    
+            }
+            
             Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             Store.currentClient.FlushQueue();
         }

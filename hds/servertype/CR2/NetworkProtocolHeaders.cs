@@ -128,7 +128,7 @@ namespace hds
         SERVER_CAST_BAR_ABILITY = 0x80ac,
         SERVER_ABILITY_LOAD = 0x80b2,
         SERVER_ABILITY_UNLOAD = 0x80b3,
-        SERVER_HYPERJUMP_ID = 0x80c3,
+        SERVER_HYPERJUMP_ID = 0xc3,
 
         // Chat & Commands
         SERVER_CHAT_MESSAGE_RESPONSE = 0x2e,

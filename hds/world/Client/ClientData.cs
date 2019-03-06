@@ -1,3 +1,4 @@
+using hds.world.Skill;
 using System;
 using System.Collections.Generic;
 
@@ -39,7 +40,8 @@ namespace hds
         public UInt32 lastClickedObjectId = 0; // Temp for Hardline ObjectID Tracking - call upload hardline before teleporting so we know the last clicked object ID and save it (if not isset) to the Hardline list to assing it
         public UInt16 newViewIdCounter = 7;
         public UInt16 spawnViewUpdateCounter = 1; // maybe the wording is wrong - need to change this later
-        private UInt16 jumpID = 36352;
+        private UInt16 jumpID = 1;
+        public bool isJumping = false;
 
 		public UInt32 jackoutStartTime;
 		public bool isJackoutInProgress;

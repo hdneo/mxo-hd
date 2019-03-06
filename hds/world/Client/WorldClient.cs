@@ -418,9 +418,6 @@ namespace hds
                         ts.TotalMilliseconds.ToString(), "DECRYPT");
                 }
 
-
-//                Output.WriteLine("\n" + key + " PSS = " + playerData.getPss() + ", Cseq = " + playerData.getCseq() +
-//                                 ", AckSSeq = " + playerData.getACK());
                 Store.Mpm.Parse(encrypted, processedPacket);
                 FlushQueue();
             }
