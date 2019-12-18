@@ -18,7 +18,6 @@ namespace hds
         public void processRegionLoaded(ref byte[] packet)
         {
 
-
             PacketReader pakReader = new PacketReader(packet);
             UInt16 sectorID = pakReader.readUInt16(1);
             UInt16 objectID = pakReader.readUInt16(1);

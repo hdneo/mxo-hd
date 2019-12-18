@@ -133,7 +133,7 @@ namespace hds
                         if (!error)
                         {
                             theMob.DoMobUpdate(theMob);
-                            WorldSocket.npcs.Add(theMob);
+                            WorldSocket.mobs.Add(theMob);
                             WorldSocket.gameServerEntities.Add(theMob);
                         }
                         
@@ -632,6 +632,13 @@ namespace hds
             return emoteIdShort;
         }
 
+        public List<StaticWorldObject> findObjectsBySectorWorldRangeAndType(float x, float z,uint metrId, UInt16 typeId)
+        {
+            Maths mathUtils = new Maths();
+            IEnumerable<StaticWorldObject> staticWorldObjectsIenumerator = WorldObjectsDB.Where(w => w.metrId == metrId && NumericalUtils.ByteArrayToUint16(w.type, 1) == typeId && mathUtils.IsInCircle(x,z, (float)w.pos_x, (float)w.pos_z, 5000));
+            List<StaticWorldObject> TempStaticWorldObjects = staticWorldObjectsIenumerator.ToList();
+            return TempStaticWorldObjects;
+        }
 
         public StaticWorldObject getObjectValues(UInt32 objectId)
         {

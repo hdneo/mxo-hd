@@ -23,7 +23,7 @@ namespace hds
         public static Hashtable Clients { get; set; }
 
         // Collection to store the spawned npcs 
-        public static ArrayList npcs = ArrayList.Synchronized(new ArrayList());
+        public static ArrayList mobs = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
         public static ArrayList TempCrews = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;

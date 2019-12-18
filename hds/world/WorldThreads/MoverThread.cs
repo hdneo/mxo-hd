@@ -16,12 +16,12 @@ namespace hds
             Output.WriteLine("[WORLD SERVER]MoverThread started");
 
             // Moove the Mobs a little bit around 
-            int npcCount = WorldSocket.npcs.Count;
-            lock (WorldSocket.npcs.SyncRoot)
+            int npcCount = WorldSocket.mobs.Count;
+            lock (WorldSocket.mobs.SyncRoot)
             {
                 for (int i = 0; i < npcCount; i++)
                 {
-                    Mob thismob = (Mob)WorldSocket.npcs[i];
+                    Mob thismob = (Mob)WorldSocket.mobs[i];
                     // Check if Client has a view for this mob
 
                     if (thismob.getIsSpawned() == true)

@@ -59,11 +59,11 @@ namespace hds
                 case 599:
 
                     // Its more a demo - we "one hit" the mob currently so we must update this 
-                    lock (WorldSocket.npcs.SyncRoot)
+                    lock (WorldSocket.mobs.SyncRoot)
                     {
-                        for (int i = 0; i < WorldSocket.npcs.Count; i++)
+                        for (int i = 0; i < WorldSocket.mobs.Count; i++)
                         {
-                            Mob thismob = (Mob) WorldSocket.npcs[i];
+                            Mob thismob = (Mob) WorldSocket.mobs[i];
                             if (theView != null && thismob.getEntityId() == theView.entityId)
                             {
                                 thismob.HitEnemyWithDamage(value, animationId);
@@ -83,7 +83,7 @@ namespace hds
                                     new PlayerHandler().IncrementPlayerExp(expGained);
                                     thismob.setIsLootable(true);
                                 }
-                                WorldSocket.npcs[i] = thismob;
+                                WorldSocket.mobs[i] = thismob;
                                 
                             }
                         }

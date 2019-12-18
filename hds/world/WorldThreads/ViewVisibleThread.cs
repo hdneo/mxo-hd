@@ -36,7 +36,7 @@ namespace hds
 
                 CheckPlayerViews();
                 CheckPlayerMobViews();
-                //CheckForServerEntites();
+                CheckForStaticSpawnedViews();
                 Thread.Sleep(500);
             }
         }
@@ -67,13 +67,61 @@ namespace hds
             }
         }
 
+        private static void CheckForStaticSpawnedViews()
+        {
+            lock (WorldSocket.Clients.SyncRoot)
+            {
+                foreach (string clientKey in WorldSocket.Clients.Keys)
+                {
+                    // Loop through all clients
+                    WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+
+                    if (thisclient.Alive == true)
+                    {
+                        // Check if
+                        double playerX = 0;
+                        double playerY = 0;
+                        double playerZ = 0;
+                        NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX, ref playerY, ref playerZ);
+
+                        if (thisclient.playerData.getOnWorld() == true && thisclient.playerData.waitForRPCShutDown == false)
+                        {
+                            // ToDo: Find Objects in circle and range by the Dataloader - but dataloader must search in the range
+                            List<StaticWorldObject> worldObjects = DataLoader.getInstance().findObjectsBySectorWorldRangeAndType((float)playerX, (float)playerZ, thisclient.playerData.getDistrictId(), 6568);
+                            if (worldObjects.Count > 0)
+                            {
+                                foreach(StaticWorldObject worldObject in worldObjects)
+                                {
+                                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoId;
+                                    UInt64 entityStaticId = UInt64.Parse(entityHackString);
+
+                                    Object6568 subway = new Object6568();
+                                    subway.DisableAllAttributes();
+                                    subway.Orientation.enable();
+                                    subway.Position.enable();
+                                    subway.CurrentState.enable();
+                                    // Set Values
+                                    subway.Position.setValue(NumericalUtils.doublesToLtVector3d(worldObject.pos_x, worldObject.pos_y, worldObject.pos_z));
+                                    subway.Orientation.setValue(StringUtils.hexStringToBytes(worldObject.quat));
+
+                                    ServerPackets pak = new ServerPackets();
+                                    pak.sendSpawnStaticObject(thisclient, subway, entityStaticId);
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
         private static void CheckPlayerMobViews()
         {
             // Spawn/Update for mobs
-            int npcCount = WorldSocket.npcs.Count;
+            int npcCount = WorldSocket.mobs.Count;
             for (int i = 0; i < npcCount; i++)
             {
-                Mob thismob = (Mob) WorldSocket.npcs[i];
+                Mob thismob = (Mob) WorldSocket.mobs[i];
 
                 lock (WorldSocket.Clients.SyncRoot)
                 {

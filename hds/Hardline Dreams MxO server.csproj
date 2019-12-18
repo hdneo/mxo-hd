@@ -135,6 +135,7 @@
     <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes363.cs" />
     <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes364.cs" />
     <Compile Include="resources\gameobjects\definitions\Object599.cs" />
+    <Compile Include="resources\gameobjects\definitions\Object6568.cs" />
     <Compile Include="servertype\CR1\GameObjectDefinitions\Object12.cs" />
     <Compile Include="servertype\CR1\NetworkProtocolHeaders.cs" />
     <Compile Include="servertype\CR2\GameObjectDefinitions\Object12.cs" />
@@ -196,6 +197,7 @@
     <Compile Include="world\ServerPackets\VendorPackets.cs" />
     <Compile Include="world\ServerPackets\WorldServerPackets.cs" />
     <Compile Include="world\Skill\BuffSkill.cs" />
+    <Compile Include="world\Skill\HyperjumpStep.cs" />
     <Compile Include="world\Structures\ClientDB.cs" />
     <Compile Include="world\Structures\ClientView.cs" />
     <Compile Include="world\Structures\Crew.cs" />

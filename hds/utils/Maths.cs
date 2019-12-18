@@ -128,14 +128,6 @@ namespace hds
             return newPos;
         }
 
-        public LtVector3f[] CalculateJumpPoints(float xCurrent, float yCurrent, float zCurrent, float xDestination, float yDestination, float zDestination, long maxHeight, int countParts, long timeEstimation)
-        {
-            LtVector3f[] Points = new LtVector3f[countParts+1];
-            // ToDo: Calculate the positions between
-
-            return Points;
-        }
-
         // https://gamedev.stackexchange.com/questions/133794/parabolic-movement-of-a-gameobject-in-unity
         public static LtVector3f[] ParabolicMovement(LtVector3f startingPos, LtVector3f arrivingPos, float maxHeight, int framesCount)
         {

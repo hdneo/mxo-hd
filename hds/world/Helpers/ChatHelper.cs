@@ -213,9 +213,9 @@ namespace hds{
                     theMob.setRotation(rotation);
                     theMob.setIsDead(false);
                     theMob.setIsLootable(false);
-	                lock (WorldSocket.npcs)
+	                lock (WorldSocket.mobs)
 	                {
-		                WorldSocket.npcs.Add(theMob);
+		                WorldSocket.mobs.Add(theMob);
 	                }
 
 	                lock (WorldSocket.gameServerEntities)
