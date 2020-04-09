@@ -5,6 +5,7 @@ using System.Security;
 using System.Text;
 
 using hds.shared;
+using hds.world.Structures;
 
 namespace hds{
 
@@ -23,6 +24,7 @@ namespace hds{
 
         private enum objectTypesDynamic : int
         {
+            SUBWAY = 0x02,
             LOOT = 0x05
             
         }
@@ -92,7 +94,7 @@ namespace hds{
                     String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
                     UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
-                    packets.sendSpawnStaticObject(Store.currentClient,door364,entityId);
+                    packets.SendSpawnStaticObject(Store.currentClient,door364,entityId);
 
                     break;
 
@@ -117,7 +119,7 @@ namespace hds{
                      String entity363MxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
                      UInt64 entity363Id = UInt64.Parse(entity363MxOHackString);
 
-                     packets.sendSpawnStaticObject(Store.currentClient,door363,entity363Id);
+                     packets.SendSpawnStaticObject(Store.currentClient,door363,entity363Id);
                      break;
                   case 592:
                       new TeleportHandler().processHardlineExitRequest();
@@ -213,7 +215,7 @@ namespace hds{
                     {
                             case 6952:
                                 // ToDo: implement Elevator Panel
-                                pak.sendElevatorPanel(Store.currentClient, objectValues);
+                                pak.SendElevatorPanel(Store.currentClient, objectValues);
                                 break;
                             default:
                                 pak.sendSystemChatMessage(Store.currentClient, "Enviroment Type ID " + objectValues.type + " name " + enviromentItem.getName(), "MODAL");
@@ -264,7 +266,15 @@ namespace hds{
             
             switch (objectTypeID)
             {
-
+                case (int)objectTypesDynamic.SUBWAY:
+                    double x=0;double y=0;double z=0;
+                    byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+                    NumericalUtils.LtVector3dToDoubles(Ltvector3d,ref x,ref y,ref z);
+                    pak.SendInteractionSubway(Store.currentClient, x, y, z);
+                    
+                    pak.SendSubwaymapWindow(Store.currentClient);
+                    
+                    break;
                 case (int)objectTypesDynamic.LOOT:
                     UInt32[] theTestArrayLoots = new UInt32[2];
                     theTestArrayLoots[0] = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes("8e220000"), 1);

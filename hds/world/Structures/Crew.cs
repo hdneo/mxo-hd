@@ -21,7 +21,6 @@ namespace hds.world.Structures
             bool alreadyExists = false;
             foreach (FCMember member in members)
             {
-
                 if (member.handle.Equals(memberName))
                 {
                     alreadyExists = true;
@@ -55,7 +54,6 @@ namespace hds.world.Structures
                     members.Remove(removeObject);
                 }
             }
-
         }
     }
 }

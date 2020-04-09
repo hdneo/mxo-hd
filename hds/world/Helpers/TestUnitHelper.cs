@@ -48,12 +48,7 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(tactic);
            
         }
-
-        public void processTestRPC()
-        {
-            // This is just a test function for brute forcing RPC 
-            
-        }
+        
 
 
         public void testHyperJumpPaket()

@@ -29,8 +29,6 @@ namespace hds
             
             pak.addUint16(viewId, 1);
             pak.addByteArray(updateData);
-
-            string hexStringTest = StringUtils.bytesToString(pak.returnFinalPacket());
             
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             client.FlushQueue();
@@ -116,9 +114,5 @@ namespace hds
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             client.FlushQueue();
         }
-
-        
-
-        
     }
 }

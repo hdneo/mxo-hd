@@ -27,15 +27,14 @@ namespace hds{
 					
 				}
 				
-				if (command.Equals("?teleport") && commands.Length==4){
+				if (command.Equals("?gotopos") && commands.Length==4){
 					// parse the coord parameters parameters as int
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().teleport(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3])), false);
 
 				    ServerPackets pak = new ServerPackets();
 				    pak.sendSystemChatMessage(Store.currentClient, "Teleported!", "BROADCAST");
-					
 				}
-				
+
 				if (command.Equals("?rsi") && commands.Length==3){
 					//parse the rsi part and value
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().changeRsi(commands[1], int.Parse(commands[2])), false);

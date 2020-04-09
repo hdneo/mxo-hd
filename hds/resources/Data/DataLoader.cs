@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
-using System.Security.Permissions;
+using hds.world.Structures;
 
 namespace hds
 {
     class DataLoader
     {
         private static DataLoader Instance;
+        private readonly Maths mathUtils = new Maths();
         
         // Data Storage - maybe we need to change this to something better (like a AbilityQuery Object)
         public List<AbilityItem> AbilityDB = new List<AbilityItem>(); // holds our Ability DB
@@ -21,6 +21,7 @@ namespace hds
         public List<EmoteItem> Emotes = new List<EmoteItem>();
         public List<NewRSIItem> newRSIItemsDb = new List<NewRSIItem>();
         public List<Vendor> Vendors = new List<Vendor>();
+        public List<Subway> Subways = new List<Subway>();
 
         public bool useSQLiteDatabase = false;
 
@@ -30,9 +31,11 @@ namespace hds
             loadEmotes();
             loadNewRSIIDs("data\\newrsiIDs.csv");
             loadGODB("data\\gameobjects.csv");
-
+            #if !DEBUG
             loadMobs("data\\mob.csv");
-            loadMobs("data\\mob_parsed.csv");
+            loadMobs("data\\mob_parsed.csv");            
+            #endif
+            
            
             loadAbilityDB("data\\abilityIDs.csv");
             loadClothingDB("data\\mxoClothing.csv");
@@ -373,13 +376,8 @@ namespace hds
                     worldObject.rot = double.Parse(data[9], CultureInfo.InvariantCulture);
                     worldObject.quat = data[10];
 
-                    if (data[3] == "01003039")
-                    {
-                        Output.writeToLogForConsole("[DEMO DOOR] 01003039, X: " + worldObject.pos_x + ", Y: " + worldObject.pos_y + ", Z: " + worldObject.pos_z + ", ROT: " + worldObject.rot + ", TypeId: " + StringUtils.bytesToString_NS(worldObject.type));
-                    }
-
-
                     WorldObjectsDB.Add(worldObject);
+                    AddWorldObjectToWorldServer(worldObject);
                     worldObject = null;
 
                 }
@@ -388,6 +386,18 @@ namespace hds
             }
         }
 
+        public void AddWorldObjectToWorldServer(StaticWorldObject worldObject)
+        {
+            UInt16 typeId = NumericalUtils.ByteArrayToUint16(worldObject.type, 1);
+            if (typeId == 6568)
+            {
+                Subway subway = new Subway(worldObject);
+                Subways.Add(subway);
+                WorldSocket.subways.Add(subway);
+                WorldSocket.gameServerEntities.Add(subway);
+                subway.StartCountdown();
+            }
+        }
 
         public void loadVendorItems(string dataVendorItemsCsv)
         {
@@ -634,7 +644,6 @@ namespace hds
 
         public List<StaticWorldObject> findObjectsBySectorWorldRangeAndType(float x, float z,uint metrId, UInt16 typeId)
         {
-            Maths mathUtils = new Maths();
             IEnumerable<StaticWorldObject> staticWorldObjectsIenumerator = WorldObjectsDB.Where(w => w.metrId == metrId && NumericalUtils.ByteArrayToUint16(w.type, 1) == typeId && mathUtils.IsInCircle(x,z, (float)w.pos_x, (float)w.pos_z, 5000));
             List<StaticWorldObject> TempStaticWorldObjects = staticWorldObjectsIenumerator.ToList();
             return TempStaticWorldObjects;

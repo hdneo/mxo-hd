@@ -96,7 +96,9 @@ namespace hds
         SERVER_FLASH_TRAFFIC = 0x81a9,
 
         // Enviroment
+        SERVER_SUBWAY_INTERACTION = 0x813a,
         SERVER_ELEVATOR_PANEL = 0x813f,
+        SERVER_SUBWAY_MAP = 0x813e,
 
         // Player
         SERVER_PLAYER_ATTRIBUTE = 0x80b2, 

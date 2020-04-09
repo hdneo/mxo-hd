@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using hds.shared;
+using hds.world.Structures;
 
 namespace hds
 {
@@ -10,11 +11,10 @@ namespace hds
     {
         public void ViewVisibleThread()
         {
-            
             Output.WriteLine("[WORLD SERVER]View Visible Thread started");
             while (true)
             {
-                ArrayList deadPlayers = new ArrayList();                
+                ArrayList deadPlayers = new ArrayList();
 
                 // Clean 
                 lock (WorldSocket.Clients.SyncRoot)
@@ -28,15 +28,15 @@ namespace hds
                         {
                             // Add dead Player to the List - we need later to clear them
                             deadPlayers.Add(clientKey);
-
                         }
                     }
+
                     CleanDeadPlayers(deadPlayers);
                 }
 
                 CheckPlayerViews();
                 CheckPlayerMobViews();
-                CheckForStaticSpawnedViews();
+                CheckForStaticSubways();
                 Thread.Sleep(500);
             }
         }
@@ -58,16 +58,80 @@ namespace hds
                                 // ToDo: Server Entity doesnt match a real rule currently so we need a class or something
                                 //ClientView clientEntityView = thisclient.viewMan.getViewForEntityAndGo(serverEntity, NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
                             }
-                            
                         }
                     }
-
-                    
                 }
             }
         }
 
-        private static void CheckForStaticSpawnedViews()
+        public static void CheckForStaticSubways()
+        {
+            int subwayCount = WorldSocket.subways.Count;
+            for (int i = 0; i < subwayCount; i++)
+            {
+                Subway thisSubway = (Subway) WorldSocket.subways[i];
+
+                lock (WorldSocket.Clients.SyncRoot)
+                {
+                    foreach (string clientKey in WorldSocket.Clients.Keys)
+                    {
+                        // Loop through all clients
+                        WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+
+                        if (thisclient.Alive == true)
+                        {
+                            // Check if
+
+                            if (thisclient.playerData.getOnWorld() == true &&
+                                thisclient.playerData.waitForRPCShutDown == false)
+                            {
+                                Maths math = new Maths();
+                                double playerX = 0;
+                                double playerY = 0;
+                                double playerZ = 0;
+                                NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(),
+                                    ref playerX, ref playerY, ref playerZ);
+                                Maths mathUtils = new Maths();
+                                bool objectInCircle = mathUtils.IsInCircle((float) playerX, (float) playerZ,
+                                    (float) thisSubway.worldObject.pos_x, (float) thisSubway.worldObject.pos_z, 5000);
+
+                                // Spawn Mob if its in Visibility Range
+                                String entityHackString =
+                                    "" + thisSubway.worldObject.metrId + "" + thisSubway.worldObject.mxoId;
+                                UInt64 entityStaticId = UInt64.Parse(entityHackString);
+
+                                ClientView view = Store.currentClient.viewMan.getViewForEntityAndGo(entityStaticId,
+                                    NumericalUtils.ByteArrayToUint16(thisSubway.worldObject.type, 1));
+                                
+                                if (!view.viewCreated &&
+                                    thisSubway.worldObject.metrId == thisclient.playerData.getDistrictId() &&
+                                    thisclient.playerData.getOnWorld() &&
+                                    objectInCircle)
+                                {
+                                    ServerPackets pak = new ServerPackets();
+                                    pak.SendSpawnStaticObject(thisclient, thisSubway.gameObjectData, entityStaticId);
+                                    view.spawnId = thisclient.playerData.spawnViewUpdateCounter;
+                                    view.viewCreated = true;
+                                }
+
+
+                                // Delete Mob's View from Client if we are outside
+                                if (view.viewCreated == true && !objectInCircle &&
+                                    thisSubway.worldObject.metrId == thisclient.playerData.getDistrictId())
+                                {
+                                    // ToDo: delete mob
+                                    ServerPackets packets = new ServerPackets();
+                                    packets.sendDeleteViewPacket(thisclient, view.ViewID);
+                                    thisclient.viewMan.removeViewByViewId(view.ViewID);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void CheckForNPC()
         {
             lock (WorldSocket.Clients.SyncRoot)
             {
@@ -82,33 +146,13 @@ namespace hds
                         double playerX = 0;
                         double playerY = 0;
                         double playerZ = 0;
-                        NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX, ref playerY, ref playerZ);
+                        NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX,
+                            ref playerY, ref playerZ);
 
-                        if (thisclient.playerData.getOnWorld() == true && thisclient.playerData.waitForRPCShutDown == false)
+                        if (thisclient.playerData.getOnWorld() == true &&
+                            thisclient.playerData.waitForRPCShutDown == false)
                         {
-                            // ToDo: Find Objects in circle and range by the Dataloader - but dataloader must search in the range
-                            List<StaticWorldObject> worldObjects = DataLoader.getInstance().findObjectsBySectorWorldRangeAndType((float)playerX, (float)playerZ, thisclient.playerData.getDistrictId(), 6568);
-                            if (worldObjects.Count > 0)
-                            {
-                                foreach(StaticWorldObject worldObject in worldObjects)
-                                {
-                                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoId;
-                                    UInt64 entityStaticId = UInt64.Parse(entityHackString);
-
-                                    Object6568 subway = new Object6568();
-                                    subway.DisableAllAttributes();
-                                    subway.Orientation.enable();
-                                    subway.Position.enable();
-                                    subway.CurrentState.enable();
-                                    // Set Values
-                                    subway.Position.setValue(NumericalUtils.doublesToLtVector3d(worldObject.pos_x, worldObject.pos_y, worldObject.pos_z));
-                                    subway.Orientation.setValue(StringUtils.hexStringToBytes(worldObject.quat));
-
-                                    ServerPackets pak = new ServerPackets();
-                                    pak.sendSpawnStaticObject(thisclient, subway, entityStaticId);
-                                }
-                            }
-
+                            // ToDo: Figure out Data for static info NPCs (does collector count? i dunno architekt would be great :)
                         }
                     }
                 }
@@ -134,25 +178,33 @@ namespace hds
                         {
                             // Check if
 
-                            if (thisclient.playerData.getOnWorld() == true && thisclient.playerData.waitForRPCShutDown == false)
+                            if (thisclient.playerData.getOnWorld() == true &&
+                                thisclient.playerData.waitForRPCShutDown == false)
                             {
                                 Maths math = new Maths();
                                 double playerX = 0;
                                 double playerY = 0;
                                 double playerZ = 0;
-                                NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX, ref playerY, ref playerZ);
+                                NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(),
+                                    ref playerX, ref playerY, ref playerZ);
                                 Maths mathUtils = new Maths();
-                                bool mobIsInCircle = mathUtils.IsInCircle((float) playerX, (float) playerZ, (float) thismob.getXPos(), (float) thismob.getZPos(), 5000);
+                                bool mobIsInCircle = mathUtils.IsInCircle((float) playerX, (float) playerZ,
+                                    (float) thismob.getXPos(), (float) thismob.getZPos(), 5000);
 
                                 // Spawn Mob if its in Visibility Range
-                                ClientView mobView = thisclient.viewMan.getViewForEntityAndGo(thismob.getEntityId(), NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
-                                if (mobView.viewCreated == false && thismob.getDistrict() == thisclient.playerData.getDistrictId() && thisclient.playerData.getOnWorld() && mobIsInCircle)
+                                ClientView mobView = thisclient.viewMan.getViewForEntityAndGo(thismob.getEntityId(),
+                                    NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
+                                if (mobView.viewCreated == false &&
+                                    thismob.getDistrict() == thisclient.playerData.getDistrictId() &&
+                                    thisclient.playerData.getOnWorld() && mobIsInCircle)
                                 {
-                                    #if DEBUG
+#if DEBUG
                                     ServerPackets pak = new ServerPackets();
-                                    pak.sendSystemChatMessage(thisclient, "Mob with Name " + thismob.getName() + " with new View ID " + mobView.ViewID + " spawned", "BROADCAST");
-                                    #endif
-                                    
+                                    pak.sendSystemChatMessage(thisclient,
+                                        "Mob with Name " + thismob.getName() + " with new View ID " + mobView.ViewID +
+                                        " spawned", "BROADCAST");
+#endif
+
                                     ServerPackets mobPak = new ServerPackets();
                                     mobPak.SpawnMobView(thisclient, thismob, mobView);
                                     mobView.spawnId = thisclient.playerData.spawnViewUpdateCounter;
@@ -162,14 +214,18 @@ namespace hds
                                 }
 
                                 // Delete Mob's View from Client if we are outside
-                                if (mobView.viewCreated == true && !mobIsInCircle && thismob.getDistrict() == thisclient.playerData.getDistrictId())
+                                if (mobView.viewCreated == true && !mobIsInCircle &&
+                                    thismob.getDistrict() == thisclient.playerData.getDistrictId())
                                 {
                                     // ToDo: delete mob
                                     ServerPackets packets = new ServerPackets();
                                     packets.sendDeleteViewPacket(thisclient, mobView.ViewID);
-                                    #if DEBUG
-                                    packets.sendSystemChatMessage(thisclient, "MobView (" + thismob.getName() + " LVL: " + thismob.getLevel() + " ) with View ID " + mobView.ViewID + " is out of range and is deleted!", "MODAL");
-                                    #endif
+#if DEBUG
+                                    packets.sendSystemChatMessage(thisclient,
+                                        "MobView (" + thismob.getName() + " LVL: " + thismob.getLevel() +
+                                        " ) with View ID " + mobView.ViewID + " is out of range and is deleted!",
+                                        "MODAL");
+#endif
                                     thisclient.viewMan.removeViewByViewId(mobView.ViewID);
                                     thismob.isUpdateable = false;
                                 }
@@ -209,10 +265,13 @@ namespace hds
                             double otherPlayerY = 0;
                             double otherPlayerZ = 0;
 
-                            NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(), ref currentPlayerX, ref currentPlayerY, ref currentPlayerZ);
-                            NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(), ref otherPlayerX, ref otherPlayerY, ref otherPlayerZ);
+                            NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(),
+                                ref currentPlayerX, ref currentPlayerY, ref currentPlayerZ);
+                            NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(),
+                                ref otherPlayerX, ref otherPlayerY, ref otherPlayerZ);
                             Maths mathUtils = new Maths();
-                            bool playerIsInCircle = mathUtils.IsInCircle((float) currentPlayerX, (float) currentPlayerZ, (float) otherPlayerX, (float) otherPlayerZ, 5000);
+                            bool playerIsInCircle = mathUtils.IsInCircle((float) currentPlayerX, (float) currentPlayerZ,
+                                (float) otherPlayerX, (float) otherPlayerZ, 5000);
                             if (clientView.viewCreated == false &&
                                 currentClient.playerData.getDistrictId() == otherClient.playerData.getDistrictId() &&
                                 otherClient.playerData.getOnWorld() && currentClient.playerData.getOnWorld() &&
@@ -221,7 +280,8 @@ namespace hds
                                 // Spawn player
                                 ServerPackets pak = new ServerPackets();
                                 pak.sendSystemChatMessage(currentClient,
-                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance.CharacterName.getValue()) + " with new View ID " +
+                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance
+                                        .CharacterName.getValue()) + " with new View ID " +
                                     clientView.ViewID + " jacked in", "BROADCAST");
                                 pak.sendPlayerSpawn(currentClient, otherClient, clientView.ViewID);
                                 clientView.spawnId = currentClient.playerData.spawnViewUpdateCounter;
@@ -231,10 +291,10 @@ namespace hds
 
                             if (clientView.viewCreated && !playerIsInCircle)
                             {
-                                // ToDo: delete mob
                                 ServerPackets packets = new ServerPackets();
                                 packets.sendSystemChatMessage(currentClient,
-                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance.CharacterName.getValue()) + " with View ID " + clientView.ViewID +
+                                    "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance
+                                        .CharacterName.getValue()) + " with View ID " + clientView.ViewID +
                                     " jacked out!", "MODAL");
                                 packets.sendDeleteViewPacket(currentClient, clientView.ViewID);
                                 currentClient.viewMan.removeViewByViewId(clientView.ViewID);
@@ -253,7 +313,8 @@ namespace hds
                 foreach (string client in WorldSocket.Clients.Keys)
                 {
                     WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
-                    ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(), NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
+                    ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(),
+                        NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
 
                     ServerPackets pak = new ServerPackets();
                     pak.sendDeleteViewPacket(otherclient, view.ViewID);
@@ -270,10 +331,7 @@ namespace hds
                 {
                     WorldSocket.Clients.Remove(key);
                 }
-                
             }
         }
-
-
     }
 }

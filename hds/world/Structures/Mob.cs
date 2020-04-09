@@ -371,7 +371,7 @@ namespace hds
 
         public void DoMobUpdate(object e)
         {
-            if (this.isUpdateable)
+            if (isUpdateable)
             {
                 var nextMoveTime = 5;
                 var rand = new Random();
@@ -429,7 +429,7 @@ namespace hds
             hitPacket.addUint32(hitFxId, 1); // FX ID 
             hitPacket.addByte(0x01);
             hitPacket.addUintShort(hitCounter); // Animation Count or something - must be an another as before
-            Store.world.SendViewUpdateToClientsWhoHasSpawnedView(hitPacket, this);
+            Store.world.SendViewUpdateToClientsWhoHasMobSpawned(hitPacket, this);
         }
 
         public void updateAnimation(byte animationByte)
@@ -443,7 +443,7 @@ namespace hds
             pak.addByte((byte) rotation);
             pak.addFloatLtVector3f((float) getXPos(), (float) getYPos(), (float) getZPos());
 
-            Store.world.SendViewUpdateToClientsWhoHasSpawnedView(pak, this);
+            Store.world.SendViewUpdateToClientsWhoHasMobSpawned(pak, this);
         }
 
         public void updateCombat()

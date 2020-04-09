@@ -24,6 +24,7 @@ namespace hds
 
         // Collection to store the spawned npcs 
         public static ArrayList mobs = ArrayList.Synchronized(new ArrayList());
+        public static ArrayList subways = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
         public static ArrayList TempCrews = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;
@@ -266,7 +267,28 @@ namespace hds
             }
         }
 
-        public void SendViewUpdateToClientsWhoHasSpawnedView(PacketContent packet, Mob mob)
+        public void SendViewUpdateToClientWhoHasStaticObjectSpawned(PacketContent packet, StaticWorldObject worldObject, string debugMessage)
+        {
+            lock (Clients.SyncRoot)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoId;
+                    UInt64 entityStaticId = UInt64.Parse(entityHackString);
+                    
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    ClientView objectView = client.viewMan.getViewForEntityAndGo(entityStaticId, NumericalUtils.ByteArrayToUint16(worldObject.type, 1));
+                    if (objectView.viewCreated && worldObject.metrId == client.playerData.getDistrictId() && client.playerData.getOnWorld())
+                    {
+                        ServerPackets pak = new ServerPackets();
+                        pak.SendUpdateViewStatePacket(client, objectView.ViewID, packet.returnFinalPacket());
+                        pak.sendSystemChatMessage(client, debugMessage, "BROADCAST");
+                    }
+                }
+            }
+        }
+
+        public void SendViewUpdateToClientsWhoHasMobSpawned(PacketContent packet, Mob mob)
         {
             lock (Clients.SyncRoot)
             {

@@ -6,10 +6,10 @@ using hds.world.scripting;
 
 namespace hds{
 	
-	public class MainClass{
+	public static class MainClass{
 
 		public static void Main(string[] args){
-			System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+			var customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
 			System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
             HealthCheck hc = new HealthCheck();
@@ -30,11 +30,11 @@ namespace hds{
                 Store.config.LoadServerParams();
 				
                 /* Load Game Data */
-                DataLoader dataLoader = DataLoader.getInstance();
+                DataLoader.getInstance();
 
                 /* Initialize DB Stuff */
 
-                Store.dbManager = new hds.databases.DatabaseManager();
+                Store.dbManager = new databases.DatabaseManager();
 
                 if (Store.config.dbParams.DbType == "mysql"){
                     Store.dbManager.AuthDbHandler = new databases.MyAuthDBAccess();

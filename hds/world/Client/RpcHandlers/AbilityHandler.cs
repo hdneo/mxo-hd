@@ -92,8 +92,8 @@ namespace hds
                 pak.sendPlayerAnimation(Store.currentClient, StringUtils.bytesToString_NS(castAnimStart));
 
                 // And Time a "Damage" or "Buff" Animation
-                int castingTime = (int) this.currentAbility.getCastingTime() * 1000;
-                this.damageTimer = new Timer(abilityAnimateTheTarget, this, castingTime, 0);
+                int castingTime = (int) currentAbility.getCastingTime() * 1000;
+                damageTimer = new Timer(abilityAnimateTheTarget, this, castingTime, 0);
             }
         }
 
@@ -137,6 +137,26 @@ namespace hds
             float yPos = (float) y;
             float zPos = (float) z;
 
+            // ToDo: maybe remove or improve (i am not sure how this is written)
+            //HyperJumpCalculatedStepMovement(xPos, yPos, zPos, xDest, yDest, zDest, clientJumpIdUnknown, maybeMaxHeight);
+
+            // ToDo: this is just the old way testing
+            float distance = Maths.getDistance(xPos, yPos, zPos, (float) xDest, (float) yDest, (float) zDest);
+            
+            UInt16 duration = (UInt16) (distance * 0.7f);
+
+            UInt32 startTime = TimeUtils.getUnixTimeUint32();
+            UInt32 endTime = startTime + duration;
+            
+            ServerPackets packets = new ServerPackets();
+            packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
+        }
+        
+        
+
+        private void HyperJumpCalculatedStepMovement(float xPos, float yPos, float zPos, double xDest, double yDest,
+            double zDest, uint clientJumpIdUnknown, float maybeMaxHeight)
+        {
             LtVector3f[] JumpMovements = Maths.ParabolicMovement(new LtVector3f(xPos, yPos, zPos),
                 new LtVector3f((float) xDest, (float) yDest, (float) zDest), 50, 128);
 
@@ -153,7 +173,6 @@ namespace hds
             UInt32 maybeTimeBasedValue = 40384248;
             foreach (LtVector3f currentJumpPos in JumpMovements)
             {
-                
                 Steps.Add(new JumpStep(currentJumpPos, new LtVector3f((float) xDest, (float) yDest, (float) zDest),
                     maybeMaxHeight, endTime, Store.currentClient.playerData.getJumpID(), maybeTimeBasedValue));
                 //packets.SendHyperJumpStepUpdate(currentJumpPos, xDest, yDest, zDest, maybeMaxHeight, endTime);
@@ -161,8 +180,6 @@ namespace hds
             }
 
             hyperjumpTimer = new Timer(ProcessJumpStep, this, 0, 0);
-
-            //packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
         }
 
         private void ProcessJumpStep(Object e)

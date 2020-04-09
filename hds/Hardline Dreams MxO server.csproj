@@ -215,6 +215,7 @@
     <Compile Include="world\Client\RpcHandlers\TeleportHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\VendorHandler.cs" />
     <Compile Include="world\Structures\FX.cs" />
+    <Compile Include="world\Structures\Subway.cs" />
     <Compile Include="world\Structures\TSECWeather.cs" />
     <Compile Include="world\WorldSocket.cs" />
     <Compile Include="utils\encryption\WorldEncryptionEnigma.cs" />
