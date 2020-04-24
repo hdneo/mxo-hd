@@ -42,8 +42,8 @@ namespace hds
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ELEVATOR_PANEL,0);
-            pak.addUint16(objectValues.sectorID,1);
-            pak.addHexBytes("2200");
+            pak.addUint16((UInt16)NumericalUtils.RotateRight(objectValues.sectorID,4),1);
+            pak.addHexBytes("4400");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 

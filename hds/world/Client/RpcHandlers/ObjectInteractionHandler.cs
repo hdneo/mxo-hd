@@ -67,17 +67,32 @@ namespace hds{
 
                 case 343:
                 case 346:
+                case 348:
                 case 359:
+                case 364:
                 case 365:
                 case 414:
                 case 415:
                 case 416:
                 case 576:
+                case 580:
+                case 645:
+                case 6954:
+                case 6956:
                 case 6958:
+                case 6959:
                 case 6965:
                 case 6963:
                 case 6964:
+                case 6968:
                 case 6972:
+                case 6983:
+                case 6984:
+                case 7287:
+                case 7294:
+                case 7295:
+                case 7296:
+                case 7298:
                     // ObjectAttribute364
                     ObjectAttributes364 door364 = new ObjectAttributes364("DOOR364",typeId,staticWorldObject.mxoId);
                     door364.DisableAllAttributes();

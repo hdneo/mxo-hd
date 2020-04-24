@@ -13,13 +13,10 @@ namespace hds{
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
 			System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
             HealthCheck hc = new HealthCheck();
-	
+            
 			if (hc.doTests()){
-				
 				Output.WriteLine("\nHealth checks OK. Proceeding.\n");
-                
-
-                // Create
+				// Create
                 Store.auth = new AuthSocket();
                 Store.margin = new MarginSocket();
                 Store.world = new WorldSocket();
