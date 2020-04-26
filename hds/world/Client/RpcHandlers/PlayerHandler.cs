@@ -73,7 +73,7 @@ namespace hds
             packets.SendServerSettingString(Store.currentClient,"WR_RezEvents","bluesky2");
 
             // This is more a test
-            packets.sendWorldSetup(Store.currentClient);
+            packets.SendWorldSetup(Store.currentClient);
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
             packets.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());

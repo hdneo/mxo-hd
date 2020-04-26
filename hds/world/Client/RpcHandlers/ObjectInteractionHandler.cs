@@ -67,6 +67,7 @@ namespace hds{
 
                 case 343:
                 case 346:
+                case 347:
                 case 348:
                 case 359:
                 case 364:
@@ -74,8 +75,10 @@ namespace hds{
                 case 414:
                 case 415:
                 case 416:
+                case 486:
                 case 576:
                 case 580:
+                case 581:
                 case 645:
                 case 6954:
                 case 6956:

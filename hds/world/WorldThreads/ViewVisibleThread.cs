@@ -116,7 +116,7 @@ namespace hds
 
 
                                 // Delete Mob's View from Client if we are outside
-                                if (view.viewCreated == true && !objectInCircle &&
+                                if (view.viewCreated && !objectInCircle &&
                                     thisSubway.worldObject.metrId == thisclient.playerData.getDistrictId())
                                 {
                                     // ToDo: delete mob
@@ -283,7 +283,7 @@ namespace hds
                                     "Player " + StringUtils.charBytesToString_NZ(otherClient.playerInstance
                                         .CharacterName.getValue()) + " with new View ID " +
                                     clientView.ViewID + " jacked in", "BROADCAST");
-                                pak.sendPlayerSpawn(currentClient, otherClient, clientView.ViewID);
+                                pak.SendPlayerSpawn(currentClient, otherClient, clientView.ViewID);
                                 clientView.spawnId = currentClient.playerData.spawnViewUpdateCounter;
                                 clientView.viewCreated = true;
                             }

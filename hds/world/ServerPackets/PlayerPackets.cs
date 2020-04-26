@@ -245,7 +245,7 @@ namespace hds
             createFlashTraffic(client, "http://mxo.hardlinedreams.com");
         }
 
-        public void sendPlayerSpawn(WorldClient receiverClient, WorldClient otherClient, UInt16 viewId)
+        public void SendPlayerSpawn(WorldClient receiverClient, WorldClient otherClient, UInt16 viewId)
         {
             PacketContent pak = new PacketContent();
             byte[] spawnPaket = new BootingHelperRsi().generatePlayerSpawnPacket(otherClient, receiverClient.playerData.assignSpawnIdCounter());

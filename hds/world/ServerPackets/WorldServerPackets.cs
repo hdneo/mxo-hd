@@ -66,6 +66,19 @@ namespace hds
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
         
+        public void SendServerSettingCheckMotdMessage(WorldClient client, string key)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            int fullLen = key.Length + 2 + 4;
+            pak.addInt16((short)fullLen,1);
+            pak.addSizedString(key);
+            pak.addUint16(1,0);
+            pak.addUint16(1,0);
+
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+        
         public void SendServerSettingString(WorldClient client, string key, string value)
         {
             PacketContent pak = new PacketContent();
@@ -79,12 +92,13 @@ namespace hds
         }
 
 
-        public void sendWorldSetup(WorldClient client)
+        public void SendWorldSetup(WorldClient client)
         {
             // The Packet with PVP Flag etc. 
             // ToDo: load world setting and define it
             this.SendServerSettingUInt(client, "PvPServer", 6);
             this.SendServerSettingUInt(client, "PvPMaxSafeLevel", 1);
+            this.SendServerSettingCheckMotdMessage(client, "CheckMotdTimestamp");
 
         }
 
