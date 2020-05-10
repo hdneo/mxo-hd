@@ -25,7 +25,9 @@ namespace hds{
                 Store.config = new ServerConfig("Config.xml");
                 Store.config.LoadDbParams();
                 Store.config.LoadServerParams();
-				
+                
+                Store.worldConfig = new WorldConfig("WorldConfig.xml");
+
                 /* Load Game Data */
                 DataLoader.getInstance();
 

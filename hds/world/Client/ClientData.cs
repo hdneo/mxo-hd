@@ -27,7 +27,8 @@ namespace hds
         private uint districtId;
 		private bool onWorld;
 		private string missionTeam;
-        public List<BuffSkill> currentBuffs;
+		
+		public List<BuffSkill> currentBuffs;
 		private float clientSimTime;
         public long lastSimTimeUpdate = 0; // Timer
         private bool UDPSessionEstablished;

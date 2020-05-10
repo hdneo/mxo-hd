@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -96,9 +97,27 @@ namespace hds
         {
             // The Packet with PVP Flag etc. 
             // ToDo: load world setting and define it
-            this.SendServerSettingUInt(client, "PvPServer", 6);
-            this.SendServerSettingUInt(client, "PvPMaxSafeLevel", 1);
-            this.SendServerSettingCheckMotdMessage(client, "CheckMotdTimestamp");
+            if (Store.worldConfig.IsPvpServer)
+            {
+                SendServerSettingUInt(client, "PvPServer", 6);
+                SendServerSettingUInt(client, "PvPMaxSafeLevel", 16);
+            }
+
+            if (Store.worldConfig.FixedBinkIDOverride > 0)
+            {
+                SendServerSettingUInt(client, "FixedBinkIDOverride", Store.worldConfig.FixedBinkIDOverride );
+            }
+            
+            // Load Events
+            if (Store.worldConfig.events.Count > 0)
+            {
+                foreach (DictionaryEntry eventItem in Store.worldConfig.events)
+                {
+                    SendServerSettingString(client, eventItem.Key.ToString(), eventItem.Value.ToString());
+                }
+            }
+
+            SendServerSettingCheckMotdMessage(client, "CheckMotdTimestamp");
 
         }
 

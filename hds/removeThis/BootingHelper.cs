@@ -81,6 +81,16 @@ namespace hds
             client.playerInstance.Position.enable();
             client.playerInstance.Level.enable();
             client.playerInstance.CombatantMode.setValue((byte) 0x22); //TODO: see what's combatantmode
+            
+            if (NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(), 1) > 0)
+            {
+                client.playerInstance.FactionID.enable();
+            }
+            
+            if (NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(),1) > 0)
+            {
+                client.playerInstance.CrewID.enable();
+            }
 
 
             client.playerInstance.CurExclusiveAbility.setValue(CurCombatExclusiveAbility); //TODO: see what's this

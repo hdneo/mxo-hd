@@ -66,12 +66,10 @@ namespace hds
 
             ServerPackets packets = new ServerPackets();
 
-            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "bluesky2"); // Genereal Summer Sky
+            packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), Store.worldConfig.weather); // Genereal Summer Sky
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Massive");
             //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"WinterSky3"); // Winter is coming to MxO
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(),"Winter3HalloweenFlyEyeTSEC"); // Winter is coming to MxO
-            //packets.sendWorldCMD(Store.currentClient, Store.currentClient.playerData.getDistrictId(), "WinterSky3"); // Winter is coming to MxO
-            packets.SendServerSettingString(Store.currentClient,"WR_RezEvents","bluesky2");
+            // packets.SendServerSettingString(Store.currentClient,"WR_RezEvents","bluesky2");
 
             // This is more a test
             packets.SendWorldSetup(Store.currentClient);

@@ -11,6 +11,7 @@ namespace hds.shared{
         /* Configuration */
 
         public static ServerConfig config { get; set; }
+        public static WorldConfig worldConfig { get; set; }
 
         /* Servers */
         public static AuthSocket auth {get;set;}
