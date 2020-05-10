@@ -7,6 +7,7 @@ namespace hds.databases.interfaces{
     
     public interface IWorldDBHandler{
         Hashtable getCharInfo (UInt32 charId);
+        Hashtable getCharInfoByHandle(string handle);
         UInt32 getUserIdForCharId(byte[] charIdHex);
         string getPathForDistrictKey(string key);
         bool fetchWordList(ref WorldList wl);

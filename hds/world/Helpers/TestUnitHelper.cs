@@ -97,9 +97,5 @@ namespace hds
             serverPackets.sendDeleteViewPacket(Store.currentClient, 253);
         }
 
-        
-
-      
-
     }
 }

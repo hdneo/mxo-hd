@@ -1,4 +1,4 @@
-﻿using System;
+﻿        using System;
 using System.Collections;
 using System.Data.Common.CommandTrees;
 using hds.shared;
@@ -71,7 +71,6 @@ namespace hds
 
         public void processHardlineExitConfirm(ref byte[] packet)
         {
-
             ServerPackets packets = new ServerPackets();
             switch (packet[0])
             {
@@ -83,7 +82,6 @@ namespace hds
                 
                         // Tell client we want to reset
                         byte[] response = { 0x81, 0x07 };
-
                         Store.currentClient.messageQueue.addRpcMessage(response);
                         break;
                         

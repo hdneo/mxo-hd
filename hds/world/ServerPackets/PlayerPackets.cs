@@ -83,12 +83,10 @@ namespace hds
             pak.addByteArray(moodPak);
             client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             client.FlushQueue();
-
         }
 
         public void sendAppeareanceUpdate(WorldClient client, byte[] rsibytes)
         {
-
             PacketContent pak = new PacketContent();
             pak.addUint16(2,1);
             pak.addByteArray(new byte[] {  0x02, 0x80, 0x89 });
@@ -107,8 +105,6 @@ namespace hds
             pak.addHexBytes("000802");
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
-
-
 
         public void sendEXPCurrent(WorldClient client, UInt32 exp)
         {
@@ -242,6 +238,7 @@ namespace hds
             //client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("81A500000700052300687474703A2F2F6D786F656D752E696E666F2F666F72756D2F696E6465782E70687000")); // Has forum url - but is not flash traffic - or ? 
             client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc55005100000b0000003702330000000000000000")); // this adds super jump points dude
             //client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("2E070000000000000000002400000000000000000000000000000000000000000000000011005768617427732075702062726F736B6900"));
+            
             createFlashTraffic(client, "http://mxo.hardlinedreams.com");
         }
 
@@ -280,6 +277,79 @@ namespace hds
             pak.addSizedTerminatedString(backgroundTextt);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
 
+        }
+
+        public void SendPlayerGetDetails(WorldClient client, Hashtable charData)
+        {
+            // ToDo: Research real packet and replace the content with it 
+            UInt16 handleOffset = 29;
+            UInt16 firstNameOffset = (ushort) (handleOffset + (charData["handle"].ToString().Length + 3));
+            UInt16 lastNameOffset = (ushort) (firstNameOffset + (charData["firstname"].ToString().Length + 3));
+            
+            UInt16 crewNameOffset = 0;
+            if (charData["crew_name"] != null)
+            {
+                crewNameOffset = (ushort) (lastNameOffset + (charData["lastname"].ToString().Length + 3));
+            }
+            
+            UInt16 factionNameOffset = 0;
+            if (charData["faction_name"] != null)
+            {
+                if (crewNameOffset > 0)
+                {
+                    factionNameOffset = (ushort) (crewNameOffset + (charData["faction_name"].ToString().Length + 3));    
+                }
+                else
+                {
+                    factionNameOffset = (ushort) (lastNameOffset + (charData["lastname"].ToString().Length + 3));
+                }
+            }
+
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_GET_DETAILS, 0);
+            pak.addUint32((UInt32)charData["charId"],1);
+            pak.addUint16(handleOffset,1); // Offset to Handle which should ALWAYS be 29
+            pak.addUint32(0,1); // Unknown UInt32 Zero
+            pak.addUint16(firstNameOffset,1 );
+            pak.addUint16(lastNameOffset,1 );
+            pak.addUint32(300,1); // Character Trait ?
+            pak.addUintShort((ushort)charData["alignment"]);
+            pak.addUint16(crewNameOffset,1);
+            pak.addUint16(factionNameOffset,1);
+            pak.addUint32((UInt32)charData["conquest_points"],1);
+
+            pak.addSizedTerminatedString(charData["handle"].ToString());
+            pak.addSizedTerminatedString(charData["firstname"].ToString());
+            pak.addSizedTerminatedString(charData["lastname"].ToString());
+            if (crewNameOffset > 0)
+            {
+                pak.addSizedTerminatedString(charData["crew_name"].ToString());
+            }
+            
+            if (factionNameOffset > 0)
+            {
+                pak.addSizedTerminatedString(charData["faction_name"].ToString());
+            }
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        public void SendPlayerBackground(WorldClient client, Hashtable charData)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_HANDLE_BACKGROUND,0 );
+            pak.addUint16(5,1);
+            pak.addUintShort(1);
+            if (charData["background"].ToString().Length > 0)
+            {
+                pak.addSizedTerminatedString(charData["background"].ToString());
+            }
+            else
+            {
+                pak.addUint16(1,0);
+                pak.addUintShort(0);
+            }
+            
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
         // ToDo: Move it to player Packets and make a ?moa command for it

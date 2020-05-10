@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Printing;
@@ -207,7 +208,6 @@ namespace hds
         {
              
             ClientView theMobView = Store.currentClient.viewMan.getViewById(Store.currentClient.playerData.currentSelectedTargetViewId);
-            
             // ToDo: we currently not know what items and money we should have - we give everytime 5000 currently
             UInt32 value = 5000; 
             UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() + value;
@@ -221,5 +221,22 @@ namespace hds
             // ToDo: send "loot disabled" 
         }
 
+        public void processPlayerGetDetails(ref byte[] rpcData)
+        {
+            PacketReader reader = new PacketReader(rpcData);
+            UInt32 unknownAlwaysZeroUint32 = reader.readUInt32(1);
+            UInt16 alwaysEightUint16 = reader.readUInt16(1);
+            string handle = reader.readSizedString();
+            
+            // Load Details from Database about the Handle
+            Hashtable charInfo = Store.dbManager.WorldDbHandler.getCharInfoByHandle(handle);
+            if (charInfo.Count > 0)
+            {
+                ServerPackets packets = new ServerPackets();
+                packets.SendPlayerGetDetails(Store.currentClient, charInfo);
+                packets.SendPlayerBackground(Store.currentClient, charInfo);
+            }
+            
+        }
     }
 }

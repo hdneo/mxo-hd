@@ -743,7 +743,7 @@ namespace hds{
 
         public void EstablishUdpSessionReply(byte[] packet, NetworkStream client){
             Console.WriteLine("Establish UDP Session Reply for CharID:" + newCharID);
-            byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00 };
+            byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00, 0x01 };
             byte[] encryptedResponse = marginEncr.encrypt(response);
             sendTCPVariableLenPacket(encryptedResponse, client);
         }
@@ -757,7 +757,7 @@ namespace hds{
 
         public void EstablishUDPSessionReplyExternal(){
             Console.WriteLine("Establish UDP Session Reply for CharID:" + newCharID);
-            byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00 };
+            byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00, 0x01 };
             byte[] encryptedResponse = marginEncr.encrypt(response);
             sendTCPVariableLenPacket(encryptedResponse, this.clientStream);
         }

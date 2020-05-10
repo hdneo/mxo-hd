@@ -159,7 +159,9 @@ namespace hds{
 		            break;
 
 		        // Player
-
+				case (int) RPCRequestHeader.CLIENT_PLAYER_GET_DETAILS:
+					new PlayerHandler().processPlayerGetDetails(ref rpcData);
+					break;
 		        case (int) RPCRequestHeader.CLIENT_PLAYER_GET_BACKGROUND:
 		            new PlayerHandler().processGetBackgroundRequest(ref rpcData);
 		            break;

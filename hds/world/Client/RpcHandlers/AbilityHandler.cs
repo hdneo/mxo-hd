@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Text;
 using System.Threading;
 using hds.shared;
 using hds.world.Skill;
@@ -66,7 +64,7 @@ namespace hds
             UInt32 targetAnim = this.currentAbility.getActivationFX();
             if (targetAnim == 0)
             {
-                targetAnim = this.currentAbility.getAbilityExecutionFX();
+                targetAnim = currentAbility.getAbilityExecutionFX();
             }
 
             pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim, 150);

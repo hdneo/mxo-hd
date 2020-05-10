@@ -262,7 +262,7 @@ namespace hds.databases{
 			
 		}
 
-
+		
         public Hashtable getCharInfo(UInt32 charId)
         {
 			conn.Open();
@@ -293,6 +293,45 @@ namespace hds.databases{
 	        conn.Close();
 
             return data;
+        }
+        
+        public Hashtable getCharInfoByHandle(string handle)
+        {
+	        conn.Open();
+	        handle = handle.Substring(0, handle.Length - 1);
+	        string sqlQuery = "SELECT c.charId, c.firstName, c.lastName, c.background, c.alignment, c.conquest_points, f.name as faction_name, fc.crew_name as crew_name FROM characters c LEFT JOIN crews fc ON c.crewId=fc.id LEFT JOIN factions f ON c.factionId=f.id WHERE c.handle = '"+handle.Trim()+"' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = sqlQuery;
+
+	        dr = queryExecuter.ExecuteReader();
+
+	        Hashtable data = new Hashtable();
+	        
+	        while (dr.Read())
+	        {
+		        data.Add("charId", (UInt32)dr.GetInt32(0));
+		        data.Add("firstname", dr.GetString(1));
+		        data.Add("lastname", dr.GetString(2));
+		        data.Add("background", dr.GetString(3));
+		        data.Add("alignment",(ushort)dr.GetInt16(4));
+		        data.Add("conquest_points", (UInt32)dr.GetInt32(5));
+		        if (!dr.IsDBNull(6))
+		        {
+			        data.Add("faction_name", dr.GetString(6));    
+		        }
+		        
+		        if (!dr.IsDBNull(7))
+		        {
+			        data.Add("crew_name", dr.GetString(7));    
+		        }
+
+		        data.Add("handle", handle);
+	        }
+	        
+	        dr.Close();
+	        conn.Close();
+
+	        return data;
         }
 
 		public void setRsiValues(){

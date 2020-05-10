@@ -97,8 +97,7 @@ namespace hds
 		                _offset = buffer.Length - 1;
 		                break;
             }
-			
-			// TODO: update player attribute packets someday (announce it to my spawners)
+            
             Store.world.sendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
 			return _offset;
 		}
