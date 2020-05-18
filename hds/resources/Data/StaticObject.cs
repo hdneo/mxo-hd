@@ -18,6 +18,7 @@ namespace hds
         public UInt32 mxoId;
         public UInt32 staticId;
         public byte[] type;
+        public string strType;
 
         public StaticWorldObject()
         {

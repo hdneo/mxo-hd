@@ -16,17 +16,14 @@ namespace hds
 
         public void processAbility(ref byte[] packet)
         {
-            byte[] ability = {packet[0], packet[1]};
-            byte[] targetView = {packet[2], packet[3]};
-            UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(ability, 1);
-
-            UInt16 viewId = 0;
-            currentTargetViewId = NumericalUtils.ByteArrayToUint16(targetView, 1);
+            PacketReader reader = new PacketReader(packet);
+            UInt16 AbilityID = reader.readUInt16(1);
+            UInt16 currentTargetViewId = reader.readUInt16(1);
 
 
             // load the ability name from a list to see if we match the right ability
             DataLoader AbilityLoader = DataLoader.getInstance();
-            this.currentAbility = AbilityLoader.getAbilityByID(AbilityID);
+            currentAbility = AbilityLoader.getAbilityByID(AbilityID);
 
             // lets create a message for the client - we will later execute the right AbilityScript for it 
             ServerPackets pak = new ServerPackets();
@@ -35,20 +32,20 @@ namespace hds
                 " and Target ViewId Is " + currentTargetViewId, "BROADCAST");
 
             // ToDo: do something with the entity (or queue a fx hit animation or something lol)    
-            this.processAbilityScript(this.currentAbility);
+            ProcessAbilityScript(this.currentAbility);
         }
 
-        public void processAbilityScript(AbilityItem abilityItem)
+        public void ProcessAbilityScript(AbilityItem abilityItem)
         {
             // Display Cast Bar if it is necessary
             ServerPackets pak = new ServerPackets();
             if (this.currentAbility.getCastingTime() > 0)
             {
-                pak.sendCastAbilityBar(this.currentAbility.getAbilityID(), this.currentAbility.getCastingTime());
-                this.processSelfAnimation(abilityItem);
+                pak.sendCastAbilityBar(currentAbility.getAbilityID(), currentAbility.getCastingTime());
+                processSelfAnimation(abilityItem);
             }
 
-            this.processCharacterAnimationSelf(abilityItem.getAbilityID());
+            processCharacterAnimationSelf(abilityItem.getAbilityID());
 
             if (currentAbility.getAbilityID() == 12 || currentAbility.getAbilityID() == 184)
             {

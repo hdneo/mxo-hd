@@ -42,6 +42,7 @@ namespace hds{
 					#endif
 		            new TestUnitHandler().testCloseCombat(ref rpcData);
 		            break;
+
 		        case (int) RPCRequestHeader.CLIENT_CHAT:
 		            new ChatHandler().processChat(ref rpcData);
 		            break;
@@ -93,7 +94,9 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
 		            new FCHandler().processLoadFactionName(ref rpcData);
 		            break;
-
+				case (int) RPCRequestHeader.CLIENT_FACTION_DISBAND_FACTION:
+					new FCHandler().ProcessDisbandFaction(ref rpcData);
+					break;
 		        // Abilitys
 		        case (int) RPCRequestHeader.CLIENT_UPGRADE_ABILITY_LEVEL:
 		            // ToDo: Research and implement^^
@@ -160,13 +163,13 @@ namespace hds{
 
 		        // Player
 				case (int) RPCRequestHeader.CLIENT_PLAYER_GET_DETAILS:
-					new PlayerHandler().processPlayerGetDetails(ref rpcData);
+					new PlayerHandler().ProcessPlayerGetDetails(ref rpcData);
 					break;
 		        case (int) RPCRequestHeader.CLIENT_PLAYER_GET_BACKGROUND:
 		            new PlayerHandler().processGetBackgroundRequest(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_PLAYER_SET_BACKGROUND:
-		            new PlayerHandler().processSetBackgroundRequest(ref rpcData);
+		            new PlayerHandler().ProcessSetBackgroundRequest(ref rpcData);
 		            break;
 		        // Command Helper
 		        case (int) RPCRequestHeader.CLIENT_CMD_WHEREAMI:
@@ -191,7 +194,7 @@ namespace hds{
 		            break;
 
 		         case (int)RPCRequestHeader.CLIENT_LOOT_ACCEPT:
-		             new PlayerHandler().processLootAccepted();
+		             new PlayerHandler().ProcessLootAccepted();
 		             break;
 
 

@@ -1,25 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace hds.world.Structures
 {
     public class Crew
     {
+        public UInt32 crewId;
         public string crewName;
         public string characterMasterName;
-        public ArrayList members;
+        public List<CrewMember> members = new List<CrewMember>();
+        public UInt32 factionId;
+        public ushort factionRank;
+        public UInt32 masterPlayerCharId;
+        public UInt32 money;
+        public ushort org;
 
-        public Crew(string _crewName, string _characterMasterName)
+        public void SetMembers(List<CrewMember> members)
         {
-            crewName = _crewName;
-            characterMasterName = _characterMasterName;
-            members = new ArrayList();
-            members.Add(_characterMasterName);
+            this.members = members;
         }
 
         public void inviteMember(string memberName)
         {
             bool alreadyExists = false;
-            foreach (FCMember member in members)
+            foreach (CrewMember member in members)
             {
                 if (member.handle.Equals(memberName))
                 {
@@ -29,7 +34,7 @@ namespace hds.world.Structures
 
             if (!alreadyExists)
             {
-                FCMember member = new FCMember();
+                CrewMember member = new CrewMember();
                 member.handle = memberName;
                 member.timestampInvite = TimeUtils.getUnixTimeUint32();
                 members.Add(member);
@@ -40,8 +45,8 @@ namespace hds.world.Structures
         {
             lock (members)
             {
-                FCMember removeObject = null;
-                foreach (FCMember member in members)
+                CrewMember removeObject = null;
+                foreach (CrewMember member in members)
                 {
                     if (member.handle.Equals(memberName))
                     {

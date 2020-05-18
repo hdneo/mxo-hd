@@ -53,5 +53,10 @@ namespace hds
             }
 
         }
+
+        public void ProcessDisbandFaction(ref byte[] packet)
+        {
+            // ToDo: Check if i am the leader, disband the faction and tell that to all other players
+        }
     }
 }

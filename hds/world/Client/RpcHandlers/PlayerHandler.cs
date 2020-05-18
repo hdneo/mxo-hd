@@ -6,6 +6,7 @@ using System.Drawing.Printing;
 using System.Text;
 
 using hds.shared;
+using hds.world.Structures;
 
 namespace hds
 {
@@ -142,34 +143,52 @@ namespace hds
             */
             //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2350400000802"));
 
+            
+
             ServerPackets pak = new ServerPackets();
-            pak.sendCrewAndFactionEnableWindow(Store.currentClient);
+            
+            
+
+            UInt32 factionId =
+                NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
+            if (factionId > 0)
+            {
+                Faction faction = Store.dbManager.WorldDbHandler.fetchFaction(factionId);
+                faction.masterPlayerCharId =
+                    Store.dbManager.WorldDbHandler.getCharIdByHandle(faction.masterPlayerHandle);
+                pak.SendFactionInfo(Store.currentClient, faction);
+                pak.SendFactionCrews(Store.currentClient, faction);
+
+            }
+            
             // Test icon + bonus EDIT DOESNT WORK IN THIS STATE
             Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc1500450000f70300000702ecffffff0000000000"));
+            
+            UInt32 crewId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
+            Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
+            List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
+            pak.SendCrewMembers(Store.currentClient, crewData, members);
 
         }
 
         public void processInitUDPSession(ref byte[] packetData)
         {
+            PacketReader reader = new PacketReader(packetData);
+            reader.setOffsetOverrideValue(11);
 
-            byte[] cIDHex = new byte[4];
-            cIDHex[0] = packetData[11];
-            cIDHex[1] = packetData[12];
-            cIDHex[2] = packetData[13];
-            cIDHex[3] = packetData[14];
-
-            Store.currentClient.playerData.setCharID(NumericalUtils.ByteArrayToUint32(cIDHex, 1));
+            Store.currentClient.playerData.setCharID(reader.readUInt32(1));
 
             Store.dbManager.WorldDbHandler.setPlayerValues();
             Store.dbManager.WorldDbHandler.setRsiValues();
+            Store.dbManager.WorldDbHandler.setOnlineStatus(Store.currentClient.playerData.getCharID(), 1);
 
             // send the init UDP packet * 5
             byte[] response = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05 };
-            Store.currentClient.messageQueue.addRawMessage(response);
-            Store.currentClient.messageQueue.addRawMessage(response);
-            Store.currentClient.messageQueue.addRawMessage(response);
-            Store.currentClient.messageQueue.addRawMessage(response);
-            Store.currentClient.messageQueue.addRawMessage(response);
+            for (int i = 0; i < 5; i++)
+            {
+                Store.currentClient.messageQueue.addRawMessage(response);    
+            }
+            
             Store.currentClient.FlushQueue();
             Store.margin.sendUDPSessionReply(Store.currentClient.playerData.getCharID());
         }
@@ -190,7 +209,7 @@ namespace hds
             packets.sendEXPCurrent(Store.currentClient, (UInt32)newExperienceValue);
         }
 
-        public void processSetBackgroundRequest(ref byte[] packetData)
+        public void ProcessSetBackgroundRequest(ref byte[] packetData)
         {
             UInt16 backgroundSize = NumericalUtils.ByteArrayToUint16(new byte[] {packetData[3], packetData[4]},1);
 
@@ -202,10 +221,11 @@ namespace hds
 
         }
 
-        public void processLootAccepted()
+        public void ProcessLootAccepted()
         {
              
-            ClientView theMobView = Store.currentClient.viewMan.getViewById(Store.currentClient.playerData.currentSelectedTargetViewId);
+            ClientView F = Store.currentClient.viewMan.getViewById(Store.currentClient.playerData.currentSelectedTargetViewId);
+
             // ToDo: we currently not know what items and money we should have - we give everytime 5000 currently
             UInt32 value = 5000; 
             UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() + value;
@@ -219,7 +239,7 @@ namespace hds
             // ToDo: send "loot disabled" 
         }
 
-        public void processPlayerGetDetails(ref byte[] rpcData)
+        public void ProcessPlayerGetDetails(ref byte[] rpcData)
         {
             PacketReader reader = new PacketReader(rpcData);
             UInt32 unknownAlwaysZeroUint32 = reader.readUInt32(1);

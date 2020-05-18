@@ -93,14 +93,14 @@ namespace hds
             if (paddingSize > 0)
             {
                 // we need to add "0x00" bytes until its full
-                while (currentSize <= paddingSize)
+                while (currentSize <= paddingSize + value.Length)
                 {
                     packet.append(0x00);
                     currentSize++;
                 }
+
+                int len = packet.getSize();
             }
-
-
         }
 
         public void addSizedString(string value)

@@ -9,7 +9,8 @@ namespace hds
 {
     class CommandHandler{
 
-        public void processWhereamiCommand(ref byte[] packet){
+        public void processWhereamiCommand(ref byte[] packet)
+        {
 
             double x = 0; double y = 0; double z = 0;
             byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();

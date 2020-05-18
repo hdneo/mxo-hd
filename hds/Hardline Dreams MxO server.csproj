@@ -201,7 +201,8 @@
     <Compile Include="world\Structures\ClientDB.cs" />
     <Compile Include="world\Structures\ClientView.cs" />
     <Compile Include="world\Structures\Crew.cs" />
-    <Compile Include="world\Structures\FCMember.cs" />
+    <Compile Include="world\Structures\Faction.cs" />
+    <Compile Include="world\Structures\CrewMember.cs" />
     <Compile Include="world\Structures\MissionTeam.cs" />
     <Compile Include="world\Structures\MxOLocations.cs" />
     <Compile Include="world\Structures\Mob.cs" />

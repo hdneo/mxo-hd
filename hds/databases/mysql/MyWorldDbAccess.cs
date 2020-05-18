@@ -7,6 +7,7 @@ using hds.shared;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using hds.world.Structures;
 using MySql.Data.MySqlClient;
 
 namespace hds.databases{
@@ -25,7 +26,7 @@ namespace hds.databases{
 		
 		
 		public UInt32 getUserIdForCharId(byte[] charIdHex){
-			conn.Open();	 
+			OpenConnection();	 
 			UInt32 charId = NumericalUtils.ByteArrayToUint32(charIdHex,1);
 			Output.OptWriteLine("[WORLD] Checking from DB:"+charId);
 			string sqlQuery="Select userid from characters where charid ='"+charId+"'";
@@ -40,14 +41,14 @@ namespace hds.databases{
 			}
 			
 			dr.Close();
-			conn.Close();
+			CloseConnection();
 			return userId;
 			
 		}
 
         public ArrayList fetchFriendList(UInt32 charId)
         {
-	        conn.Open();
+	        OpenConnection();
             ArrayList friends = new ArrayList();
             string query = "SELECT C.handle, C.is_online, B.friendId FROM characters C, buddylist B WHERE B.charId = '" + charId + "' AND B.friendId=C.charId ";
             queryExecuter = conn.CreateCommand();
@@ -63,16 +64,148 @@ namespace hds.databases{
             }
 
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             // ToDo: Write query 
             // ToDo2: add online flag to characters and handle this on "connect" and "disconnect"
             return friends;
             
         }
 
-		
-		public string getPathForDistrictKey(string key){
-			conn.Open();
+        public void OpenConnection()
+        {
+	        if (conn.State == ConnectionState.Closed)
+	        {
+		        conn.Open();
+	        }
+        }
+
+        public void CloseConnection()
+        {
+	        if (conn.State != ConnectionState.Closed)
+	        {
+		        conn.Close();
+	        }   
+        }
+
+        public Faction fetchFaction(uint factionId)
+        {
+	        Faction factionData = new Faction();
+	        OpenConnection();
+	        string query = "SELECT f.id, f.name, f.master_player_handle, f.money FROM factions f LEFT JOIN characters c ON f.id=c.factionId WHERE f.id= '" + factionId + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+
+	        while (dr.Read())
+	        {
+		        factionData.factionId = (UInt32)dr.GetInt32(0);
+		        factionData.name = dr.GetString(1);
+		        factionData.masterPlayerHandle = dr.GetString(2);
+		        factionData.money = (UInt32) dr.GetInt32(3);
+	        }
+
+	        dr.Close();
+	        CloseConnection();
+	        
+	        factionData.crews = GetCrewsForFaction(factionData.factionId);
+	        return factionData;
+        }
+
+        public Crew GetCrewData(UInt32 crewId)
+        {
+	        Crew theCrew = new Crew();
+	        OpenConnection();
+	        string query = "SELECT id, crew_name, master_player_handle, money, org, faction_id, faction_rank FROM crews WHERE id='" +
+	                       crewId + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+
+	        while (dr.Read())
+	        {
+		        theCrew.crewId = (UInt32) dr.GetInt32(0);
+		        theCrew.crewName = dr.GetString(1);
+		        theCrew.characterMasterName = dr.GetString(2);
+		        theCrew.money = (UInt32) dr.GetInt32(3);
+		        theCrew.org = (ushort) dr.GetInt16(4);
+		        theCrew.factionId = (UInt32) dr.GetInt32(5);
+		        theCrew.factionRank = (ushort) dr.GetInt32(6);
+	        }
+
+	        dr.Close();
+	        CloseConnection();
+	        return theCrew;
+        }
+
+        public List<Crew> GetCrewsForFaction(UInt32 factionID)
+        {
+	        List<Crew> tmpCrews = new List<Crew>();
+			
+	        OpenConnection();
+	        string query =
+		        "SELECT id, crew_name, master_player_handle, faction_id, faction_rank FROM crews WHERE faction_id = '" +
+		        factionID + "' ";
+	        
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+	        while (dr.Read())
+	        {
+		        Crew theCrew = new Crew();
+		        theCrew.crewId = (UInt32)dr.GetInt32(0);
+		        theCrew.crewName = dr.GetString(1);
+		        theCrew.characterMasterName = dr.GetString(2);
+		        theCrew.factionId  = (UInt32) dr.GetInt32(3);
+		        theCrew.factionRank = (ushort) dr.GetInt16(4);
+		        tmpCrews.Add(theCrew);
+	        }
+	        dr.Close();
+	        CloseConnection();
+
+	        List<Crew> crews = new List<Crew>();
+	        foreach (Crew theCrew in tmpCrews)
+	        {
+		        theCrew.masterPlayerCharId = getCharIdByHandle(theCrew.characterMasterName);
+		        crews.Add(theCrew);
+	        }
+	        
+	        return crews;
+        }
+
+        public List<CrewMember> GetCrewMembersForCrewId(UInt32 crewId)
+        {
+	        List<CrewMember> crewMembers = new List<CrewMember>();
+	        OpenConnection();
+	        string query =
+		        "SELECT cm.char_id, cm.is_captain, cm.is_first_mate, c.handle, c.is_online FROM crew_members cm LEFT JOIN characters c ON cm.char_id=c.charId WHERE cm.crew_id = '" + crewId + "' ";
+	        
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+	        while (dr.Read())
+	        {
+		        UInt32 charId = (UInt32)dr.GetInt32(0);
+		        bool isCaptain = dr.GetBoolean(1);
+		        bool isFirstMate = dr.GetBoolean(2);
+		        string handle = dr.GetString(3);
+		        ushort isOnline = (ushort) dr.GetInt16(4);
+		        
+		        CrewMember member = new CrewMember();
+		        member.charId = charId;
+		        member.handle = handle;
+		        member.isCaptain = isCaptain;
+		        member.isFirstMate = isFirstMate;
+		        member.isOnline = isOnline;
+		        crewMembers.Add(member);
+	        }
+	        CloseConnection();
+
+	        return crewMembers;
+        }
+
+
+        public string getPathForDistrictKey(string key){
+	        OpenConnection();
 			string sqlQuery="select path from districts where districts.key = '"+key+"'";
 			queryExecuter= conn.CreateCommand();
 			queryExecuter.CommandText = sqlQuery;					
@@ -85,49 +218,15 @@ namespace hds.databases{
 			}
 			
 			dr.Close();
-			conn.Close();
+			CloseConnection();
 			return path;
-			
-		}
-		
-
-		public bool fetchWordList(ref WorldList wl){
-
-			conn.Open();
-			// Doesnt exist by default
-			wl.setExistance(false);
-
-			string sqlQuery = "select * from users where username='"+wl.getUsername()+"' and passwordmd5='"+wl.getPassword()+"';";
-			queryExecuter= conn.CreateCommand();
-			queryExecuter.CommandText = sqlQuery;					
-			dr= queryExecuter.ExecuteReader();
-			
-			
-			while(dr.Read()){
-				// Player is on the DB
-				wl.setExistance(true);
-				wl.setUserID((int) dr.GetDecimal(0));
-				dr.GetBytes(6,0,wl.getPrivateExponent(),0,96);
-				dr.GetBytes(5,0,wl.getPublicModulus(),0,96);
-				wl.setTimeCreated((int)dr.GetDecimal(7));
-			}
-			
-			dr.Close();
-			conn.Close();
-			
-			// If doesnt exist... should not do more things
-			if (!wl.getExistance()){
-                Output.writeToLogForConsole("[WORLD DB ACCESS] fetchWordList : Player not found on DB with #" + wl.getUsername() + "# and #" + wl.getPassword() + "#");
-				return false;
-			}
-			return true;
 			
 		}
 
 
         public void updateSourceHlForObjectTracking(UInt16 sourceDistrict, UInt16 sourceHl, UInt32 lastObjectId)
         {
-	        conn.Open();
+	        OpenConnection();
             string sqlQuery = "SELECT id,HardlineId, DistrictId, objectId FROM data_hardlines WHERE DistrictId = '" + sourceDistrict.ToString() + "' AND HardlineId = '" + sourceHl.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
@@ -161,14 +260,14 @@ namespace hds.databases{
 				Output.WriteLine("[WORLD DB] UPDATE Hardline " + hardlineId.ToString() + " in District " + districtId.ToString() + " with Object ID : "+lastObjectId.ToString());
 				#endif
 			}
-	        conn.Close();
+	        CloseConnection();
             
         }
 
 
         public void updateLocationByHL(UInt16 district, UInt16 hardline)
         {
-	        conn.Open();
+	        OpenConnection();
             string sqlQuery = "SELECT DH.X,DH.Y,DH.Z,DH.ROT,DIS.key,DH.DistrictId FROM data_hardlines AS DH, districts as DIS WHERE DH.DistrictId = '" + district.ToString() + "' AND DH.HardLineId = '" + hardline.ToString() + "' AND DH.DistrictId=DIS.id ";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
@@ -185,25 +284,25 @@ namespace hds.databases{
                 //Store.currentClient.playerInstance.YawInterval.setValue((byte)dr.GetDecimal(3));
             }
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             savePlayer(Store.currentClient);
         }
 
         public void setBackground(string backgroundText)
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
 
             string sqlQuery = "UPDATE characters SET background = '" + backgroundText + "' WHERE charId = '" + charID + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 		
 		public void setPlayerValues()
 		{
-			conn.Open();
+			OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
 			string sqlQuery="Select handle,x,y,z,rotation,healthC,healthM,innerStrC,innerStrM,level,profession,alignment,pvpflag,firstName,lastName,exp,cash,district,districtId,factionId,crewId from characters where charId='"+charID+"'";
 			queryExecuter= conn.CreateCommand();
@@ -258,14 +357,35 @@ namespace hds.databases{
 			}
 			
 			dr.Close();
-			conn.Close();
+			CloseConnection();
 			
 		}
 
+		public UInt32 getCharIdByHandle(string handle)
+		{
+			OpenConnection();
+			handle = handle.Substring(0, handle.Length - 1);
+			string sqlQuery = "SELECT charId FROM characters WHERE handle = '"+handle.Trim()+"' LIMIT 1";
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = sqlQuery;
+
+			dr = queryExecuter.ExecuteReader();
+
+			UInt32 charId = 0;
+			while (dr.Read())
+			{
+				charId = (UInt32) dr.GetInt32(0);
+			}
+	        
+			dr.Close();
+			CloseConnection();
+
+			return charId;
+		}
 		
         public Hashtable getCharInfo(UInt32 charId)
         {
-			conn.Open();
+	        OpenConnection();
             string sqlQuery = "SELECT firstName,lastName,background, district, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
@@ -290,14 +410,14 @@ namespace hds.databases{
                 data.Add("cash", dr.GetInt32(12));
             }
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
 
             return data;
         }
         
         public Hashtable getCharInfoByHandle(string handle)
         {
-	        conn.Open();
+	        OpenConnection();
 	        handle = handle.Substring(0, handle.Length - 1);
 	        string sqlQuery = "SELECT c.charId, c.firstName, c.lastName, c.background, c.alignment, c.conquest_points, f.name as faction_name, fc.crew_name as crew_name FROM characters c LEFT JOIN crews fc ON c.crewId=fc.id LEFT JOIN factions f ON c.factionId=f.id WHERE c.handle = '"+handle.Trim()+"' LIMIT 1";
 	        queryExecuter = conn.CreateCommand();
@@ -329,13 +449,13 @@ namespace hds.databases{
 	        }
 	        
 	        dr.Close();
-	        conn.Close();
+	        CloseConnection();
 
 	        return data;
         }
 
 		public void setRsiValues(){
-			conn.Open();
+			OpenConnection();
 			int charID = (int) Store.currentClient.playerData.getCharID();
 			string sqlQuery="Select sex,body,hat,face,shirt,coat,pants,shoes,gloves,glasses,hair,facialdetail,shirtcolor,pantscolor,coatcolor,shoecolor,glassescolor,haircolor,skintone,tattoo,facialdetailcolor,leggins from rsivalues where charId='"+charID+"'";
 			queryExecuter= conn.CreateCommand();
@@ -353,25 +473,36 @@ namespace hds.databases{
 
 			Store.currentClient.playerData.setRsiValues(rsiValues);
 			dr.Close();
-			conn.Close();
+			CloseConnection();
+		}
+
+		public void setOnlineStatus(uint charId, ushort isOnline)
+		{
+			OpenConnection();
+			int charID = (int) Store.currentClient.playerData.getCharID();
+			string sqlQuery = "UPDATE characters SET is_online = '" + isOnline + "' WHERE charid= '" + charID + "' LIMIT 1";
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = sqlQuery;
+			queryExecuter.ExecuteNonQuery();
+			CloseConnection();
 		}
 
 
-        public void updateRsiPartValue(string part, uint value)
+		public void updateRsiPartValue(string part, uint value)
         {
-	        conn.Open();
+	        OpenConnection();
             int charID = (int) Store.currentClient.playerData.getCharID();
             string sqlQuery = "UPDATE rsivalues SET " + part + "=" + value + " WHERE charid= '" + charID.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 		
 		
 
 		public void savePlayer(WorldClient client){
-			conn.Open();
+			OpenConnection();
             System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
             customCulture.NumberFormat.NumberDecimalSeparator = ".";
             System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
@@ -398,25 +529,25 @@ namespace hds.databases{
 			queryExecuter.CommandText = rsiQuery;
             Output.writeToLogForConsole("[WORLD DB ACCESS ]" + rsiQuery);
             queryExecuter.ExecuteNonQuery();
-			conn.Close();
+			CloseConnection();
 			
 		}
 
 
         public void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot)
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "UPDATE inventory SET slot = '" + destSlot.ToString() + "' WHERE slot = '" + sourceSlot.ToString() + "' AND charID = '" + charID.ToString() + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 
         public bool isSlotinUseByItem(UInt16 slotId)
         {
-	        conn.Open();
+	        OpenConnection();
             bool isSlotInUse = false;
             UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "SELECT slot FROM inventory WHERE slot = '" + slotId.ToString() + "' AND charID = '" +
@@ -434,14 +565,14 @@ namespace hds.databases{
             }
 
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             return isSlotInUse;
 
         }
 
         public UInt16 getCrewMemberCountByCrewName(string crewName)
         {
-	        conn.Open();
+	        OpenConnection();
             string sqlQuery = "SELECT COUNT(cm.id) as count_members FROM crew_members cm LEFT JOIN crews c ON cm.crew_id=c.id WHERE c.crew_name='" + crewName + "' LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
@@ -456,7 +587,7 @@ namespace hds.databases{
             }
 
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             return countCrewMembers;
         }
 
@@ -465,7 +596,7 @@ namespace hds.databases{
 		    // ToDo: we need to proove if this can work this way 
 		    // ToDo: can only the master invite other players ? i am not sure then we need to change this
 		    // ToDo: make DB easier
-		    conn.Open();
+		    OpenConnection();
 		    string sqlQuery = "SELECT c.id, c.crew_name FROM crew_members cm LEFT JOIN crews c ON cm.crew_id=c.id WHERE c.master_player_handle='" + playerHandle + "' LIMIT 1";
 		    queryExecuter = conn.CreateCommand();
 		    queryExecuter.CommandText = sqlQuery;
@@ -480,13 +611,13 @@ namespace hds.databases{
 		    }
 
 		    dr.Close();
-		    conn.Close();
+		    CloseConnection();
 		    return countCrewMembers;
 	    }
 
 	    public string getFactionNameById(uint factionId)
 	    {
-		    conn.Open();
+		    OpenConnection();
 		    string sqlQuery = "SELECT name FROM factions WHERE id =" + factionId + " LIMIT 1";
 		    queryExecuter = conn.CreateCommand();
 		    queryExecuter.CommandText = sqlQuery;
@@ -501,13 +632,13 @@ namespace hds.databases{
 
 		    }
 		    dr.Close();
-		    conn.Close();
+		    CloseConnection();
 		    return factionName;
 	    }
 
 	    public bool isCrewNameAvailable(string crewName)
         {
-	        conn.Open();
+	        OpenConnection();
             bool isCrewNameAvailable = true;
 	        crewName = crewName.Replace("'", @"\'");
 
@@ -537,13 +668,13 @@ namespace hds.databases{
             }
 
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             return isCrewNameAvailable;
         }
 
         public void deleteCrew(UInt32 crewId)
         {
-	        conn.Open();
+	        OpenConnection();
 	        // Delete the Crew
             string sqlQueryDelete = "UPDATE crews SET deleted_at = NOW() WHERE id=" + crewId + " LIMIT 1";
             queryExecuter = conn.CreateCommand();
@@ -561,23 +692,23 @@ namespace hds.databases{
 	        queryExecuter = conn.CreateCommand();
 	        queryExecuter.CommandText = deleteMembers;
 	        queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 
         public void addCrew(string crewName, string masterHandle)
         {
-	        conn.Open();
+	        OpenConnection();
 	        crewName = crewName.Replace("'", @"\'");
             string sqlQueryInsert = "INSERT INTO crews SET crew_name= '" + crewName + "', created_at =NOW() ";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQueryInsert;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 
         public UInt16 getFirstNewSlot()
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
 
             // We want the next free slot which is not in the "wearing" range (which starts with 97)
@@ -591,25 +722,25 @@ namespace hds.databases{
                 freeSlot = (UInt16)dr.GetInt16(0);
             }
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             return freeSlot;
         }
 
         public void addItemToInventory (UInt16 slotId, UInt32 itemGoID)
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
 
             string sqlQuery = "INSERT INTO inventory SET charId = '" + charID.ToString() + "' , goid = '" + itemGoID.ToString() + "', slot = '" + slotId.ToString() + "', created = NOW() ";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+	        CloseConnection();
         }
 
         public UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId)
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
 
             string sqlQuery = "SELECT goid FROM inventory WHERE charID = '" + charID + "' AND slot = '" + slotId + "' LIMIT 1";
@@ -622,24 +753,24 @@ namespace hds.databases{
                 GoID  = (UInt32)dr.GetInt32(0);
             }
             dr.Close();
-	        conn.Close();
+	        CloseConnection();
             return GoID;
         }
 
 
 	    public void SaveInfo(WorldClient client, long cash)
 	    {
-		    conn.Open();
+		    OpenConnection();
 		    string sqlQuery = "UPDATE characters SET cash =" + cash + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
 		    queryExecuter = conn.CreateCommand();
 		    queryExecuter.CommandText = sqlQuery;
 		    queryExecuter.ExecuteNonQuery();
-		    conn.Close();
+		    CloseConnection();
 	    }
 
 	    public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
         {
-	        conn.Open();
+	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "";
             foreach(ushort slot in abilitySlots)
@@ -650,17 +781,17 @@ namespace hds.databases{
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-			conn.Close();
+			CloseConnection();
         }
 
         public void SaveExperience(WorldClient client, long exp)
         {
-	        conn.Open();
+	        OpenConnection();
             string sqlQuery = "UPDATE characters SET exp =" + exp + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = sqlQuery;
             queryExecuter.ExecuteNonQuery();
-	        conn.Close();
+            OpenConnection();
         }
     }
 }

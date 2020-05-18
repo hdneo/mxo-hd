@@ -71,7 +71,7 @@ namespace hds
                                 if (thismob.getHealthC() <= 0)
                                 {
                                     thismob.setIsDead(true);
-                                    this.SendNpcDies(theView.ViewID, Store.currentClient, thismob);
+                                    SendNpcDies(theView.ViewID, Store.currentClient, thismob);
 
                                     // We got some Exp for it - currently we just make a simple trick to calculate some exp
                                     // Just take currentLevel * modifier

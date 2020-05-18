@@ -2,20 +2,26 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
+using hds.world.Structures;
 
 namespace hds.databases.interfaces{
     
-    public interface IWorldDBHandler{
+    public interface IWorldDBHandler
+    {
+        UInt32 getCharIdByHandle(string handle);
         Hashtable getCharInfo (UInt32 charId);
         Hashtable getCharInfoByHandle(string handle);
         UInt32 getUserIdForCharId(byte[] charIdHex);
         string getPathForDistrictKey(string key);
-        bool fetchWordList(ref WorldList wl);
         ArrayList fetchFriendList(UInt32 charId);
+        Faction fetchFaction(UInt32 factionId);
+        Crew GetCrewData(UInt32 crewId);
+        List<CrewMember> GetCrewMembersForCrewId(UInt32 crewId);
         void updateLocationByHL(UInt16 district, UInt16 hardline);
         void updateSourceHlForObjectTracking(UInt16 sourceDistrict, UInt16 sourceHl, UInt32 lastObjectId);
         void setPlayerValues();
         void setRsiValues();
+        void setOnlineStatus(UInt32 charId, ushort isOnline);
         void savePlayer(WorldClient client);
         void SaveExperience(WorldClient client, long exp);
         void SaveInfo(WorldClient client, long exp);

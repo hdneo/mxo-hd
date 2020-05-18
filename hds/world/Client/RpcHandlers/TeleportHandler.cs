@@ -104,6 +104,7 @@ namespace hds
 
         public void processGameFinish()
         {
+            Store.dbManager.WorldDbHandler.setOnlineStatus(Store.currentClient.playerData.getCharID(),0);
             ServerPackets packets = new ServerPackets();
             packets.sendExitGame(Store.currentClient);
         }
