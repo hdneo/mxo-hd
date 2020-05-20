@@ -76,7 +76,7 @@ namespace hds
             packets.SendWorldSetup(Store.currentClient);
 
             packets.sendEXPCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getExperience());
-            packets.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
+            packets.SendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
 
             /*
             long exp = Store.currentClient.playerData.getExperience();
@@ -167,7 +167,7 @@ namespace hds
             UInt32 crewId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
             Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
             List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
-            pak.SendCrewMembers(Store.currentClient, crewData, members);
+            pak.SendCrewInfo(Store.currentClient, crewData, members);
 
         }
 
@@ -234,7 +234,7 @@ namespace hds
             Store.currentClient.playerData.setInfo(newMoneyAmount);
                         
             ServerPackets packet = new ServerPackets();
-            packet.sendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
+            packet.SendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
             packet.SendLootAccepted(Store.currentClient);
             // ToDo: send "loot disabled" 
         }

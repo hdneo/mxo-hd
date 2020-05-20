@@ -64,6 +64,11 @@ So special thanks for this resources goes to them.
 
 If you find files where you see a credit by yourself, feel free to contact us on hardline dreams and i add you here too.
 
+In the docs folder is a "data.zip" - thanks to githubs upload limit of 100 MB i coulnd't provide them directly.
+If you want run the server: extract the folder in the debug folder so that you have a "data" folder inside that where the extracted stuff is there.
+This is necessary to get all the mobs and all static objects recognized.
+[Data](docs/data.zip)
+
 ## Activity
 If we dont commit here, it doesnt mean that we didnt something on it. We want just to commit some major updates in the future.
 Also check out our other repositories for helpful stuff like packets tools etc.

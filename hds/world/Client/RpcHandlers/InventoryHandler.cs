@@ -28,7 +28,7 @@ namespace hds
             
             // ToDo: Get free slot, add item to Inventory
             // This method is called from looting and vendor buy (so vendor buy must care about money decrease)
-            UInt16 freeSlot = Store.dbManager.WorldDbHandler.getFirstNewSlot();
+            UInt16 freeSlot = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
             Store.dbManager.WorldDbHandler.addItemToInventory(freeSlot, itemID);
 
             ServerPackets pak = new ServerPackets();
@@ -115,7 +115,7 @@ namespace hds
                 Store.dbManager.WorldDbHandler.updateRsiPartValue(partColor,0);
             }
             // Move slot
-            UInt16 newSlotId = Store.dbManager.WorldDbHandler.getFirstNewSlot();
+            UInt16 newSlotId = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
             Store.dbManager.WorldDbHandler.updateInventorySlot(sourceSlot,newSlotId);
 
             // Send move packet
@@ -226,7 +226,7 @@ namespace hds
             ServerPackets pak = new ServerPackets();
             if (Store.dbManager.WorldDbHandler.isSlotinUseByItem(toRealSlotId))
             {
-                UInt16 newSlotId = Store.dbManager.WorldDbHandler.getFirstNewSlot();
+                UInt16 newSlotId = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
                 Store.dbManager.WorldDbHandler.updateInventorySlot(toRealSlotId,newSlotId);
                 pak.sendInventoryItemMove(toRealSlotId, newSlotId, Store.currentClient);
             }

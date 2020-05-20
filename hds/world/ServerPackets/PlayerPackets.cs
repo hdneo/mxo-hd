@@ -122,7 +122,7 @@ namespace hds
             client.messageQueue.addRpcMessage(pakAnimation.returnFinalPacket());
         }
 
-        public void sendInfoCurrent(WorldClient client, UInt32 info)
+        public void SendInfoCurrent(WorldClient client, UInt32 info)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_INFO, 0);

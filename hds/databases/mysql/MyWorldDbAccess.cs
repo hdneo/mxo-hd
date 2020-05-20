@@ -111,6 +111,46 @@ namespace hds.databases{
 	        return factionData;
         }
 
+        public void IncreaseCrewMoney(UInt32 crewId, UInt32 amount)
+        {
+	        OpenConnection();
+	        string updateQuery = "UPDATE crews SET money = money + '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = updateQuery;
+	        queryExecuter.ExecuteNonQuery();
+	        CloseConnection();
+        }
+        
+        public void DecreaseCrewMoney(UInt32 crewId, UInt32 amount)
+        {
+	        OpenConnection();
+	        string updateQuery = "UPDATE crews SET money = money - '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = updateQuery;
+	        queryExecuter.ExecuteNonQuery();
+	        CloseConnection();
+        }
+        
+        public void IncreaseFactionMoney(UInt32 crewId, UInt32 amount)
+        {
+	        OpenConnection();
+	        string updateQuery = "UPDATE factions SET money = money + '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = updateQuery;
+	        queryExecuter.ExecuteNonQuery();
+	        CloseConnection();
+        }
+        
+        public void DecreaseFactionMoney(UInt32 crewId, UInt32 amount)
+        {
+	        OpenConnection();
+	        string updateQuery = "UPDATE factions SET money = money - '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = updateQuery;
+	        queryExecuter.ExecuteNonQuery();
+	        CloseConnection();
+        }
+
         public Crew GetCrewData(UInt32 crewId)
         {
 	        Crew theCrew = new Crew();
@@ -143,7 +183,7 @@ namespace hds.databases{
 			
 	        OpenConnection();
 	        string query =
-		        "SELECT id, crew_name, master_player_handle, faction_id, faction_rank FROM crews WHERE faction_id = '" +
+		        "SELECT cr.id, cr.crew_name, cr.master_player_handle, cr.faction_id, cr.faction_rank, c.is_online FROM crews cr LEFT JOIN characters c ON cr.master_player_handle=c.handle WHERE cr.faction_id = '" +
 		        factionID + "' ";
 	        
 	        queryExecuter = conn.CreateCommand();
@@ -157,6 +197,7 @@ namespace hds.databases{
 		        theCrew.characterMasterName = dr.GetString(2);
 		        theCrew.factionId  = (UInt32) dr.GetInt32(3);
 		        theCrew.factionRank = (ushort) dr.GetInt16(4);
+		        theCrew.masterIsOnline = (ushort) dr.GetInt16(5);
 		        tmpCrews.Add(theCrew);
 	        }
 	        dr.Close();
@@ -364,7 +405,6 @@ namespace hds.databases{
 		public UInt32 getCharIdByHandle(string handle)
 		{
 			OpenConnection();
-			handle = handle.Substring(0, handle.Length - 1);
 			string sqlQuery = "SELECT charId FROM characters WHERE handle = '"+handle.Trim()+"' LIMIT 1";
 			queryExecuter = conn.CreateCommand();
 			queryExecuter.CommandText = sqlQuery;
@@ -487,6 +527,16 @@ namespace hds.databases{
 			CloseConnection();
 		}
 
+		public void ResetOnlineStatus()
+		{
+			OpenConnection();
+			string sqlQuery = "UPDATE characters SET is_online = '0' ";
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = sqlQuery;
+			queryExecuter.ExecuteNonQuery();
+			CloseConnection();
+		}
+
 
 		public void updateRsiPartValue(string part, uint value)
         {
@@ -570,7 +620,7 @@ namespace hds.databases{
 
         }
 
-        public UInt16 getCrewMemberCountByCrewName(string crewName)
+        public UInt16 GetCrewMemberCountByCrewName(string crewName)
         {
 	        OpenConnection();
             string sqlQuery = "SELECT COUNT(cm.id) as count_members FROM crew_members cm LEFT JOIN crews c ON cm.crew_id=c.id WHERE c.crew_name='" + crewName + "' LIMIT 1";
@@ -591,7 +641,7 @@ namespace hds.databases{
             return countCrewMembers;
         }
 
-	    public ushort getCrewIdByCrewMasterHandle(string playerHandle)
+	    public ushort GetCrewIdByCrewMasterHandle(string playerHandle)
 	    {
 		    // ToDo: we need to proove if this can work this way 
 		    // ToDo: can only the master invite other players ? i am not sure then we need to change this
@@ -615,7 +665,7 @@ namespace hds.databases{
 		    return countCrewMembers;
 	    }
 
-	    public string getFactionNameById(uint factionId)
+	    public string GetFactionNameById(uint factionId)
 	    {
 		    OpenConnection();
 		    string sqlQuery = "SELECT name FROM factions WHERE id =" + factionId + " LIMIT 1";
@@ -636,7 +686,7 @@ namespace hds.databases{
 		    return factionName;
 	    }
 
-	    public bool isCrewNameAvailable(string crewName)
+	    public bool IsCrewNameAvailable(string crewName)
         {
 	        OpenConnection();
             bool isCrewNameAvailable = true;
@@ -649,7 +699,7 @@ namespace hds.databases{
 
             if (dr.Read())
             {
-                UInt16 memberCount = getCrewMemberCountByCrewName(crewName);
+                UInt16 memberCount = GetCrewMemberCountByCrewName(crewName);
 
                 UInt32 crewId = (UInt32)dr.GetInt32(0);
                 DateTime createdAt = dr.GetDateTime(1);
@@ -660,7 +710,7 @@ namespace hds.databases{
 	            // Lets check if more than one player is in the crew and if created_at is greater than one day
                 if ((DateTime.Now - deletedAt).TotalHours > 24 && memberCount < 2)
                 {
-                    deleteCrew(crewId);
+                    DeleteCrew(crewId);
 	                isCrewNameAvailable = true;
                 }
 
@@ -672,7 +722,7 @@ namespace hds.databases{
             return isCrewNameAvailable;
         }
 
-        public void deleteCrew(UInt32 crewId)
+        public void DeleteCrew(UInt32 crewId)
         {
 	        OpenConnection();
 	        // Delete the Crew
@@ -695,7 +745,7 @@ namespace hds.databases{
 	        CloseConnection();
         }
 
-        public void addCrew(string crewName, string masterHandle)
+        public void AddCrew(string crewName, string masterHandle)
         {
 	        OpenConnection();
 	        crewName = crewName.Replace("'", @"\'");
@@ -706,7 +756,7 @@ namespace hds.databases{
 	        CloseConnection();
         }
 
-        public UInt16 getFirstNewSlot()
+        public UInt16 GetFirstNewSlot()
         {
 	        OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();

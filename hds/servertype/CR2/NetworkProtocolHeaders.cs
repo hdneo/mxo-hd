@@ -81,7 +81,8 @@ namespace hds
         // Faction and crew
         CLIENT_FACTION_INFO = 0xf4,
         CREW_INVITE_PLAYER = 0x84,
-        CLIENT_FACTION_DISBAND_FACTION = 0x77
+        CLIENT_FACTION_DISBAND_FACTION = 0x77,
+        CLIENT_DEPOSIT_MONEY_FACTION_CREW = 0x78,
     }
 
     public enum RPCResponseHeaders
@@ -148,7 +149,8 @@ namespace hds
         SERVER_FACTION_NAME_RESPONSE = 0x80f5,
         SERVER_CREW_MEMBERS_LIST = 0x8086,
         SERVER_CREW_INVITE = 0x8088,
-        SERVER_FACTION_PLAYER_INFO = 0x7c
+        SERVER_FACTION_PLAYER_INFO = 0x7c,
+        SERVER_FACTION_UPDATE_MONEY = 0x79
 
     }
 

@@ -15,6 +15,10 @@ namespace hds.databases.interfaces{
         string getPathForDistrictKey(string key);
         ArrayList fetchFriendList(UInt32 charId);
         Faction fetchFaction(UInt32 factionId);
+        void IncreaseCrewMoney(UInt32 crewId, UInt32 amount);
+        void DecreaseCrewMoney(UInt32 crewId, UInt32 amount);
+        void IncreaseFactionMoney(UInt32 crewId, UInt32 amount);
+        void DecreaseFactionMoney(UInt32 crewId, UInt32 amount);
         Crew GetCrewData(UInt32 crewId);
         List<CrewMember> GetCrewMembersForCrewId(UInt32 crewId);
         void updateLocationByHL(UInt16 district, UInt16 hardline);
@@ -22,6 +26,7 @@ namespace hds.databases.interfaces{
         void setPlayerValues();
         void setRsiValues();
         void setOnlineStatus(UInt32 charId, ushort isOnline);
+        void ResetOnlineStatus();
         void savePlayer(WorldClient client);
         void SaveExperience(WorldClient client, long exp);
         void SaveInfo(WorldClient client, long exp);
@@ -30,18 +35,18 @@ namespace hds.databases.interfaces{
         
         //NEW
         void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot);
-        UInt16 getFirstNewSlot();
+        UInt16 GetFirstNewSlot();
         void addItemToInventory(UInt16 slotId, UInt32 itemGoID);
         void setBackground(string backgroundText);
         UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId);
         void updateRsiPartValue(string part, uint value);
         bool isSlotinUseByItem(UInt16 slotId);
 
-        bool isCrewNameAvailable(string crewName);
-        void addCrew(string crewName, string masterHandle);
-        UInt16 getCrewMemberCountByCrewName(string crewName);
-        UInt16 getCrewIdByCrewMasterHandle(string playerHandle);
+        bool IsCrewNameAvailable(string crewName);
+        void AddCrew(string crewName, string masterHandle);
+        UInt16 GetCrewMemberCountByCrewName(string crewName);
+        UInt16 GetCrewIdByCrewMasterHandle(string playerHandle);
 
-        string getFactionNameById(UInt32 factionId);
+        string GetFactionNameById(UInt32 factionId);
     }
 }

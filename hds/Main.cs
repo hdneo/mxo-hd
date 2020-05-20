@@ -42,7 +42,7 @@ namespace hds{
                 }                
 				
                 /* Initialize the MPM object */
-
+				Store.dbManager.WorldDbHandler.ResetOnlineStatus();
                 Store.Mpm = new MultiProtocolManager();
 
                 /* Initialize the scripting server */

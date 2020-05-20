@@ -9,7 +9,7 @@ namespace hds
 {
     public partial class ServerPackets
     {
-        public void sendFactionName(WorldClient client, UInt32 factionID, string factionName)
+        public void SendFactionName(WorldClient client, UInt32 factionID, string factionName)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16) RPCResponseHeaders.SERVER_FACTION_NAME_RESPONSE, 0);
@@ -19,7 +19,7 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void SendCrewMembers(WorldClient client, Crew crew, List<CrewMember> members)
+        public void SendCrewInfo(WorldClient client, Crew crew, List<CrewMember> members)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16) RPCResponseHeaders.SERVER_CREW_MEMBERS_LIST, 0);
@@ -61,7 +61,6 @@ namespace hds
                               3); // baseoffset + full crewname size (inkl. size byte and 0 termination)
                 pak.addUint16(offsetMemberList, 1);
                 pak.addHexBytes("14020000"); // Constant in every log from medanon, sonyblack and afterwhoruneo
-                UInt16 calculatedFullSize = (UInt16) (members.Count * 38 + offsetMemberList - 2);
                 // pak.addUint16(calculatedFullSize,1);
                 
                 
@@ -72,14 +71,14 @@ namespace hds
                 {
                     memberData.addByte(0x00);
                     memberData.addUint32(member.charId,1);
-                    memberData.addStringWithFixedSized(member.handle,32);
+                    memberData.addStringWithFixedSized(member.handle,31);
                     memberData.addUintShort(member.isOnline);
                 }
                 
                 memberData.addByteArray(new byte[]{0x00, 0x00, 0x00});
                 
                 UInt16 finalFullSize = (UInt16) (pak.returnFinalPacket().Length + memberData.returnFinalPacket().Length);
-                pak.addUint16(calculatedFullSize, 1);
+                pak.addUint16(finalFullSize, 1);
                 pak.addByteArray(memberData.returnFinalPacket());
 
             }
@@ -112,7 +111,7 @@ namespace hds
             pak.addUint32(Store.currentClient.playerData.getCharID(), 1);
             pak.addUint32(faction.factionId, 1);
             pak.addHexBytes("020001020F00"); // Currently unknown but the 02 should tell "hey this are the crew data"
-                                    //020000020F00 
+                                    //020000020F00  
             // Add the size for the next Data until end (we know that 81 bytes for each crewData so we you just multiply it)
             pak.addUint16((ushort) (faction.crews.Count * 81), 1);
             foreach (Crew theCrew in faction.crews)
@@ -122,7 +121,7 @@ namespace hds
                 //pak.addHexBytes("0000000000E6DC");
                 pak.addUint32(theCrew.masterPlayerCharId, 1);
                 pak.addStringWithFixedSized(theCrew.characterMasterName, 31);
-                pak.addByte(0x00); // ToDo: Should be an online flag (if leader is online ? )
+                pak.addUintShort(theCrew.masterIsOnline); // ToDo: Should be an online flag (if leader is online ? )
                 pak.addUintShort(theCrew.factionRank); // This is rank
                 
             }
@@ -130,7 +129,20 @@ namespace hds
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void sendCrewInviteToPlayer(string playerHandle, string crewName)
+        public void SendMoneyUpdateFactionCrew(WorldClient client, ushort type, UInt32 moneyAmount, ushort IsMoneyGiving)
+        {
+            // We found only ONE Example of this reponse in the 020_mxoemu_2_persons_actions_with_afterwhoruneo
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort) RPCResponseHeaders.SERVER_FACTION_UPDATE_MONEY);
+            pak.addUintShort(type);
+            pak.addUint32(moneyAmount,1);
+            pak.addUint32(Store.currentClient.playerData.getCharID(),1);
+            pak.addUintShort(IsMoneyGiving);
+            
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+        }
+
+        public void SendCrewInviteToPlayer(string playerHandle, string crewName)
         {
             // ToDo: fix the name display issue ?
             string charname =
@@ -138,17 +150,13 @@ namespace hds
             UInt16 crewOffset = (UInt16) (charname.Length + 7 + 3);
             PacketContent pak = new PacketContent();
             pak.addUintShort((ushort) RPCResponseHeaders.SERVER_CREW_INVITE);
-            pak.addUint16(7, 1); // Start Offsset for Charactername
+            pak.addUint16(7, 1); // Start Offset for Charactername
             pak.addUint16(crewOffset, 1);
             pak.addByte(0x01);
             pak.addSizedTerminatedString(
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
             pak.addSizedTerminatedString(crewName);
             Store.world.sendRPCToOnePlayerByHandle(pak.returnFinalPacket(), playerHandle);
-        }
-
-        public void SendPlayersFactionInfo()
-        {
         }
     }
 }

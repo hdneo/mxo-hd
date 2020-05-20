@@ -94,6 +94,9 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
 		            new FCHandler().processLoadFactionName(ref rpcData);
 		            break;
+		        case (int) RPCRequestHeader.CLIENT_DEPOSIT_MONEY_FACTION_CREW:
+			        new FCHandler().ProcessDepositMoney(ref rpcData);
+			        break;
 				case (int) RPCRequestHeader.CLIENT_FACTION_DISBAND_FACTION:
 					new FCHandler().ProcessDisbandFaction(ref rpcData);
 					break;

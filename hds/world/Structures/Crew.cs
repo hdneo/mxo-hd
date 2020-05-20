@@ -9,6 +9,7 @@ namespace hds.world.Structures
         public UInt32 crewId;
         public string crewName;
         public string characterMasterName;
+        public ushort masterIsOnline = 0;
         public List<CrewMember> members = new List<CrewMember>();
         public UInt32 factionId;
         public ushort factionRank;
