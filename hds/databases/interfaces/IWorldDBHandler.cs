@@ -13,6 +13,9 @@ namespace hds.databases.interfaces{
         Hashtable getCharInfoByHandle(string handle);
         UInt32 getUserIdForCharId(byte[] charIdHex);
         string getPathForDistrictKey(string key);
+        void AddHandleToFriendList(string handleToAdd, UInt32 charId);
+        void RemoveHandleFromFriendList(string handleToRemove, UInt32 charId);
+        ArrayList FetchPlayersWhoAddedMeToBuddylist(UInt32 charId);
         ArrayList fetchFriendList(UInt32 charId);
         Faction fetchFaction(UInt32 factionId);
         void IncreaseCrewMoney(UInt32 crewId, UInt32 amount);

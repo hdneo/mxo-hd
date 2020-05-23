@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
@@ -82,7 +83,7 @@ namespace hds
         /// </summary>
         /// <param name="packet">Packet Stream</param>
         /// <param name="playerHandle">Player Handle to send the Packet</param>
-        public void sendRPCToOnePlayerByHandle(byte[] packet, string playerHandle)
+        public void SendRPCToOnePlayerByHandle(byte[] packet, string playerHandle)
         {
             lock (Clients.SyncRoot)
             {
@@ -132,7 +133,7 @@ namespace hds
             }
         }
 
-        public void sendRPCToCrewMembers(WorldClient myself, byte[] data)
+        public void SendRPCToCrewMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock(Clients.SyncRoot){
@@ -140,18 +141,21 @@ namespace hds
                 {
                     // Populate a message to all players to my crew
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.CrewID == myself.playerInstance.CrewID)
+                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(),1) == groupId)
                     {
-                        // create the RPC Message
-                        client.messageQueue.addRpcMessage(data);
-                        client.FlushQueue();
+                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                        {
+                            // create the RPC Message
+                            client.messageQueue.addRpcMessage(data);
+                            client.FlushQueue();    
+                        }
                     }
 
                 }
             }
         }
         
-        public void sendRPCToFactionMembers(WorldClient myself, byte[] data)
+        public void sendRPCToFactionMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock(Clients.SyncRoot){
@@ -159,18 +163,22 @@ namespace hds
                 {
                     // Populate a message to all players to my crew
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.FactionID == myself.playerInstance.FactionID)
+                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(),1) == groupId)
                     {
-                        // create the RPC Message
-                        client.messageQueue.addRpcMessage(data);
-                        client.FlushQueue();
+                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                        {
+                            // create the RPC Message
+                            client.messageQueue.addRpcMessage(data);
+                            client.FlushQueue();    
+                        }
+                        
                     }
 
                 }
             }
         }
         
-        public void sendRPCToMissionTeamMembers(WorldClient myself, byte[] data)
+        public void sendRPCToMissionTeamMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock(Clients.SyncRoot){
@@ -178,13 +186,43 @@ namespace hds
                 {
                     // Populate a message to all players to my crew
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    if (client.playerData.getCharID() != myself.playerData.getCharID() && client.playerInstance.MissionTeamID == myself.playerInstance.MissionTeamID)
+                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.MissionTeamID.getValue(),1) == groupId)
+                    {
+                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                        {
+                            // create the RPC Message
+                            client.messageQueue.addRpcMessage(data);
+                            client.FlushQueue();    
+                        }
+                    }
+
+                }
+            }
+        }
+
+        public void SendRPCToPlayerList(ArrayList players, byte[] data)
+        {
+            List<string> handles = new List<string>();
+            foreach (Hashtable friend in players)
+            {
+                handles.Add(friend["handle"].ToString());
+            }
+
+            lock (Clients.SyncRoot)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+
+                    string handleRecipient =
+                        StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
+                    if (handles.Contains(handleRecipient))
                     {
                         // create the RPC Message
                         client.messageQueue.addRpcMessage(data);
                         client.FlushQueue();
                     }
-
                 }
             }
         }

@@ -47,6 +47,9 @@ namespace hds{
 		            new ChatHandler().processChat(ref rpcData);
 		            break;
 
+		        case (int) RPCRequestHeader.CLIENT_WHISPER:
+			        new ChatHandler().ProcessWhisperPlayer(ref rpcData);
+			        break;
 		        case (int) RPCRequestHeader.CLIENT_OBJECTINTERACTION_DYNAMIC:
 		            new ObjectInteractionHandler().processObjectDynamic(ref rpcData);
 		            break;
@@ -79,7 +82,8 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_MISSION_ABORT:
 		            new MissionHandler().processAbortMission(ref rpcData);
 		            break;
-		        case (int) RPCRequestHeader.CLIENT_PARTY_LEAVE:
+		        case (int) RPCRequestHeader.CLIENT_LEAVE_GROUP:
+			        new FCHandler().ProcessLeaveGroup(ref rpcData);
 		            break;
 
 		        // Team
@@ -97,7 +101,7 @@ namespace hds{
 		        case (int) RPCRequestHeader.CLIENT_DEPOSIT_MONEY_FACTION_CREW:
 			        new FCHandler().ProcessDepositMoney(ref rpcData);
 			        break;
-				case (int) RPCRequestHeader.CLIENT_FACTION_DISBAND_FACTION:
+		        case (int) RPCRequestHeader.CLIENT_FACTION_DISBAND_FACTION:
 					new FCHandler().ProcessDisbandFaction(ref rpcData);
 					break;
 		        // Abilitys
@@ -155,6 +159,12 @@ namespace hds{
 		            new VendorHandler().processBuyItem(ref rpcData);
 		            break;
 
+		        case (int) RPCRequestHeader.CLIENT_ADD_FRIEND:
+			        new BuddylistHandler().ProcessAddFriend(ref rpcData);
+			        break;
+		        case (int) RPCRequestHeader.CLIENT_REMOVE_FRIEND:
+			        new BuddylistHandler().ProcessRemoveFriend(ref rpcData);
+			        break;
 		        // MarketPlace
 		        case (int) RPCRequestHeader.CLIENT_MP_OPEN:
 		            new TestUnitHandler().processMarketTest(ref rpcData);

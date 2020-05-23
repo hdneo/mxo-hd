@@ -36,7 +36,7 @@ namespace hds
                 {
                     // Not a Param - lets distribute the Message throw our Area 
                     ServerPackets pak = new ServerPackets();
-                    pak.sendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), "AREA");
+                    pak.SendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), "AREA");
                     // ToDo: Send the ChatMessage to the Scope of Players
 
                     
@@ -45,5 +45,21 @@ namespace hds
 
         }
 
+        public void ProcessWhisperPlayer(ref byte[] rpcData)
+        {
+            PacketReader reader = new PacketReader(rpcData);
+            // We read the offset but we dont need it really
+            UInt16 offsetName = reader.readUInt16(1);
+            UInt16 offsetMessage = reader.readUInt16(1);
+            uint unknownZeroShort = reader.readUint8();
+            uint chatCounter = reader.readUint8(); // ChatCounter (increment by 1 each message)
+            string receiverHandleServerString = reader.readSizedZeroTerminatedString();
+            string receiverMessage = reader.readSizedZeroTerminatedString();
+
+            string cleanHandle = receiverHandleServerString.Replace("SOE+MXO+" + Store.worldConfig.serverName +"+", "");
+            
+            ServerPackets packets = new ServerPackets();
+            packets.SendWhisperMesage(Store.currentClient, cleanHandle, receiverMessage);
+        }
     }
 }

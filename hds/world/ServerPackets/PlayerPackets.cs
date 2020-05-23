@@ -145,7 +145,7 @@ namespace hds
 
         }
 
-        public void sendPlayerFriendList(WorldClient client)
+        public void SendPlayerFriendList(WorldClient client)
         {
             ArrayList friends =  Store.dbManager.WorldDbHandler.fetchFriendList(Store.currentClient.playerData.getCharID());
 
@@ -154,20 +154,20 @@ namespace hds
                 foreach (Hashtable friend in friends)
                 {
                     PacketContent pak = new PacketContent();
-                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS, 0);
+                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS_ADD, 0);
                     pak.addHexBytes("0800");
                     if ((Int16)friend["online"] ==1)
                     {
-                        pak.addByte(0x3c);
+                        pak.addByte(0x3b);
                     }
                     else
                     {
-                        pak.addByte(0x3b);
+                        pak.addByte(0x3c);
                     }
 
                     pak.addHexBytes("0000");
                     pak.addByte(0x8e); // Another unknown flag ...mxosource made it wrong lol
-                    pak.addSizedTerminatedString("SOE+MXO+" + friend["handle"]);
+                    pak.addSizedTerminatedString("SOE+MXO+" + Store.worldConfig.serverName+"+"+ friend["handle"]);
                     client.messageQueue.addRpcMessage(pak.returnFinalPacket());
                 }
             }

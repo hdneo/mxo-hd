@@ -59,6 +59,41 @@ namespace hds
         {
             // ToDo: Check if i am the leader, disband the faction and tell that to all other players
         }
+        
+        public void ProcessLeaveGroup(ref byte[] rpcData)
+        {
+            PacketReader reader = new PacketReader(rpcData);
+            uint groupType = reader.readUint8();
+
+            ServerPackets pak = new ServerPackets();
+            // ToDo: when we leave we don't sent it to ourself (but maybe to the crew?)
+            switch (groupType)
+            {
+                case 1:
+                    // Leave Faction (remove crew from faction, tell it all others faction members that are online)
+                    UInt32 factionId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
+                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), factionId);
+                    break;
+                
+                case 2:
+                    UInt32 crewId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
+                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), crewId);
+                    // Leave Group (announce it to all crew members)
+                    
+                    break;
+                case 3:
+                    // ToDo: Leave Team can be done if we handle Teams :) 
+                    UInt32 teamId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(), 1);
+                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), teamId);
+                    break;
+            }
+            
+            
+            
+        }
 
         public void ProcessDepositMoney(ref byte[] rpcData)
         {
@@ -141,5 +176,6 @@ namespace hds
             packet.SendFactionInfo(Store.currentClient, faction);
             packet.SendFactionCrews(Store.currentClient, faction);
         }
+        
     }
 }

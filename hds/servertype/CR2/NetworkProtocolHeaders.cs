@@ -8,6 +8,7 @@ namespace hds
     {
         CLIENT_SPAWN_READY = 0x05,
         CLIENT_CHAT = 0x28,
+        CLIENT_WHISPER = 0x29,
         CLIENT_CLOSE_COMBAT = 0x40,
         CLIENT_RANGE_COMBAT = 0x41,
         CLIENT_LEAVE_COMBAT = 0x44,
@@ -23,7 +24,7 @@ namespace hds
         CLIENT_MISSION_INFO = 0x98,
         CLIENT_MISSION_ACCEPT = 0x9b,
         CLIENT_MISSION_ABORT = 0xa6,
-        CLIENT_PARTY_LEAVE = 0x71,
+        CLIENT_LEAVE_GROUP = 0x71,
         CLIENT_ABILITY_HANDLER = 0xB9,
         CLIENT_CHANGE_CT = 0x42,
 
@@ -49,6 +50,10 @@ namespace hds
         CLIENT_ITEM_RECYCLE = 0x5D,
         CLIENT_VENDOR_BUY = 0x10e,
         CLIENT_VENDOR_SELL = 0x111,
+        
+        // BuddyList
+        CLIENT_ADD_FRIEND = 0xd6,
+        CLIENT_REMOVE_FRIEND = 0xda,
 
         // MarketPlace
         CLIENT_MP_LIST_ITEMS = 0x124,
@@ -73,16 +78,16 @@ namespace hds
 
         // Currently unhandled but maybe useful
         // http://code.google.com/p/mxo-singularity/wiki/RpcPacketMap
-        CLIENT_CHAT_WHISPER = 0x29,
         CLIENT_EMOTE = 0x30,
         CLIENT_ANIMATION_START = 0x33,
         CLIENT_ANIMATION_STOP = 0x34,
 
         // Faction and crew
         CLIENT_FACTION_INFO = 0xf4,
-        CREW_INVITE_PLAYER = 0x84,
         CLIENT_FACTION_DISBAND_FACTION = 0x77,
         CLIENT_DEPOSIT_MONEY_FACTION_CREW = 0x78,
+        CREW_INVITE_PLAYER = 0x84,
+        
     }
 
     public enum RPCResponseHeaders
@@ -115,7 +120,8 @@ namespace hds
         SERVER_PLAYER_HANDLE_BACKGROUND = 0x8198,
 
         // Friendlist
-        SERVER_FRIENDLIST_STATUS = 0x80D7,
+        SERVER_FRIENDLIST_STATUS_ADD = 0x80D7,
+        SERVER_FRIENDLIST_STATUS_DELETE = 0x80DB,
 
         // Mission related
         SERVER_MISSION_RESPONSE_LIST    = 0x8095,
@@ -149,6 +155,7 @@ namespace hds
         SERVER_FACTION_NAME_RESPONSE = 0x80f5,
         SERVER_CREW_MEMBERS_LIST = 0x8086,
         SERVER_CREW_INVITE = 0x8088,
+        SERVER_LEAVE_GROUP = 0x72,
         SERVER_FACTION_PLAYER_INFO = 0x7c,
         SERVER_FACTION_UPDATE_MONEY = 0x79
 

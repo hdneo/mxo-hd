@@ -8,7 +8,7 @@ namespace hds
 {
     public partial class ServerPackets
     {
-        public void sendChatMessage(WorldClient fromClient, string message, UInt32 charId, string handle, string scope)
+        public void SendChatMessage(WorldClient fromClient, string message, UInt32 charId, string handle, string scope)
         {
             byte typeByte;
             switch (scope)
@@ -40,7 +40,7 @@ namespace hds
             UInt32 offsetMessage = (uint) handle.Length + 35 + 2 + 2;
             PacketContent pak = new PacketContent();
             pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addByte(typeByte);
+            pak.addByte(0);
             pak.addUint32(charId, 0);
             pak.addUint16(36, 0);
             pak.addUint32(offsetMessage, 0);
@@ -51,20 +51,49 @@ namespace hds
             switch (typeByte)
             {
                 case 0x02:
-                    Store.world.sendRPCToCrewMembers(Store.currentClient, pak.returnFinalPacket());
+                    UInt32 factionId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(),
+                            1);
+                    Store.world.SendRPCToCrewMembers(factionId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
                 case 0x03:
-                    Store.world.sendRPCToFactionMembers(Store.currentClient, pak.returnFinalPacket());
+                    UInt32 crewId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(),
+                            1);
+                    Store.world.sendRPCToFactionMembers(crewId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
 
                 case 0x05:
-                    Store.world.sendRPCToMissionTeamMembers(Store.currentClient, pak.returnFinalPacket());
+                    UInt32 missionTeamId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(),
+                            1);
+                    Store.world.sendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
 
                 default:
                     Store.world.sendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.returnFinalPacket());
                     break;
             }
+        }
+
+        public void SendWhisperMesage(WorldClient client, string receiverHandle, string message)
+        {
+            string senderHandleStringWithPrefix = "SOE+MXO+" + Store.worldConfig.serverName + "+" +
+                                                  StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance
+                                                      .CharacterName.getValue());
+            
+            PacketContent pak = new PacketContent();
+            pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.addByte(0x11);
+            pak.addByte(0x00);
+            pak.addUint32(0,1); // Always zero
+            pak.addUint32(36,1); // Offset Handle Name- maybe its only UInt16 - always 36
+            pak.addUint32((uint) (36 + senderHandleStringWithPrefix.Length + 3), 1);
+            pak.addHexBytes("000000000000000000000000000000000000000000"); 
+            pak.addSizedTerminatedString(senderHandleStringWithPrefix);
+            pak.addSizedTerminatedString(message);
+            
+            Store.world.SendRPCToOnePlayerByHandle(pak.returnFinalPacket(), receiverHandle);
         }
 
         public void sendSystemChatMessage(WorldClient client, string message, string type)

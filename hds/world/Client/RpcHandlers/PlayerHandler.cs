@@ -18,7 +18,7 @@ namespace hds
         {
             ServerPackets server = new ServerPackets();
             server.sendPlayerAttributes(Store.currentClient);
-            server.sendPlayerFriendList(Store.currentClient);
+            server.SendPlayerFriendList(Store.currentClient);
             //Store.currentClient.playerData.setPss(0x7f);
         }
 
@@ -143,11 +143,12 @@ namespace hds
             */
             //Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2350400000802"));
 
-            
+            // Buddylist
+            BuddylistHandler buddylistHandler = new BuddylistHandler();
+            buddylistHandler.ProcessAnnounceFriendOnline(Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+            ;
 
             ServerPackets pak = new ServerPackets();
-            
-            
 
             UInt32 factionId =
                 NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
@@ -168,6 +169,8 @@ namespace hds
             Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
             List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
             pak.SendCrewInfo(Store.currentClient, crewData, members);
+            
+            
 
         }
 

@@ -156,7 +156,51 @@ namespace hds
             pak.addSizedTerminatedString(
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
             pak.addSizedTerminatedString(crewName);
-            Store.world.sendRPCToOnePlayerByHandle(pak.returnFinalPacket(), playerHandle);
+            Store.world.SendRPCToOnePlayerByHandle(pak.returnFinalPacket(), playerHandle);
+        }
+
+        public void SendLeaveGroup(uint type, UInt32 charId, UInt32 groupId)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort) RPCResponseHeaders.SERVER_LEAVE_GROUP);
+            pak.addUintShort((ushort) type);
+            pak.addUint32(charId,1);
+
+            PacketContent viewResetStateData = new PacketContent();
+            switch (type)
+            {
+                case 1:
+                    // This removes the faction flag (but as it is from the crew packet it may set faction and crew to zero)
+                    // This is just a simple ViewStateUpdate on GRoup 5 (4 times 80 skipped) and set CrewId to 0
+                    viewResetStateData.addHexBytes("0280804000000000");
+                    Store.world.sendRPCToFactionMembers(groupId, Store.currentClient, pak.returnFinalPacket(), false);
+                    break;
+                
+                case 2:
+                    // This removes the faction flag (but as it is from the crew packet it may set faction and crew to zero)
+                    // This is just a simple ViewStateUpdate on GRoup 5 (4 times 80 skipped) and set CrewId to 0
+                    viewResetStateData.addHexBytes("02808080808200000000");
+                    Store.world.SendRPCToCrewMembers(groupId, Store.currentClient, pak.returnFinalPacket(), false);
+                    break;
+                    
+                case 3:
+                    // ToDo: we MAYBE not send it to ourself (needs testing)
+                    viewResetStateData.addHexBytes("024000000000");
+                    Store.world.sendRPCToMissionTeamMembers(groupId, Store.currentClient, pak.returnFinalPacket(), false);
+                    break;
+            }
+            
+            //viewResetId.addUint16(2,1); // ViewID
+            
+            Store.world.sendViewPacketToAllPlayers(viewResetStateData.returnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+
+            
+            PacketContent myselfStateData = new PacketContent();
+            myselfStateData.addUint16(2,1);
+            myselfStateData.addByteArray(viewResetStateData.returnFinalPacket());
+            
+            Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(),false);
+            
         }
     }
 }

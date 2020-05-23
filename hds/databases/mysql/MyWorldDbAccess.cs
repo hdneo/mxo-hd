@@ -46,11 +46,58 @@ namespace hds.databases{
 			
 		}
 
+		public void AddHandleToFriendList(string handleToAdd, UInt32 charId)
+		{
+			UInt32 friendId = getCharIdByHandle(handleToAdd);
+			
+			OpenConnection();
+			string query = "INSERT INTO buddylist SET charId='" + charId +
+			               "', friendId='" + friendId + "', is_ignored=0 ";
+			
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = query;
+			queryExecuter.ExecuteNonQuery();
+			CloseConnection();
+		}
+
+		public void RemoveHandleFromFriendList(string handleToRemove, UInt32 charId)
+		{
+			UInt32 friendId = getCharIdByHandle(handleToRemove);
+			OpenConnection();
+			string query = "DELETE FROM buddylist WHERE charId='" + charId + "' AND friendId='" + friendId + "' ";
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = query;
+			queryExecuter.ExecuteNonQuery();
+			CloseConnection();
+		}
+
+		public ArrayList FetchPlayersWhoAddedMeToBuddylist(UInt32 charId)
+		{
+			OpenConnection();
+			ArrayList friends = new ArrayList();
+			string query = "SELECT C.handle, C.charId, C.is_online, B.friendId FROM buddylist B LEFT JOIN characters C ON B.charId=C.charId WHERE B.friendId = '" + charId + "' ";
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = query;
+			dr = queryExecuter.ExecuteReader();
+
+			while (dr.Read())
+			{
+				Hashtable data = new Hashtable();
+				data.Add("handle", dr.GetString(0));
+				data.Add("online", dr.GetInt16(1));
+				friends.Add(data);
+			}
+
+			dr.Close();
+			CloseConnection();
+			return friends;
+		}
+		
         public ArrayList fetchFriendList(UInt32 charId)
         {
 	        OpenConnection();
             ArrayList friends = new ArrayList();
-            string query = "SELECT C.handle, C.is_online, B.friendId FROM characters C, buddylist B WHERE B.charId = '" + charId + "' AND B.friendId=C.charId ";
+            string query = "SELECT C.handle, C.is_online, B.friendId FROM buddylist B LEFT JOIN characters C ON B.friendId=C.charId WHERE B.charId = '" + charId + "' ";
             queryExecuter = conn.CreateCommand();
             queryExecuter.CommandText = query;
             dr = queryExecuter.ExecuteReader();
@@ -65,9 +112,7 @@ namespace hds.databases{
 
             dr.Close();
 	        CloseConnection();
-            // ToDo: Write query 
-            // ToDo2: add online flag to characters and handle this on "connect" and "disconnect"
-            return friends;
+	        return friends;
             
         }
 

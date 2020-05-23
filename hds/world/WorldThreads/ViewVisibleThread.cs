@@ -322,6 +322,8 @@ namespace hds
                     Store.margin.removeClientsByCharId(otherclient.playerData.getCharID());
                 }
 
+                string handle = StringUtils.charBytesToString_NZ(deadClient.playerInstance.CharacterName.getValue());
+                new BuddylistHandler().ProcessAnnounceFriendsOffline(deadClient.playerData.getCharID(), handle);
                 // Views are now deleted to other players
                 // ToDo: Cleanup Missions (kill all running missions the player have)
                 // ToDo: Cleanup Teams (if your mission team has more than one player, you need to announce an update for the mission team to your mates)
