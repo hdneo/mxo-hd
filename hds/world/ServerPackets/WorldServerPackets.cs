@@ -33,6 +33,7 @@ namespace hds
             locs.Add((uint)MxOLocations.MEDIUM03, "resource/worlds/final_world/constructs/medium/medium03/medium03.metr");
             locs.Add((uint)MxOLocations.SMALL03, "resource/worlds/final_world/constructs/small/small03/small03.metr");
             locs.Add((uint)MxOLocations.CAVES, "resource/worlds/final_world/zion_caves.metr");
+            locs.Add((uint)MxOLocations.LA, "resource/worlds/loading_area/la.metr");
 
             string path = locs[districtId];
             UInt16 offsetWeatherEvent = (UInt16)(path.Length + 17);

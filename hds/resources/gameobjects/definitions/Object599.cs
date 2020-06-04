@@ -77,7 +77,7 @@ namespace hds
 
 
         public Object599()
-            : base(66, 47, 10, 7, "NPC_BASE", 0x257, 0xFFFFFFFF)
+            : base(66, 47, "NPC_BASE", 0x257, 0xFFFFFFFF)
         {
             this.AddAttribute(ref EvadeShieldHealth, 0, 32);
             this.AddAttribute(ref CharacterName, 1, -1);

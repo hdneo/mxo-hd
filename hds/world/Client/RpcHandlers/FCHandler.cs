@@ -32,20 +32,32 @@ namespace hds
             // ToDO: add it to the tempCrews and check if name is reserved on DB (and check if double names are possible)
             // ToDo: Questions 1. should we persist it directly to reserve crewname in the DB ? maybe its better
             PacketReader pakRead = new PacketReader(rpcData);
+            pakRead.incrementOffsetByValue(1);
 
             UInt16 offsetHandle = pakRead.readUInt16(1);
             UInt16 offsetCrewName = pakRead.readUInt16(1);
-            uint orgId = pakRead.readUint8();
             string crewName = pakRead.readSizedZeroTerminatedString().Trim();
             string playerHandle = pakRead.readSizedZeroTerminatedString().Trim();
+            string crewCaptainHandle =
+                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+
+            UInt32 crewId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
 
             bool isCrewNameAvailable = Store.dbManager.WorldDbHandler.IsCrewNameAvailable(crewName);
-
-            // ToDo: Just "reserve" the crewName - so if crewName exists and membercount is just one or zero and its older than a day - delete it (this can be done by the "isCrewNameAvailable" too).
-            ServerPackets pak = new ServerPackets();
-            if (isCrewNameAvailable)
+            bool isNewCrew = false;
+            if (crewId == 0 && isCrewNameAvailable)
             {
-                Store.dbManager.WorldDbHandler.AddCrew(crewName,StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+                // Create The Crew
+                Store.dbManager.WorldDbHandler.AddCrew(crewName,crewCaptainHandle);
+                crewId = Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(crewCaptainHandle);
+                // We add ourself as captain to the crew
+                Store.dbManager.WorldDbHandler.AddMemberToCrew(Store.currentClient.playerData.getCharID(), crewId, 0, 1, 0  );
+                isNewCrew = true;
+            }
+            
+            ServerPackets pak = new ServerPackets();
+            if (isNewCrew || crewId != 0)
+            {
                 pak.SendCrewInviteToPlayer(playerHandle, crewName);
             }
             else
@@ -77,11 +89,11 @@ namespace hds
                     break;
                 
                 case 2:
+                    // Leave Group (announce it to all crew members)
                     UInt32 crewId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
+                    Store.dbManager.WorldDbHandler.RemoveMemberFromCrew(Store.currentClient.playerData.getCharID(), crewId);
                     pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), crewId);
-                    // Leave Group (announce it to all crew members)
-                    
                     break;
                 case 3:
                     // ToDo: Leave Team can be done if we handle Teams :) 
@@ -90,9 +102,6 @@ namespace hds
                     pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), teamId);
                     break;
             }
-            
-            
-            
         }
 
         public void ProcessDepositMoney(ref byte[] rpcData)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using hds.shared;
 
 namespace hds
@@ -6,7 +7,7 @@ namespace hds
     public partial class ServerPackets
     {
         // Place Methods here for Skills
-        public void sendCastAbilityBar(UInt16 abilityID, float timeProcessing)
+        public void SendCastAbilityBar(UInt16 abilityID, float timeProcessing)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16) RPCResponseHeaders.SERVER_CAST_BAR_ABILITY, 0);
@@ -16,46 +17,27 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void sendCastAbilityOnEntityId(UInt16 viewId, UInt32 animationId, UInt16 value)
+        public void SendCastAbilityOnEntityId(UInt16 viewId, UInt32 animationId, UInt16 value)
         {
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
-
-            Random randomObject = new Random();
-            ushort randomHealth = (ushort) randomObject.Next(3, 1800);
-            // RSI Health FX "send 02 03 02 00 02 80 80 80 90 ed 00 30 22 0a 00 28 06 00 00;"
-            PacketContent pak = new PacketContent();
+            
             if (viewId == 0)
             {
                 viewId = 2;
             }
-            pak.addUint16(viewId, 1);
 
-            UInt32 theGoID = 12;
+            UInt32 theGoID = 0;
             if (theView != null)
             {
                 theGoID = theView.GoID;
             }
 
+            PacketContent myselfStateData = new PacketContent();
+            myselfStateData.addUint16(2, 1);
+            PacketContent viewStateOtherData = new PacketContent();
+
             switch (theGoID)
             {
-                case 12:
-                    pak.addByte(0x02);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
-                    if (viewId == 2)
-                    {
-                        pak.addByte(0x80);
-                        pak.addByte(0xb0);
-                    }
-                    else
-                    {
-                        pak.addByte(0x0c);
-                    }
-                    pak.addUint32(animationId, 1);
-                    pak.addUintShort(Store.currentClient.playerData.assignSpawnIdCounter());
-                    break;
-
                 case 599:
 
                     // Its more a demo - we "one hit" the mob currently so we must update this 
@@ -77,44 +59,64 @@ namespace hds
                                     // Just take currentLevel * modifier
                                     Random rand = new Random();
 
-                                    UInt32 expModifier = (UInt32)rand.Next(100, 500);
+                                    UInt32 expModifier = (UInt32) rand.Next(100, 500);
                                     UInt32 expGained = thismob.getLevel() * expModifier;
                                     // Update EXP
                                     new PlayerHandler().IncrementPlayerExp(expGained);
                                     thismob.setIsLootable(true);
                                 }
+
                                 WorldSocket.mobs[i] = thismob;
-                                
                             }
                         }
                     }
+
                     break;
 
                 default:
-                    pak.addByte(0x02);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
-                    pak.addByte(0x80);
+                    List<Attribute> updateAttributes = new List<Attribute>();
+                    Store.currentClient.playerInstance.EffectID.enable();
+                    Store.currentClient.playerInstance.EffectCounter.enable();
+
+                    Store.currentClient.playerInstance.EffectID.setValue(animationId);
+                    uint effectCounter = 0;
+
+                    effectCounter = (uint) Store.currentClient.playerInstance.EffectCounter.getValue()[0] + 1;
+                    Store.currentClient.playerInstance.EffectCounter.setValue(effectCounter);
+                    
+                    updateAttributes.Add(Store.currentClient.playerInstance.EffectID);
+                    updateAttributes.Add(Store.currentClient.playerInstance.EffectCounter);
+
+                    viewStateOtherData.addByteArray(
+                        Store.currentClient.playerInstance.GetUpdateAttributes(updateAttributes));
+                    myselfStateData.addByteArray(
+                        Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+
+                    String hexViewStateOther = StringUtils.bytesToString_NS(viewStateOtherData.returnFinalPacket());
+                    String hexMyselfStateData = StringUtils.bytesToString_NS(myselfStateData.returnFinalPacket());
+                    
                     if (viewId == 2)
                     {
-                        pak.addByte(0x80);
-                        pak.addByte(0xb0);
+                        Output.WriteDebugLog("View ID Ability SelfState for View ID 2 from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Output.WriteDebugLog("Update Ability FX on OtherState Views from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.returnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
                     }
                     else
                     {
-                        pak.addByte(0x0c);
+                        // This should show the FX only on otherViews but on the castTarget it should be shown the SelfViewUpdate
+                        // Send selfView Packet to the Target
+                        Output.WriteDebugLog("View ID Ability SelfState for View ID " + viewId + " from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Store.world.SendSelfViewUpdateToTarget(myselfStateData, viewId, Store.currentClient);
+                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.returnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
                     }
-                    pak.addUint32(animationId, 1);
-                    pak.addUintShort(Store.currentClient.playerData.assignSpawnIdCounter());
+
                     break;
             }
-
-            string hex = StringUtils.bytesToString(pak.returnFinalPacket());
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-            Store.currentClient.FlushQueue();
+            
         }
 
-        public void sendHyperSpeed()
+        public void SendHyperSpeed()
         {
             byte[] updateCount =
                 NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
@@ -138,7 +140,6 @@ namespace hds
         public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos,
             float jumpHeight, uint endtime, ushort stepJumpId, uint maybeTimeBasedValue, bool isLastStep = false)
         {
-
             PacketContent pak = new PacketContent();
             pak.addUint16(2, 1);
             pak.addByte(0x03);
@@ -148,18 +149,18 @@ namespace hds
             pak.addUintShort(Store.currentClient.playerData.getJumpID());
             pak.addFloatLtVector3f(currentPos.x, currentPos.y, currentPos.z);
             pak.addUintShort(stepJumpId);
-            pak.addUint32(maybeTimeBasedValue,1);
+            pak.addUint32(maybeTimeBasedValue, 1);
             // ToDo: Insert 2 missing bytes (or 4 as the next 2 bytes MAYBE wrong)
             pak.addByte(0x8a);
             pak.addByte(0x04);
             pak.addByte(0x80);
             pak.addByte(0x88);
-            pak.addByteArray(new byte[]{ 0x00, 0x00, 0x00, 0x00, 0xbc });
+            pak.addByteArray(new byte[] {0x00, 0x00, 0x00, 0x00, 0xbc});
             pak.addFloat(jumpHeight, 1);
             pak.addUint16(4, 1);
-            pak.addUint32(endtime,1);
+            pak.addUint32(endtime, 1);
             pak.addDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
-            pak.addByteArray(new byte[] { 0x80, 0x81, 0x00, 0x02});
+            pak.addByteArray(new byte[] {0x80, 0x81, 0x00, 0x02});
             if (isLastStep)
             {
                 pak.addByte(0x00);
@@ -167,9 +168,9 @@ namespace hds
             }
             else
             {
-                pak.addByte(0x01);    
+                pak.addByte(0x01);
             }
-            
+
             Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
             Store.currentClient.FlushQueue();
         }
@@ -202,7 +203,7 @@ namespace hds
         }
 
 
-        public void sendAbilitySelfAnimation(UInt16 viewId, UInt16 abilityId, UInt32 animId)
+        public void SendAbilitySelfAnimation(UInt16 viewId, UInt16 abilityId, UInt32 animId)
         {
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
 

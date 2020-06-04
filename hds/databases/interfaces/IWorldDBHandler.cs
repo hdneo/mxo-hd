@@ -24,31 +24,39 @@ namespace hds.databases.interfaces{
         void DecreaseFactionMoney(UInt32 crewId, UInt32 amount);
         Crew GetCrewData(UInt32 crewId);
         List<CrewMember> GetCrewMembersForCrewId(UInt32 crewId);
+        void AddMemberToCrew(UInt32 charId, UInt32 crewId, UInt32 factionId, ushort isCaptain, ushort isFirstMate);
+        void RemoveMemberFromCrew(UInt32 charId, UInt32 crewId);
+        void AddCrewToFaction(UInt32 factionId, UInt32 crewId);
+        void RemoveCrewFromFaction(UInt32 factionId, UInt32 crewId);
+        void DeleteCrew(UInt32 crewId);
+        void CreateFaction(Crew crew1, Crew crew2, string factionName);
+        
         void updateLocationByHL(UInt16 district, UInt16 hardline);
         void updateSourceHlForObjectTracking(UInt16 sourceDistrict, UInt16 sourceHl, UInt32 lastObjectId);
         void setPlayerValues();
         void setRsiValues();
-        void setOnlineStatus(UInt32 charId, ushort isOnline);
+        void SetOnlineStatus(UInt32 charId, ushort isOnline);
         void ResetOnlineStatus();
-        void savePlayer(WorldClient client);
+        void SavePlayer(WorldClient client);
         void SaveExperience(WorldClient client, long exp);
         void SaveInfo(WorldClient client, long exp);
 
-        void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
+        void UpdateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
         
         //NEW
-        void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot);
+        void UpdateInventorySlot(UInt16 sourceSlot, UInt16 destSlot, UInt32 charId);
         UInt16 GetFirstNewSlot();
         void addItemToInventory(UInt16 slotId, UInt32 itemGoID);
         void setBackground(string backgroundText);
         UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId);
-        void updateRsiPartValue(string part, uint value);
+        void UpdateRsiPartValue(string part, uint value, UInt32 charId);
         bool isSlotinUseByItem(UInt16 slotId);
 
         bool IsCrewNameAvailable(string crewName);
         void AddCrew(string crewName, string masterHandle);
         UInt16 GetCrewMemberCountByCrewName(string crewName);
-        UInt16 GetCrewIdByCrewMasterHandle(string playerHandle);
+        UInt32 GetCrewIdByCrewMasterHandle(string playerHandle);
+        UInt32 GetCrewIdByInviterHandle(string playerHandle);
 
         string GetFactionNameById(UInt32 factionId);
     }

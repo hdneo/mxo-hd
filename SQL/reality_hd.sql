@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Erstellungszeit: 20. Mai 2020 um 14:15
+-- Erstellungszeit: 04. Jun 2020 um 21:37
 -- Server-Version: 5.7.29-0ubuntu0.18.04.1
--- PHP-Version: 7.2.24-0ubuntu0.18.04.3
+-- PHP-Version: 7.2.24-0ubuntu0.18.04.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -68,6 +68,7 @@ CREATE TABLE `characters` (
   `profession` smallint(6) NOT NULL DEFAULT '2',
   `alignment` smallint(6) NOT NULL DEFAULT '0',
   `pvpflag` smallint(6) NOT NULL DEFAULT '0',
+  `conquest_points` int(11) NOT NULL DEFAULT '0',
   `exp` int(11) NOT NULL DEFAULT '0',
   `cash` int(11) NOT NULL DEFAULT '1000',
   `repMero` int(11) NOT NULL DEFAULT '0',
@@ -90,16 +91,17 @@ CREATE TABLE `characters` (
 -- Daten für Tabelle `characters`
 --
 
-INSERT INTO `characters` (`charId`, `userId`, `worldId`, `status`, `handle`, `firstName`, `lastName`, `background`, `x`, `y`, `z`, `rotation`, `healthC`, `healthM`, `innerStrC`, `innerStrM`, `level`, `profession`, `alignment`, `pvpflag`, `exp`, `cash`, `repMero`, `repMachine`, `repNiobe`, `repEPN`, `repCYPH`, `repGM`, `repZion`, `district`, `districtId`, `factionId`, `crewId`, `is_deleted`, `is_online`, `created`) VALUES
-(2, 28, 1, 0, 'TheNeo', 'Mr', 'Neo', 'Has all shit loaded for Development! YEAH!', 111375, 694.999, -7189.77, 0, 500, 500, 200, 200, 50, 2, 0, 0, 314690958, 987704321, 0, 0, 0, 0, 0, 0, 100, 'slums', 1, 125, 1, 0, 0, '0000-00-00 00:00:00'),
-(3, 28, 1, 0, 'TheLevelOne', 'Testing', 'Chat', 'Just testing', 9483.31, 95, 13039.4, 0, 500, 500, 200, 200, 20, 2, 1, 0, 19359020, 105000, 20, -50, -10, -5, -100, 200, 10, 'slums', 1, 0, 0, 1, 0, '0000-00-00 00:00:00'),
-(111, 48, 1, 0, 'LaurinHill', 'Laurin', 'Hill', 'That Thing', 17020, 495, 2693, 139, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 125, 2, 0, 0, '2017-01-28 12:17:36'),
-(141, 33, 1, 0, 'Trinitys', 'Laurin', 'Hill', 'Trinity', 67661.2, -105, -10658.6, 0, 500, 500, 200, 200, 1, 2, 0, 0, 224466, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 0, 0, '2017-10-15 13:43:42'),
-(110, 28, 1, 0, 'CSR_Tester', 'dasd', 'asd', 'asdasd', 7578, 1595, -12250.2, 0, 500, 500, 200, 200, 1, 2, 0, 0, 2540, 26000, 0, 0, 0, 0, 0, 0, 0, 'tutorial', 0, 0, 1, 0, 0, '2016-03-15 13:21:02'),
-(97, 33, 1, 0, 'TesterArchive', 'Tester', 'Tester', 'Tester', 9606, 495, 1585, 209, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'archive02', 5, 0, 0, 0, 0, '2016-03-14 15:46:41'),
-(142, 28, 1, 0, 'NeoAnderbro', 'Thomas', 'Anderson', 'The cake is a lie', -7321.94, 95, -1847.68, 65, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 13, 125, 1, 0, 0, '2020-04-12 12:48:02'),
-(143, 50, 1, 0, 'entilsar', 'Martin', 'Kosital', 'My mate', 17012.8, 495, 2787.72, 11, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 0, 0, '2020-05-19 09:58:08'),
-(145, 50, 1, 0, 'antietam305', 'antie', 'tam', '304', 17020, 495, 2693, 139, 500, 500, 200, 200, 1, 2, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 0, 0, '2020-05-19 10:01:06');
+INSERT INTO `characters` (`charId`, `userId`, `worldId`, `status`, `handle`, `firstName`, `lastName`, `background`, `x`, `y`, `z`, `rotation`, `healthC`, `healthM`, `innerStrC`, `innerStrM`, `level`, `profession`, `alignment`, `pvpflag`, `conquest_points`, `exp`, `cash`, `repMero`, `repMachine`, `repNiobe`, `repEPN`, `repCYPH`, `repGM`, `repZion`, `district`, `districtId`, `factionId`, `crewId`, `is_deleted`, `is_online`, `created`) VALUES
+(2, 28, 1, 0, 'TheNeo', 'Mr', 'Neo', 'Has all shit loaded for Development! YEAH!', 111534, 694.999, -7188.31, 31, 500, 500, 200, 200, 50, 2, 0, 0, 0, 314690958, 677426267, 0, 0, 0, 0, 0, 0, 100, 'slums', 1, 0, 1, 0, 0, '2020-01-09 00:00:00'),
+(3, 28, 1, 0, 'TheLevelOne', 'Testing', 'Chat', 'Just testing', 9483.31, 95, 13039.4, 0, 500, 500, 200, 200, 20, 2, 1, 0, 0, 19359020, 105000, 20, -50, -10, -5, -100, 200, 10, 'slums', 1, 0, 0, 1, 0, '2020-05-11 00:00:00'),
+(111, 48, 1, 0, 'LaurinHill', 'Laurin', 'Hill', 'That Thing', 111771, 694.999, -6865.02, 183, 500, 500, 200, 200, 1, 2, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 2, 0, 0, '2017-01-28 12:17:36'),
+(141, 33, 1, 0, 'Trinitys', 'Laurin', 'Hill', 'Trinity', 67122, -105, -11125.9, 193, 500, 500, 200, 200, 1, 2, 0, 0, 0, 224466, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 0, 0, 0, 0, '2017-10-15 13:43:42'),
+(110, 28, 1, 0, 'CSR_Tester', 'dasd', 'asd', 'asdasd', 7578, 1595, -12250.2, 0, 500, 500, 200, 200, 1, 2, 0, 0, 0, 2540, 0, 0, 0, 0, 0, 0, 0, 0, 'tutorial', 0, 0, 1, 0, 0, '2016-03-15 13:21:02'),
+(97, 33, 1, 0, 'TesterArchive', 'Tester', 'Tester', 'Tester', 9606, 495, 1585, 209, 500, 500, 200, 200, 1, 2, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'archive02', 5, 0, 0, 0, 0, '2016-03-14 15:46:41'),
+(142, 28, 1, 0, 'NeoAnderbro', 'Thomas', 'Anderson', 'The cake is a lie', 17175.4, 495, 2631.07, 56, 500, 500, 200, 200, 1, 2, 1, 1, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 100, 'slums', 1, 125, 1, 0, 0, '2020-04-12 12:48:02'),
+(143, 50, 1, 0, 'entilsar', 'Martin', 'Kosital', 'My mate', 17012.8, 495, 2787.72, 11, 500, 500, 200, 200, 1, 2, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 125, 3, 0, 0, '2020-05-19 09:58:08'),
+(145, 50, 1, 0, 'antietam305', 'antie', 'tam', '304', 17020, 495, 2693, 139, 500, 500, 200, 200, 1, 2, 0, 0, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 0, 'slums', 1, 125, 3, 0, 0, '2020-05-19 10:01:06'),
+(146, 48, 1, 0, 'WomenNoFaction', 'Lady', 'Gall', 'No Faction', 17371.9, 495, 2773.71, 164, 500, 500, 200, 200, 1, 2, 1, 1, 0, 0, 1000, 0, 0, 0, 0, 0, 0, 120, 'slums', 1, 0, 0, 0, 0, '2020-05-26 10:10:39');
 
 -- --------------------------------------------------------
 
@@ -361,7 +363,21 @@ INSERT INTO `char_abilities` (`id`, `char_id`, `slot`, `ability_id`, `level`, `i
 (1019, 145, 10, -2146453504, 1, 0, '', '2020-05-19 10:01:06'),
 (1020, 145, 11, -2147472384, 20, 1, '', '2020-05-19 10:01:06'),
 (1021, 145, 12, -2147295232, 20, 1, '', '2020-05-19 10:01:06'),
-(1022, 145, 13, -2147295232, 20, 1, '', '2020-05-19 10:01:06');
+(1022, 145, 13, -2147295232, 20, 1, '', '2020-05-19 10:01:06'),
+(1023, 146, 0, -2147481600, 1, 1, '', '2020-05-26 10:10:41'),
+(1024, 146, 1, -2147367936, 1, 1, '', '2020-05-26 10:10:41'),
+(1025, 146, 2, -2147294208, 0, 1, '', '2020-05-26 10:10:41'),
+(1026, 146, 3, -2147281920, 0, 0, '', '2020-05-26 10:10:41'),
+(1027, 146, 4, -2147280896, 0, 0, '', '2020-05-26 10:10:41'),
+(1028, 146, 5, -2147437568, 1, 1, '', '2020-05-26 10:10:41'),
+(1029, 146, 6, -2147425280, 0, 0, '', '2020-05-26 10:10:41'),
+(1030, 146, 7, -2147404800, 0, 0, '', '2020-05-26 10:10:41'),
+(1031, 146, 8, -2147445760, 0, 0, '', '2020-05-26 10:10:41'),
+(1032, 146, 9, -2146493440, 0, 0, '', '2020-05-26 10:10:41'),
+(1033, 146, 10, -2146453504, 1, 0, '', '2020-05-26 10:10:41'),
+(1034, 146, 11, -2147472384, 20, 1, '', '2020-05-26 10:10:41'),
+(1035, 146, 12, -2147295232, 20, 1, '', '2020-05-26 10:10:41'),
+(1036, 146, 13, -2147295232, 20, 1, '', '2020-05-26 10:10:41');
 
 -- --------------------------------------------------------
 
@@ -400,9 +416,10 @@ CREATE TABLE `crews` (
 --
 
 INSERT INTO `crews` (`id`, `crew_name`, `master_player_handle`, `money`, `org`, `faction_id`, `faction_rank`, `created_at`, `deleted_at`) VALUES
-(1, 'Reservoir Dogs', 'TheNeo', 1234, 0, 125, 1, '2017-06-09 05:30:50', '0000-00-00 00:00:00'),
-(2, 'Hardline Dreams', 'LaurinHill', 50, 0, 125, 2, '2020-05-15 11:50:08', NULL),
-(3, 'zion tac ops', 'entilsar', 333, 1, 125, 3, '2020-05-19 10:01:53', NULL);
+(1, 'Reservoir Dogs', 'TheNeo', 5200, 0, 0, 1, '2017-06-09 05:30:50', '0000-00-00 00:00:00'),
+(2, 'Hardline Dreams', 'LaurinHill', 50, 0, 0, 2, '2020-05-15 11:50:08', NULL),
+(3, 'zion tac ops', 'entilsar', 333, 1, 125, 3, '2020-05-19 10:01:53', NULL),
+(4, 'Factionless', 'NULL', 2500, 1, 0, 0, '2020-05-26 10:12:24', NULL);
 
 -- --------------------------------------------------------
 
@@ -429,7 +446,8 @@ INSERT INTO `crew_members` (`id`, `crew_id`, `char_id`, `is_captain`, `is_first_
 (3, 1, 110, 0, 0, '2020-05-14 12:40:31'),
 (4, 2, 111, 1, 0, '2020-05-19 07:09:21'),
 (5, 3, 143, 1, 0, '2020-05-19 10:02:50'),
-(6, 3, 145, 0, 1, '2020-05-19 10:02:50');
+(6, 3, 145, 0, 1, '2020-05-19 10:02:50'),
+(11, 1, 146, 0, 0, '2020-05-30 12:53:09');
 
 -- --------------------------------------------------------
 
@@ -455,7 +473,7 @@ CREATE TABLE `data_hardlines` (
 
 INSERT INTO `data_hardlines` (`Id`, `HardLineId`, `objectId`, `HardlineName`, `X`, `Y`, `Z`, `ROT`, `DistrictId`) VALUES
 (2, 49, 0, 'MaraNorthWest', 7737.37, 95, 13801.5, 1.5708, 1),
-(3, 152, 1039139603, 'MaraCentral', 17043.1, 495, 2398.8, -3.14159, 1),
+(3, 152, 0, 'MaraCentral', 17043.1, 495, 2398.8, -3.14159, 1),
 (6, 72, 0, 'Tagged By Tastee Wheat', 39216.4, 95, -21475.1, 2.03713, 1),
 (7, 125, 706741522, 'Tagged By Tastee Wheat', 25640, -515, -35813, 0.294524, 1),
 (8, 73, 0, 'Tagged By Tastee Wheat', 13211.7, 95, -37821.4, -2.72435, 2),
@@ -799,7 +817,17 @@ INSERT INTO `inventory` (`invId`, `charId`, `goid`, `slot`, `count`, `purity`, `
 (204, 145, 1243, 99, 0, 0, '2020-05-19 10:01:06', '2020-05-19 10:01:06'),
 (205, 145, 6727, 100, 0, 0, '2020-05-19 10:01:06', '2020-05-19 10:01:06'),
 (206, 145, 1061, 102, 0, 0, '2020-05-19 10:01:06', '2020-05-19 10:01:06'),
-(207, 145, 1260, 104, 0, 0, '2020-05-19 10:01:06', '2020-05-19 10:01:06');
+(207, 145, 1260, 104, 0, 0, '2020-05-19 10:01:06', '2020-05-19 10:01:06'),
+(208, 146, 737, 97, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(209, 146, 671, 98, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(210, 146, 834, 99, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(211, 146, 726, 100, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(212, 146, 5621, 101, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(213, 146, 770, 102, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(214, 146, 908, 104, 0, 0, '2020-05-26 10:10:41', '2020-05-26 10:10:41'),
+(215, 2, 2147490816, 21, 0, 0, '2020-05-31 15:21:47', '2020-05-31 15:21:47'),
+(216, 2, 2147490816, 12, 0, 0, '2020-05-31 15:21:48', '2020-05-31 15:21:48'),
+(217, 2, 2147490816, 4, 0, 0, '2020-05-31 15:21:48', '2020-05-31 15:21:48');
 
 -- --------------------------------------------------------
 
@@ -934,7 +962,8 @@ INSERT INTO `rsivalues` (`charid`, `sex`, `body`, `hat`, `face`, `shirt`, `coat`
 (142, 0, 0, 0, 0, 2, 0, 1, 6, 3, 4, 8, 0, 0, 9, 0, 0, 0, 2, 15, 0, 0, 0),
 (143, 0, 1, 0, 0, 1, 0, 10, 3, 0, 4, 11, 7, 12, 0, 0, 0, 0, 3, 7, 5, 0, 0),
 (144, 0, 1, 5, 1, 2, 0, 4, 3, 0, 4, 1, 1, 0, 1, 0, 0, 0, 5, 0, 7, 0, 0),
-(145, 0, 1, 5, 1, 2, 0, 4, 3, 3, 4, 1, 1, 0, 1, 0, 0, 0, 5, 0, 7, 0, 0);
+(145, 0, 1, 5, 1, 2, 0, 4, 3, 3, 4, 1, 1, 0, 1, 0, 0, 0, 5, 0, 7, 0, 0),
+(146, 1, 3, 7, 0, 4, 11, 4, 6, 4, 3, 17, 0, 0, 1, 2, 0, 0, 0, 2, 6, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -964,7 +993,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`userId`, `username`, `passwordSalt`, `passwordHash`, `publicExponent`, `publicModulus`, `privateExponent`, `timeCreated`, `account_status`, `sessionid`, `passwordmd5`, `email_adress`) VALUES
 (28, 'loluser', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 13:49:17', 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c', NULL),
 (33, 'loluser2', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 13:49:17', 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c', NULL),
-(48, 'loluser10', '', '372e291d08e14dd748faa8557d9f2839', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 13:49:17', 0, NULL, '372e291d08e14dd748faa8557d9f2839', NULL),
+(48, 'loluser10', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 13:49:17', 0, NULL, '372e291d08e14dd748faa8557d9f2839', NULL),
 (50, 'loluser3', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 12:49:17', 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c', NULL),
 (51, 'loluser4', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 12:49:17', 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c', NULL),
 (52, 'loluser5', 'yYygfF9c', 'ba2bb6cc7d44b5b63dd4cef48baed88c', 17, 0xed7707ab64f87a51dd9020f73752e9455386a402bb539c64f8a4310ec211499dd503da74187ee109c325cf07ec0a2fcf904c15cf38918b9782578d589294b6bc0033802ee099e8a8163d3a1d8e1a7b3238ce4b58a20c01b47180823c3adc0b1d, 0x5acba10cd3c86b012f1176042bbdd1a990e0a81f2981d9ea5f119a496851e7710daea65990e537ed24f7de37bc22033809a6d66cab7205376859c0794708d71a6279537218a3d3496096ad23532179f1bb71315e64ffbee609b98d8f08e05887, '2017-11-27 12:49:17', 0, '', 'ba2bb6cc7d44b5b63dd4cef48baed88c', NULL);
@@ -1104,12 +1133,12 @@ ALTER TABLE `buddylist`
 -- AUTO_INCREMENT für Tabelle `characters`
 --
 ALTER TABLE `characters`
-  MODIFY `charId` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
+  MODIFY `charId` bigint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=147;
 --
 -- AUTO_INCREMENT für Tabelle `char_abilities`
 --
 ALTER TABLE `char_abilities`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1023;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1037;
 --
 -- AUTO_INCREMENT für Tabelle `char_hardlines`
 --
@@ -1119,12 +1148,12 @@ ALTER TABLE `char_hardlines`
 -- AUTO_INCREMENT für Tabelle `crews`
 --
 ALTER TABLE `crews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT für Tabelle `crew_members`
 --
 ALTER TABLE `crew_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 --
 -- AUTO_INCREMENT für Tabelle `data_hardlines`
 --
@@ -1144,7 +1173,7 @@ ALTER TABLE `factions`
 -- AUTO_INCREMENT für Tabelle `inventory`
 --
 ALTER TABLE `inventory`
-  MODIFY `invId` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=208;
+  MODIFY `invId` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=218;
 --
 -- AUTO_INCREMENT für Tabelle `locations`
 --

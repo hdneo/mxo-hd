@@ -31,19 +31,19 @@ namespace hds
         public void SendOnlineStatusFriend(ArrayList friends, string handle, bool isOnline)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS_ADD,0);
-            pak.addUint16(8,1); // Unknonw 08 00 (but should be just reponse)
             if (isOnline)
             {
-                pak.addByte(0x3b); // Add to Online    
+                pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIEND_ONLINE,0);   
+                pak.addUint16(5,1);
             }
             else
             {
-                pak.addByte(0x3c); // Add to Online
+                pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIEND_OFFLINE,0);
+                pak.addUint16(4,1);
             }
+            pak.addByte(0x00);
 
             string handleWithPrefix = "SOE+MXO+" + Store.worldConfig.serverName + "+" + handle;
-            pak.addByteArray(new byte[]{ 0x00, 0x00, 0x8e});
             pak.addSizedTerminatedString(handleWithPrefix);
             Store.world.SendRPCToPlayerList(friends, pak.returnFinalPacket());
         }

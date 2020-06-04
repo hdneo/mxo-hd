@@ -24,7 +24,7 @@ namespace hds
         public Attribute CurrentState = new Attribute(4,"CurrentState");
 
         public ObjectAttributes363(string name,UInt16 _goid,UInt32 _relatedStaticObjId)
-            : base(15, 1, 3, 1, name, _goid, _relatedStaticObjId)
+            : base(15, 1, name, _goid, _relatedStaticObjId)
         {
             AddAttribute(ref DisarmDifficulty,0,-1);
             AddAttribute(ref IsZionAligned,1,-1);

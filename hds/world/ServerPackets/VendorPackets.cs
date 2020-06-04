@@ -9,7 +9,7 @@ namespace hds
     public partial class ServerPackets 
     {
 
-        public void sendVendorWindow(WorldClient client, Vendor vendor)
+        public void SendVendorWindow(WorldClient client, Vendor vendor)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_VENDOR_OPEN,0);

@@ -134,6 +134,7 @@
     <Compile Include="auth\WorldList.cs" />
     <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes363.cs" />
     <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes364.cs" />
+    <Compile Include="resources\gameobjects\definitions\AttributeLists\ObjectAttributes8400.cs" />
     <Compile Include="resources\gameobjects\definitions\Object599.cs" />
     <Compile Include="resources\gameobjects\definitions\Object6568.cs" />
     <Compile Include="servertype\CR1\GameObjectDefinitions\Object12.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="world\Client\Network\MessageQueue.cs" />
     <Compile Include="world\Client\Network\SequencedMessage.cs" />
     <Compile Include="world\Client\Network\WorldPacket.cs" />
+    <Compile Include="world\Client\RpcHandlers\BuddylistHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\FCHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\MissionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\RegionHandler.cs" />
@@ -181,6 +183,7 @@
     <Compile Include="world\Scripting\IScript.cs" />
     <Compile Include="world\Scripting\ScriptLoader.cs" />
     <Compile Include="world\Scripting\ScriptManager.cs" />
+    <Compile Include="world\ServerPackets\BuddylistPackets.cs" />
     <Compile Include="world\ServerPackets\ChatCommandPackets.cs" />
     <Compile Include="world\ServerPackets\ChatPackets.cs" />
     <Compile Include="world\ServerPackets\DataNodePackets.cs" />

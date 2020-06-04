@@ -87,7 +87,7 @@ namespace hds
 		public Attribute ReputationZionMilitary = new Attribute(2,"ReputationZionMilitary");
 
 
-		public Object12 ():base(75,36,11,6,"PlayerCharacter",0x0c,0xFFFFFFFF){
+		public Object12 ():base(75,36,"PlayerCharacter",0x0c,0xFFFFFFFF){
 
 			this.AddAttribute(ref ReputationMerovingian,0,-1);
 			this.AddAttribute(ref ConquestPoints,1,-1);

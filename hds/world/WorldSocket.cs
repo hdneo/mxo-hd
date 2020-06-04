@@ -27,7 +27,6 @@ namespace hds
         public static ArrayList mobs = ArrayList.Synchronized(new ArrayList());
         public static ArrayList subways = ArrayList.Synchronized(new ArrayList());
         public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
-        public static ArrayList TempCrews = ArrayList.Synchronized(new ArrayList());
         public static UInt64 entityIdCounter = 1;
         public static ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
         private byte[] buffer;
@@ -155,7 +154,7 @@ namespace hds
             }
         }
         
-        public void sendRPCToFactionMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
+        public void SendRPCToFactionMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock(Clients.SyncRoot){
@@ -178,7 +177,7 @@ namespace hds
             }
         }
         
-        public void sendRPCToMissionTeamMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
+        public void SendRPCToMissionTeamMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock(Clients.SyncRoot){
@@ -252,7 +251,7 @@ namespace hds
         /// <param name="data">Packet Stream without ViewID</param>
         /// <param name="charId">from charId</param>
         /// <param name="goId">from GoId</param>
-        public void sendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
+        public void SendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
             lock (Clients.SyncRoot)
@@ -286,7 +285,7 @@ namespace hds
                             viewPacket.addByte(0x00);  
                         }
 
-                        if (view.viewNeedsToBeDeleted == true)
+                        if (view.viewNeedsToBeDeleted)
                         {
                             // Delete one View
                             viewPacket.addByte(0x01);
@@ -300,6 +299,33 @@ namespace hds
                         
                         client.messageQueue.addObjectMessage(viewPacket.returnFinalPacket(), false);
                         client.FlushQueue();
+                    }
+                }
+            }
+        }
+
+        public void SendSelfViewUpdateToTarget(PacketContent pak, UInt16 targetViewId, WorldClient currentClient)
+        {
+
+            ClientView theView = currentClient.viewMan.getViewById(targetViewId);
+            if (theView.GoID != 12)
+            {
+                // it is no player - so we do nothing
+                return;
+            }
+
+            lock (Clients.SyncRoot)
+            {
+                
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient target = Clients[clientKey] as WorldClient;
+                    if (target.playerData.getEntityId() == theView.entityId)
+                    {
+                        Output.WriteDebugLog("Update SelfViewState from Ability FX on OtherState Views from " + StringUtils.charBytesToString(currentClient.playerInstance.CharacterName.getValue()) + " to  " + StringUtils.charBytesToString(target.playerInstance.CharacterName.getValue()) + " HEX: " + StringUtils.bytesToString_NS(pak.returnFinalPacket()));
+                        target.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+                        target.FlushQueue();
+                        return;
                     }
                 }
             }
@@ -343,7 +369,7 @@ namespace hds
             }
         }
 
-        
+
         private void finalReceiveFrom(IAsyncResult iar)
         {
             

@@ -18,7 +18,7 @@ namespace hds
             long newCash = Store.currentClient.playerData.getInfo() + (long) amount;
             Store.currentClient.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
+            Store.dbManager.WorldDbHandler.SavePlayer(Store.currentClient);
 
             DynamicArray din = new DynamicArray();
 
@@ -38,7 +38,7 @@ namespace hds
             long newCash = Store.currentClient.playerData.getInfo() - (long) amount;
             Store.currentClient.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.savePlayer(Store.currentClient);
+            Store.dbManager.WorldDbHandler.SavePlayer(Store.currentClient);
 
             DynamicArray din = new DynamicArray();
             din.append(header);
@@ -102,11 +102,11 @@ namespace hds
 
             if (unloadFlag > 0)
             {
-                Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 0);
+                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 0);
             }
             else
             {
-                Store.dbManager.WorldDbHandler.updateAbilityLoadOut(abilitySlots, 1);
+                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 1);
             }
         }
 
@@ -209,7 +209,7 @@ namespace hds
         /// </summary>
         public void savePlayerInfo(WorldClient client)
         {
-            Store.dbManager.WorldDbHandler.savePlayer(client);
+            Store.dbManager.WorldDbHandler.SavePlayer(client);
         }
 
         public byte[] teleport(int x, int y, int z)

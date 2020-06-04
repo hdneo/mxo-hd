@@ -86,7 +86,7 @@ namespace hds.servertype.cr1
 
 
         public Object12()
-            : base(73, 36, 11, 6, "PlayerCharacter", 0x0c, 0xFFFFFFFF)
+            : base(73, 36, "PlayerCharacter", 0x0c, 0xFFFFFFFF)
         {
             this.AddAttribute(ref ReputationMerovingian, 0, -1);
             this.AddAttribute(ref ConquestPoints, 1, -1);

@@ -86,7 +86,7 @@ namespace hds
         CLIENT_FACTION_INFO = 0xf4,
         CLIENT_FACTION_DISBAND_FACTION = 0x77,
         CLIENT_DEPOSIT_MONEY_FACTION_CREW = 0x78,
-        CREW_INVITE_PLAYER = 0x84,
+        CLIENT_CREW_INVITE_PLAYER = 0x6e,
         
     }
 
@@ -122,6 +122,8 @@ namespace hds
         // Friendlist
         SERVER_FRIENDLIST_STATUS_ADD = 0x80D7,
         SERVER_FRIENDLIST_STATUS_DELETE = 0x80DB,
+        SERVER_FRIEND_ONLINE = 0x80de,
+        SERVER_FRIEND_OFFLINE = 0x80df,
 
         // Mission related
         SERVER_MISSION_RESPONSE_LIST    = 0x8095,
@@ -155,6 +157,7 @@ namespace hds
         SERVER_FACTION_NAME_RESPONSE = 0x80f5,
         SERVER_CREW_MEMBERS_LIST = 0x8086,
         SERVER_CREW_INVITE = 0x8088,
+        SERVER_JOIN_GROUP = 0x70,
         SERVER_LEAVE_GROUP = 0x72,
         SERVER_FACTION_PLAYER_INFO = 0x7c,
         SERVER_FACTION_UPDATE_MONEY = 0x79

@@ -12,6 +12,7 @@ namespace hds
         public uint spawnId = 0; // Spawn Counter 
         public bool viewCreated = false;  // To define if the view Packet was successful created
         public bool viewNeedsToBeDeleted = false; // set it to true if views needs to be "cleaned" up
+        public GameObject gameObject;
 
         public ClientView(UInt32 GoID, UInt16 ViewID, UInt64 entityId)
         {

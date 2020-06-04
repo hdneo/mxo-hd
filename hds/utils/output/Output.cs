@@ -112,15 +112,38 @@ namespace hds
 			{
 				returnPacketString += hexString + "\r\n";
 			}
+
+			returnPacketString += "\r\n";
+			
+			/*
+			foreach (string readablePacketLine in readablePacketStrings)
+			{
+				string line = readablePacketLine.Replace(" ", ".");
+				returnPacketString += line + "\r\n";
+			}
+			*/
 		
 			return returnPacketString;
 
 		}
 		
-	    static public void WritePacketLog(byte[] obj, string type, string pss, string cseq, string sseq,
+	    static public void WritePacketLog(WorldClient client, byte[] obj, string type, string pss, string cseq, string sseq,
 	        string timeConsuming, string cryptType)
 	    {
-		    
+
+		    string charName = null;
+		    UInt32 charId = 0;
+
+		    if (client != null)
+		    {
+			    charId = client.playerData.getCharID();
+			    if (client.playerInstance.CharacterName.getValue().Length > 0)
+			    {
+				    charName = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
+			    }
+			    
+		    }
+
 		    string messageConverted = ConvertByteToReadablePacket(obj);
 		    
 	        string header = "";
@@ -142,7 +165,11 @@ namespace hds
 	            StreamWriter w = File.AppendText("PacketLog.txt");
 	            if (type == "CLIENT" || type == "SERVER")
 	            {
-	                w.WriteLine(header + "[{0} {1} PSS :{2} CSEQ: {3} SSEQ: {4}]", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString(), pss, cseq, sseq);
+	                w.WriteLine("[" + header + " {0} {1} PSS :{2} CSEQ: {3} SSEQ: {4} ]", DateTime.Now.ToLongTimeString(), DateTime.Now.ToLongDateString(), pss, cseq, sseq);
+	                if (charId > 0)
+	                {
+		                w.WriteLine("[Receiver |CharId: " + charId + "| Handle: " + charName + " ]");
+	                }
 	            }
 
 	            if (type == "MARGINSERVER" || type == "MARGINCLIENT")

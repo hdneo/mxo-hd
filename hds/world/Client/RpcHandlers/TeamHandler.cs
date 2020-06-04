@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using hds.shared;
+using hds.world.Structures;
 
 
 namespace hds
@@ -31,27 +32,27 @@ namespace hds
         public void processInviteAnswer(ref byte[] packet)
         {
             // read the important things
-            byte[] maybeType = new byte[2]; 
-            byte[] sizeString = new byte[2];
-            ArrayUtils.copyTo(packet, 3, maybeType, 0, 2);
-            ArrayUtils.copyTo(packet, 7, sizeString, 0, 2);
-            UInt16 sizeCharName = NumericalUtils.ByteArrayToUint16(sizeString, 1);
-            byte[] characterNameBytes = new byte[sizeCharName];
-            ArrayUtils.copyTo(packet, 9, characterNameBytes, 0, sizeCharName);
-
-            string characterName = StringUtils.charBytesToString(characterNameBytes);
+            PacketReader reader = new PacketReader(packet);
+            uint type = reader.readUint8();
+            UInt16 offsetInviterHandle = reader.readUInt16(1);
+            UInt32 unknownUint32 = reader.readUInt32(1);
+            
+            reader.setOffsetOverrideValue(offsetInviterHandle-1);
+            string inviterCharacterName = reader.readSizedZeroTerminatedString();
 
             // if it is 0 - then he has accepted the request - otherwise decline and ..we dont care
 
-            switch (NumericalUtils.ByteArrayToUint16(maybeType,1))
+            ServerPackets packets = new ServerPackets();
+            switch (type)
             {
                     // Team Invites
+                    // ToDo: shouldnt it be 3 ? As Faction 1, Crew 2, Mission 3
                     case 0:
                         lock (WorldSocket.missionTeams)
                         {
                             foreach (MissionTeam team in WorldSocket.missionTeams)
                             {
-                                if (team.characterMasterName.Equals(characterName))
+                                if (team.characterMasterName.Equals(inviterCharacterName))
                                 {
                                     team.addMember(StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
                                 }
@@ -59,18 +60,36 @@ namespace hds
                         }
                         break;
                      
+                    case 1:
+                        // This is factionInvite - but we first need to test this what data is send from client
+                        break;
                     // Crew Invites
                     case 2:
-                        // ToDo: add to Crew and maybe to faction (if crew is part of faction)
-                        // ToDo: Generate Repsonse for all connected crew mates and the new member
-                        // ToDo: add to crew and figure out the responses that are necessary (like crew message , player update etc.) 
-                        // ToDo: for this the "2_player_action" logs could be useful.
-                        
+                        // ToDo: Send CrewMember "added" message to all crew members (i think faction members is not necessary)
+                        // ToDo: Send Faction Id and CrewId (if necessary) View Update to all connected Faction Members
+                        UInt32 crewId = Store.dbManager.WorldDbHandler.GetCrewIdByInviterHandle(inviterCharacterName);
+                        Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
+                        UInt32 characterId =
+                            NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CharacterID.getValue(),
+                                1);
+                        if (crewId > 0)
+                        {
+                            Store.dbManager.WorldDbHandler.AddMemberToCrew(characterId, crewId, crewData.factionId,0,0 );
+                            Store.currentClient.playerInstance.CrewID.setValue(crewId);
+                            new FCHandler().ProcessCrewInfoUpdate();
+                        }
+
+                        if (crewData.factionId > 0)
+                        {
+                            Store.currentClient.playerInstance.FactionID.setValue(crewData.factionId);
+                            new FCHandler().ProcessFactionInfoUpdate();
+                        }
+
+                        string characterName =
+                            StringUtils.charBytesToString_NZ(
+                                Store.currentClient.playerInstance.CharacterName.getValue());
+                        packets.SendJoinedGroup(type, characterId, crewId, characterName);
                         break;
-                        
-                     
-            
-                    
             }
         }
     }

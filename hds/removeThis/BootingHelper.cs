@@ -17,6 +17,7 @@ namespace hds
 
         public byte[] generatePlayerSpawnPacket(WorldClient client, UInt16 spawnIdCounter)
         {
+            PacketContent pak = new PacketContent();
             DynamicArray rsiPacket;
             DynamicArray creationPacket;
             playerRSIPacket(out rsiPacket, out creationPacket, client, spawnIdCounter);
@@ -82,6 +83,12 @@ namespace hds
             client.playerInstance.Level.enable();
             client.playerInstance.CombatantMode.setValue((byte) 0x22); //TODO: see what's combatantmode
             
+            client.playerInstance.ReputationCypherites.enable();
+            client.playerInstance.ReputationGMOrganization.enable();
+            client.playerInstance.ReputationNiobe.enable();
+            client.playerInstance.ReputationZionMilitary.enable();
+            client.playerInstance.ReputationNiobe.setValue(100); // ToDo: Replace with real data
+            
             if (NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(), 1) > 0)
             {
                 client.playerInstance.FactionID.enable();
@@ -96,8 +103,6 @@ namespace hds
             client.playerInstance.CurExclusiveAbility.setValue(CurCombatExclusiveAbility); //TODO: see what's this
 
             // ok we set all our values - lets get the generated packet for us
-            DynamicArray creationPacketWithoutView =
-                Store.world.objMan.GenerateCreationPacket(client.playerInstance, 0x0000, (byte) spawnIdCounter);
             creationPacket =
                 Store.world.objMan.GenerateCreationPacket(client.playerInstance, 0x0000, (byte) spawnIdCounter);
         }

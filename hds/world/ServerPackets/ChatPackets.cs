@@ -60,14 +60,14 @@ namespace hds
                     UInt32 crewId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(),
                             1);
-                    Store.world.sendRPCToFactionMembers(crewId, Store.currentClient, pak.returnFinalPacket(), true);
+                    Store.world.SendRPCToFactionMembers(crewId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
 
                 case 0x05:
                     UInt32 missionTeamId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(),
                             1);
-                    Store.world.sendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), true);
+                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
 
                 default:

@@ -48,7 +48,7 @@ namespace hds
         public void processSpawn()
         {
 
-            if (Store.currentClient.playerData.getDistrict()!="la")
+            if (Store.currentClient.playerData.getDistrictId()> 0)
             {
                 // REFACTOR!!!!
                 byte[] rsiObject = new BootingHelperRsi().generateSelfSpawnPacket(Store.currentClient);
@@ -183,7 +183,7 @@ namespace hds
 
             Store.dbManager.WorldDbHandler.setPlayerValues();
             Store.dbManager.WorldDbHandler.setRsiValues();
-            Store.dbManager.WorldDbHandler.setOnlineStatus(Store.currentClient.playerData.getCharID(), 1);
+            Store.dbManager.WorldDbHandler.SetOnlineStatus(Store.currentClient.playerData.getCharID(), 1);
 
             // send the init UDP packet * 5
             byte[] response = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05 };

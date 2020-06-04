@@ -115,7 +115,7 @@ namespace hds
                                 }
 
 
-                                // Delete Mob's View from Client if we are outside
+                                // Delete SubwayView 
                                 if (view.viewCreated && !objectInCircle &&
                                     thisSubway.worldObject.metrId == thisclient.playerData.getDistrictId())
                                 {
@@ -316,7 +316,7 @@ namespace hds
                     ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(),
                         NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
 
-                    Store.dbManager.WorldDbHandler.setOnlineStatus(otherclient.playerData.getCharID(), 0);
+                    Store.dbManager.WorldDbHandler.SetOnlineStatus(otherclient.playerData.getCharID(), 0);
                     ServerPackets pak = new ServerPackets();
                     pak.sendDeleteViewPacket(otherclient, view.ViewID);
                     Store.margin.removeClientsByCharId(otherclient.playerData.getCharID());

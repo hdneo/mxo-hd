@@ -23,6 +23,32 @@ namespace hds.databases{
 			/* Params: Host, port, database, user, password */
             conn = new MySqlConnection("Server=" + config.dbParams.Host + ";" + "Database=" + config.dbParams.DatabaseName + ";" + "User ID=" + config.dbParams.Username + ";" + "Password=" + config.dbParams.Password + ";" + "Pooling=false;");
 		}
+
+		public void OpenConnection()
+		{
+			if (conn.State == ConnectionState.Closed)
+			{
+				conn.Open();
+			}
+		}
+
+		public void CloseConnection()
+		{
+			if (conn.State != ConnectionState.Closed)
+			{
+				conn.Close();
+			}   
+		}
+		
+		public void ExecuteNonResultQuery(string query)
+		{
+			OpenConnection();
+			string updateQuery = query;
+			queryExecuter = conn.CreateCommand();
+			queryExecuter.CommandText = updateQuery;
+			queryExecuter.ExecuteNonQuery();
+			CloseConnection();
+		}
 		
 		
 		public UInt32 getUserIdForCharId(byte[] charIdHex){
@@ -49,26 +75,17 @@ namespace hds.databases{
 		public void AddHandleToFriendList(string handleToAdd, UInt32 charId)
 		{
 			UInt32 friendId = getCharIdByHandle(handleToAdd);
+			ExecuteNonResultQuery("INSERT INTO buddylist SET charId='" + charId +
+			                      "', friendId='" + friendId + "', is_ignored=0 ");
 			
-			OpenConnection();
-			string query = "INSERT INTO buddylist SET charId='" + charId +
-			               "', friendId='" + friendId + "', is_ignored=0 ";
-			
-			queryExecuter = conn.CreateCommand();
-			queryExecuter.CommandText = query;
-			queryExecuter.ExecuteNonQuery();
-			CloseConnection();
 		}
 
 		public void RemoveHandleFromFriendList(string handleToRemove, UInt32 charId)
 		{
 			UInt32 friendId = getCharIdByHandle(handleToRemove);
-			OpenConnection();
-			string query = "DELETE FROM buddylist WHERE charId='" + charId + "' AND friendId='" + friendId + "' ";
-			queryExecuter = conn.CreateCommand();
-			queryExecuter.CommandText = query;
-			queryExecuter.ExecuteNonQuery();
-			CloseConnection();
+			ExecuteNonResultQuery(
+				"DELETE FROM buddylist WHERE charId='" + charId + "' AND friendId='" + friendId + "' ");
+			
 		}
 
 		public ArrayList FetchPlayersWhoAddedMeToBuddylist(UInt32 charId)
@@ -116,21 +133,6 @@ namespace hds.databases{
             
         }
 
-        public void OpenConnection()
-        {
-	        if (conn.State == ConnectionState.Closed)
-	        {
-		        conn.Open();
-	        }
-        }
-
-        public void CloseConnection()
-        {
-	        if (conn.State != ConnectionState.Closed)
-	        {
-		        conn.Close();
-	        }   
-        }
 
         public Faction fetchFaction(uint factionId)
         {
@@ -158,42 +160,27 @@ namespace hds.databases{
 
         public void IncreaseCrewMoney(UInt32 crewId, UInt32 amount)
         {
-	        OpenConnection();
-	        string updateQuery = "UPDATE crews SET money = money + '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = updateQuery;
-	        queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE crews SET money = money + '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1");
+	       
         }
         
         public void DecreaseCrewMoney(UInt32 crewId, UInt32 amount)
         {
-	        OpenConnection();
-	        string updateQuery = "UPDATE crews SET money = money - '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = updateQuery;
-	        queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE crews SET money = money - '" + amount + "' WHERE id = '" + crewId.ToString() +
+	                              "' LIMIT 1");
+	        
         }
         
         public void IncreaseFactionMoney(UInt32 crewId, UInt32 amount)
         {
-	        OpenConnection();
-	        string updateQuery = "UPDATE factions SET money = money + '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = updateQuery;
-	        queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE factions SET money = money + '" + amount + "' WHERE id = '" +
+	                              crewId.ToString() + "' LIMIT 1");
         }
         
         public void DecreaseFactionMoney(UInt32 crewId, UInt32 amount)
         {
-	        OpenConnection();
-	        string updateQuery = "UPDATE factions SET money = money - '" + amount + "' WHERE id = '" + crewId.ToString() + "' LIMIT 1";
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = updateQuery;
-	        queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE factions SET money = money - '" + amount + "' WHERE id = '" +
+	                              crewId.ToString() + "' LIMIT 1");
         }
 
         public Crew GetCrewData(UInt32 crewId)
@@ -289,6 +276,33 @@ namespace hds.databases{
 	        return crewMembers;
         }
 
+        public void AddMemberToCrew(UInt32 charId, UInt32 crewId, UInt32 factionId, ushort isCaptain, ushort isFirstMate)
+        {
+	        ExecuteNonResultQuery("INSERT INTO crew_members SET char_id='" + charId + "', crew_id='" + crewId + "', is_first_mate=" + isFirstMate + ", is_captain=" + isCaptain + ", created_at=NOW() ");
+	        ExecuteNonResultQuery("UPDATE characters SET crewId='" + crewId + "', factionId='" + factionId + "' WHERE charId='" + charId + "' ");
+        }
+
+        public void RemoveMemberFromCrew(uint charId, uint crewId)
+        {
+	        ExecuteNonResultQuery("DELETE FROM crew_members WHERE crew_id = '" + crewId + "' AND char_id ='" +charId+ "' LIMIT 1");
+	        ExecuteNonResultQuery("UPDATE characters SET crewId = 0, factionId = 0 WHERE charId='" + charId + "' ");
+        }
+
+        public void AddCrewToFaction(uint factionId, uint crewId)
+        {
+	        ExecuteNonResultQuery("UPDATE crews SET faction_id = '" + factionId + "' WHERE id='" + crewId + "' ");
+        }
+
+        public void RemoveCrewFromFaction(uint factionId, uint crewId)
+        {
+	        ExecuteNonResultQuery("UPDATE crews SET faction_id = '0' WHERE id='" + crewId + "' AND faction_id = '" + factionId + "' ");
+        }
+
+        public void CreateFaction(Crew crew1, Crew crew2, string factionName)
+        {
+	        throw new NotImplementedException();
+        }
+
 
         public string getPathForDistrictKey(string key){
 	        OpenConnection();
@@ -334,22 +348,19 @@ namespace hds.databases{
             }
 
             dr.Close();
-	        
+            CloseConnection();
 
             if (objectId == 0 || objectId != lastObjectId)
-			{
-				string updateQuery = "UPDATE data_hardlines SET objectId = '" + lastObjectId.ToString() + "' WHERE id = '" + theId.ToString() + "' LIMIT 1";
-				queryExecuter = conn.CreateCommand();
-				queryExecuter.CommandText = updateQuery;
-				queryExecuter.ExecuteNonQuery();
+            {
+	            ExecuteNonResultQuery("UPDATE data_hardlines SET objectId = '" + lastObjectId.ToString() +
+	                                  "' WHERE id = '" + theId.ToString() + "' LIMIT 1");
 				#if DEBUG
 				Output.WriteLine("[WORLD DB] UPDATE Hardline " + hardlineId.ToString() + " in District " + districtId.ToString() + " with Object ID : "+lastObjectId.ToString());
 				#endif
 			}
-	        CloseConnection();
+	        
             
         }
-
 
         public void updateLocationByHL(UInt16 district, UInt16 hardline)
         {
@@ -371,19 +382,16 @@ namespace hds.databases{
             }
             dr.Close();
 	        CloseConnection();
-            savePlayer(Store.currentClient);
+            SavePlayer(Store.currentClient);
         }
 
         public void setBackground(string backgroundText)
         {
-	        OpenConnection();
-            UInt32 charID = Store.currentClient.playerData.getCharID();
+	        UInt32 charID = Store.currentClient.playerData.getCharID();
 
-            string sqlQuery = "UPDATE characters SET background = '" + backgroundText + "' WHERE charId = '" + charID + "' LIMIT 1";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+            ExecuteNonResultQuery("UPDATE characters SET background = '" + backgroundText + "' WHERE charId = '" +
+                                  charID + "' LIMIT 1");
+            
         }
 		
 		public void setPlayerValues()
@@ -561,44 +569,27 @@ namespace hds.databases{
 			CloseConnection();
 		}
 
-		public void setOnlineStatus(uint charId, ushort isOnline)
+		public void SetOnlineStatus(uint charId, ushort isOnline)
 		{
-			OpenConnection();
-			int charID = (int) Store.currentClient.playerData.getCharID();
-			string sqlQuery = "UPDATE characters SET is_online = '" + isOnline + "' WHERE charid= '" + charID + "' LIMIT 1";
-			queryExecuter = conn.CreateCommand();
-			queryExecuter.CommandText = sqlQuery;
-			queryExecuter.ExecuteNonQuery();
-			CloseConnection();
+			ExecuteNonResultQuery("UPDATE characters SET is_online = '" + isOnline + "' WHERE charid= '" + charId +
+			                      "' LIMIT 1");
+			
 		}
 
 		public void ResetOnlineStatus()
 		{
-			OpenConnection();
-			string sqlQuery = "UPDATE characters SET is_online = '0' ";
-			queryExecuter = conn.CreateCommand();
-			queryExecuter.CommandText = sqlQuery;
-			queryExecuter.ExecuteNonQuery();
-			CloseConnection();
+			ExecuteNonResultQuery("UPDATE characters SET is_online = '0' ");
 		}
 
 
-		public void updateRsiPartValue(string part, uint value)
+		public void UpdateRsiPartValue(string part, uint value, UInt32 charId)
         {
-	        OpenConnection();
-            int charID = (int) Store.currentClient.playerData.getCharID();
-            string sqlQuery = "UPDATE rsivalues SET " + part + "=" + value + " WHERE charid= '" + charID.ToString() + "' LIMIT 1";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE rsivalues SET " + part + "=" + value + " WHERE charid= '" + charId + "' LIMIT 1");
+            
         }
 		
-		
-
-		public void savePlayer(WorldClient client){
-			OpenConnection();
-            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+		public void SavePlayer(WorldClient client){
+			System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
             customCulture.NumberFormat.NumberDecimalSeparator = ".";
             System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
 
@@ -611,33 +602,35 @@ namespace hds.databases{
 			byte[] Ltvector3d = client.playerInstance.Position.getValue();
 			NumericalUtils.LtVector3dToDoubles(Ltvector3d,ref x,ref y,ref z);
 			
-			int rotation =(int)client.playerInstance.YawInterval.getValue()[0];
-			
-			string sqlQuery="update characters set x =" + x + " ,y=" + y + " ,z="+ z + " , rotation="+ rotation +", districtId=" + client.playerData.getDistrictId() + " where handle='" + handle + "' ";
-			queryExecuter.CommandText = sqlQuery;
-			queryExecuter.ExecuteNonQuery();
-			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(sqlQuery)));
-            Output.writeToLogForConsole(queryExecuter.ExecuteNonQuery() + " rows affecting saving");
-						
-			string rsiQuery="update rsivalues set sex='"+rsiValues[0]+"',body='"+rsiValues[1]+"',hat='"+rsiValues[2]+"',face='"+rsiValues[3]+"',shirt='"+rsiValues[4]+"',coat='"+rsiValues[5]+"',pants='"+rsiValues[6]+"',shoes='"+rsiValues[7]+"',gloves='"+rsiValues[8]+"',glasses='"+rsiValues[9]+"',hair='"+rsiValues[10]+"',facialdetail='"+rsiValues[11]+"',shirtcolor='"+rsiValues[12]+"',pantscolor='"+rsiValues[13]+"',coatcolor='"+rsiValues[14]+"',shoecolor='"+rsiValues[15]+"',glassescolor='"+rsiValues[16]+"',haircolor='"+rsiValues[17]+"',skintone='"+rsiValues[18]+"',tattoo='"+rsiValues[19]+"',facialdetailcolor='"+rsiValues[20]+"',leggins='"+rsiValues[21]+"' where charId='"+charID+"';";
-			queryExecuter= conn.CreateCommand();
-			queryExecuter.CommandText = rsiQuery;
+			int rotation =client.playerInstance.YawInterval.getValue()[0];
+
+			string positionQuery = "update characters set x =" + x + " ,y=" + y + " ,z=" + z + " , rotation=" +
+			                       rotation + ", districtId=" + client.playerData.getDistrictId() + " where handle='" +
+			                       handle + "' ";
+			ExecuteNonResultQuery(positionQuery);
+			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(positionQuery)));
+
+			string rsiQuery = "update rsivalues set sex='" + rsiValues[0] + "',body='" + rsiValues[1] + "',hat='" +
+			                  rsiValues[2] + "',face='" + rsiValues[3] + "',shirt='" + rsiValues[4] + "',coat='" +
+			                  rsiValues[5] + "',pants='" + rsiValues[6] + "',shoes='" + rsiValues[7] +
+			                  "',gloves='" + rsiValues[8] + "',glasses='" + rsiValues[9] + "',hair='" +
+			                  rsiValues[10] + "',facialdetail='" + rsiValues[11] + "',shirtcolor='" +
+			                  rsiValues[12] + "',pantscolor='" + rsiValues[13] + "',coatcolor='" + rsiValues[14] +
+			                  "',shoecolor='" + rsiValues[15] + "',glassescolor='" + rsiValues[16] +
+			                  "',haircolor='" + rsiValues[17] + "',skintone='" + rsiValues[18] + "',tattoo='" +
+			                  rsiValues[19] + "',facialdetailcolor='" + rsiValues[20] + "',leggins='" +
+			                  rsiValues[21] + "' where charId='" + charID + "';";
+            ExecuteNonResultQuery(rsiQuery);
+		
             Output.writeToLogForConsole("[WORLD DB ACCESS ]" + rsiQuery);
-            queryExecuter.ExecuteNonQuery();
-			CloseConnection();
+        
 			
 		}
 
 
-        public void updateInventorySlot(UInt16 sourceSlot, UInt16 destSlot)
+        public void UpdateInventorySlot(UInt16 sourceSlot, UInt16 destSlot, UInt32 charId)
         {
-	        OpenConnection();
-            UInt32 charID = Store.currentClient.playerData.getCharID();
-            string sqlQuery = "UPDATE inventory SET slot = '" + destSlot.ToString() + "' WHERE slot = '" + sourceSlot.ToString() + "' AND charID = '" + charID.ToString() + "' LIMIT 1";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("UPDATE inventory SET slot = '" + destSlot.ToString() + "' WHERE slot = '" + sourceSlot.ToString() + "' AND charID = '" + charId + "' LIMIT 1");
         }
 
         public bool isSlotinUseByItem(UInt16 slotId)
@@ -686,7 +679,7 @@ namespace hds.databases{
             return countCrewMembers;
         }
 
-	    public ushort GetCrewIdByCrewMasterHandle(string playerHandle)
+	    public UInt32 GetCrewIdByCrewMasterHandle(string playerHandle)
 	    {
 		    // ToDo: we need to proove if this can work this way 
 		    // ToDo: can only the master invite other players ? i am not sure then we need to change this
@@ -708,6 +701,28 @@ namespace hds.databases{
 		    dr.Close();
 		    CloseConnection();
 		    return countCrewMembers;
+	    }
+
+	    public uint GetCrewIdByInviterHandle(string playerHandle)
+	    {
+		    UInt32 crewId = 0;
+		    OpenConnection();
+		    string sqlQuery = "SELECT crewId FROM characters WHERE handle ='" + playerHandle + "' LIMIT 1";
+		    queryExecuter = conn.CreateCommand();
+		    queryExecuter.CommandText = sqlQuery;
+		    dr = queryExecuter.ExecuteReader();
+
+		    string factionName = "";
+
+		    if (dr.Read())
+		    {
+
+			    crewId = (UInt32) dr.GetInt32(0);
+
+		    }
+		    dr.Close();
+		    CloseConnection();
+		    return crewId;
 	    }
 
 	    public string GetFactionNameById(uint factionId)
@@ -769,36 +784,20 @@ namespace hds.databases{
 
         public void DeleteCrew(UInt32 crewId)
         {
-	        OpenConnection();
 	        // Delete the Crew
-            string sqlQueryDelete = "UPDATE crews SET deleted_at = NOW() WHERE id=" + crewId + " LIMIT 1";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQueryDelete;
-            queryExecuter.ExecuteNonQuery();
-
+            ExecuteNonResultQuery("UPDATE crews SET deleted_at = NOW() WHERE id=" + crewId + " LIMIT 1");
+            
 	        // Delete the Player Crew ID
-	        string updatePlayers = "UPDATE characters SET crewId = 0 WHERE crewId = " + crewId;
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = updatePlayers;
-	        queryExecuter.ExecuteNonQuery();
+	        ExecuteNonResultQuery("UPDATE characters SET crewId = 0 WHERE crewId = " + crewId);
 	        
 	        // Delete the Player Crew ID
-	        string deleteMembers = "DELETE FROM crew_members WHERE crew_id = " + crewId;
-	        queryExecuter = conn.CreateCommand();
-	        queryExecuter.CommandText = deleteMembers;
-	        queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        ExecuteNonResultQuery("DELETE FROM crew_members WHERE crew_id = " + crewId);
         }
 
         public void AddCrew(string crewName, string masterHandle)
         {
-	        OpenConnection();
 	        crewName = crewName.Replace("'", @"\'");
-            string sqlQueryInsert = "INSERT INTO crews SET crew_name= '" + crewName + "', created_at =NOW() ";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQueryInsert;
-            queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+            ExecuteNonResultQuery("INSERT INTO crews SET crew_name= '" + crewName + "', created_at =NOW() ");
         }
 
         public UInt16 GetFirstNewSlot()
@@ -823,14 +822,9 @@ namespace hds.databases{
 
         public void addItemToInventory (UInt16 slotId, UInt32 itemGoID)
         {
-	        OpenConnection();
-            UInt32 charID = Store.currentClient.playerData.getCharID();
-
-            string sqlQuery = "INSERT INTO inventory SET charId = '" + charID.ToString() + "' , goid = '" + itemGoID.ToString() + "', slot = '" + slotId.ToString() + "', created = NOW() ";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-	        CloseConnection();
+	        UInt32 charID = Store.currentClient.playerData.getCharID();
+            ExecuteNonResultQuery("INSERT INTO inventory SET charId = '" + charID.ToString() + "' , goid = '" +
+                                  itemGoID + "', slot = '" + slotId.ToString() + "', created = NOW() ");
         }
 
         public UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId)
@@ -855,38 +849,26 @@ namespace hds.databases{
 
 	    public void SaveInfo(WorldClient client, long cash)
 	    {
-		    OpenConnection();
-		    string sqlQuery = "UPDATE characters SET cash =" + cash + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
-		    queryExecuter = conn.CreateCommand();
-		    queryExecuter.CommandText = sqlQuery;
-		    queryExecuter.ExecuteNonQuery();
-		    CloseConnection();
+		    ExecuteNonResultQuery("UPDATE characters SET cash =" + cash + " WHERE charId= " +
+		                          client.playerData.getCharID().ToString() + " LIMIT 1");
+		    
 	    }
 
-	    public void updateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
+	    public void UpdateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
         {
-	        OpenConnection();
-            UInt32 charID = Store.currentClient.playerData.getCharID();
+	        UInt32 charID = Store.currentClient.playerData.getCharID();
             string sqlQuery = "";
             foreach(ushort slot in abilitySlots)
             {
                 sqlQuery += "UPDATE char_abilities SET is_loaded = " + loaded.ToString() + " WHERE char_id = " + charID.ToString() + " AND slot = " + slot.ToString() + ";";
             }
 
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-			CloseConnection();
+			ExecuteNonResultQuery(sqlQuery);
         }
 
         public void SaveExperience(WorldClient client, long exp)
         {
-	        OpenConnection();
-            string sqlQuery = "UPDATE characters SET exp =" + exp + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1";
-            queryExecuter = conn.CreateCommand();
-            queryExecuter.CommandText = sqlQuery;
-            queryExecuter.ExecuteNonQuery();
-            OpenConnection();
+	        ExecuteNonResultQuery("UPDATE characters SET exp =" + exp + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1");
         }
     }
 }

@@ -92,7 +92,7 @@ namespace hds{
 		            break;
 
 		        // Faction and Crews
-		        case (int) RPCRequestHeader.CREW_INVITE_PLAYER:
+		        case (int) RPCRequestHeader.CLIENT_CREW_INVITE_PLAYER:
 		            new FCHandler().processInvitePlayerToCrew(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
@@ -202,7 +202,7 @@ namespace hds{
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_REGION_LOADED:
-		            new RegionHandler().processRegionLoaded(ref rpcData);
+		            new RegionHandler().ProcessRegionLoaded(ref rpcData);
 		            //new PlayerInitHelper().processRegionSettings();
 		            break;
 

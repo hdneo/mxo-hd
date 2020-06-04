@@ -278,7 +278,7 @@ namespace hds
                     TimeSpan ts = stopWatch.Elapsed;
 
 
-                    Output.WritePacketLog(finalData, "SERVER",
+                    Output.WritePacketLog(this, finalData, "SERVER",
                         playerData.getPss().ToString(), playerData.getCseq().ToString(),
                         playerData.getSseq().ToString(), ts.TotalMilliseconds.ToString(), "ENCRYPT");
                 }
@@ -413,7 +413,7 @@ namespace hds
                     stopwatch.Stop();
                     TimeSpan ts = stopwatch.Elapsed;
 
-                    Output.WritePacketLog(processedPacket, "CLIENT",
+                    Output.WritePacketLog(this, processedPacket, "CLIENT",
                         playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getACK().ToString(),
                         ts.TotalMilliseconds.ToString(), "DECRYPT");
                 }

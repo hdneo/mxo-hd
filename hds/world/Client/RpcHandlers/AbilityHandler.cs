@@ -41,7 +41,7 @@ namespace hds
             ServerPackets pak = new ServerPackets();
             if (this.currentAbility.getCastingTime() > 0)
             {
-                pak.sendCastAbilityBar(currentAbility.getAbilityID(), currentAbility.getCastingTime());
+                pak.SendCastAbilityBar(currentAbility.getAbilityID(), currentAbility.getCastingTime());
                 processSelfAnimation(abilityItem);
             }
 
@@ -49,7 +49,7 @@ namespace hds
 
             if (currentAbility.getAbilityID() == 12 || currentAbility.getAbilityID() == 184)
             {
-                pak.sendHyperSpeed();
+                pak.SendHyperSpeed();
             }
 
             pak.sendISCurrent(Store.currentClient, 50);
@@ -64,7 +64,7 @@ namespace hds
                 targetAnim = currentAbility.getAbilityExecutionFX();
             }
 
-            pak.sendCastAbilityOnEntityId(currentTargetViewId, targetAnim, 150);
+            pak.SendCastAbilityOnEntityId(currentTargetViewId, targetAnim, 150);
         }
 
         public void processCharacterAnimationSelf(UInt16 abilityID)
@@ -75,7 +75,7 @@ namespace hds
             // see movementAnims.tx - its for codes something (0x31)
             if (currentAbility.getAbilityExecutionFX() > 0)
             {
-                pak.sendCastAbilityOnEntityId(2, currentAbility.getAbilityExecutionFX(), 200);
+                pak.SendCastAbilityOnEntityId(2, currentAbility.getAbilityExecutionFX(), 200);
             }
 
             if (currentAbility.getCastingTime() > 0)
@@ -88,6 +88,7 @@ namespace hds
 
                 // And Time a "Damage" or "Buff" Animation
                 int castingTime = (int) currentAbility.getCastingTime() * 1000;
+                currentTargetViewId = Store.currentClient.playerData.currentSelectedTargetViewId;
                 damageTimer = new Timer(abilityAnimateTheTarget, this, castingTime, 0);
             }
         }
@@ -99,7 +100,7 @@ namespace hds
 //            serverPackets.sendAbilitySelfAnimation(2, ability.getAbilityID(), (UInt32) ability.getAbilityExecutionFX());
 
             ServerPackets serverPackets = new ServerPackets();
-            serverPackets.sendAbilitySelfAnimation(2, ability.getAbilityID(),
+            serverPackets.SendAbilitySelfAnimation(2, ability.getAbilityID(),
                 NumericalUtils.ByteArrayToUint32(ability.getCastAnimStart(), 1));
         }
 

@@ -38,15 +38,13 @@ namespace hds{
 
         public void processVendorOpen(ref byte[] objectID){
             // ToDo: Dynamic Shop Vendors
-            PacketContent pak = new PacketContent();
-
             Vendor vendor = DataLoader.getInstance().getVendorByGoIDandMetrId(NumericalUtils.ByteArrayToUint32(objectID,1), 1);
-
+            
             if (vendor != null)
             {
                 // ToDo: send the Packet (and give it the items ?)
                 ServerPackets serverPacket = new ServerPackets();
-                serverPacket.sendVendorWindow(Store.currentClient, vendor);
+                serverPacket.SendVendorWindow(Store.currentClient, vendor);
             }
         }
 
@@ -182,7 +180,7 @@ namespace hds{
             ServerPackets pak = new ServerPackets();
 
             switch (objectTypeID){
-
+                
                 // Case 03 is not only a staticWorldObject ... 
                 case (int)objectTypesStatic.DOOR:
 

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Security.Policy;
+
 namespace hds
 {
 	public class GameObject
@@ -11,8 +14,8 @@ namespace hds
 		private string name;
 		private UInt16 goid;
 		private UInt32 relatedStaticObjId;
-		
-		public GameObject(int _attributeNumCreation,int _attributeNumUpdate,int _creationGroups, int _updateGroups,string _name,UInt16 _goid,UInt32 _relatedStaticObjId){
+
+		public GameObject(int _attributeNumCreation,int _attributeNumUpdate,string _name,UInt16 _goid,UInt32 _relatedStaticObjId){
 			attributesCreation = new Attribute[_attributeNumCreation];
 			
 			if (_attributeNumUpdate>0){ 
@@ -20,8 +23,10 @@ namespace hds
 			}else{
 				attributesUpdate=null;
 			}
-			creationGroups = _creationGroups;
-			updateGroups = _updateGroups;
+
+			creationGroups = (int)Math.Ceiling((double) _attributeNumCreation / 7);
+			updateGroups = (int)Math.Ceiling((double) _attributeNumUpdate / 7);
+			
 			name = _name;
 			goid = _goid;
 			relatedStaticObjId=_relatedStaticObjId;
@@ -90,6 +95,66 @@ namespace hds
 
 				// Updating last attribute group, set it as 0b0XXXXXXX
 				if (i == (creationGroups-1)){
+					if (anyAttribEnabled){
+						din.insertBefore(tempHeader);
+						lastGroupEmpty = false;
+					}
+				}
+				// Updating other than last attribute group
+				else{
+					if (!lastGroupEmpty){
+						tempHeader = (byte) (tempHeader+0x80);
+						din.insertBefore(tempHeader);
+					}else{
+						if(anyAttribEnabled){
+							din.insertBefore(tempHeader);
+							lastGroupEmpty = false;
+						}
+					}				
+				}
+
+			}
+			
+			//add the counter of attributes sent
+			din.insertBefore((byte)attribCounter);
+			return din.getBytes();
+		}
+		
+		public byte[] GetUpdateAttributes(List<Attribute> attributesNeedsUpdate){
+			
+			DynamicArray din = new DynamicArray();
+			bool lastGroupEmpty = true;
+			int attribCounter = 0;
+			
+			for (int i = (updateGroups-1);i>=0;i--){
+				int attribOffset = i*7;
+				bool anyAttribEnabled = false;
+				byte tempHeader = 0x00;
+				
+				for (int j = 6;j>=0;j--){
+					int position = attribOffset+j;
+					// This verifies that the attribute is in a group but groups has not 7 attributes
+					if (position<attributesUpdate.Length){ 
+						Attribute temp = attributesUpdate[attribOffset+j];
+
+						if (temp.isActive())
+						{
+							foreach (Attribute attribute in attributesNeedsUpdate)
+							{
+								if (attribute.getName().Equals(temp.getName()))
+								{
+									anyAttribEnabled = true;
+									attribCounter++;
+									tempHeader = (byte) (tempHeader + (1<<j)); // Displacement
+									din.insertBefore(temp.getValue());									
+								}
+							}
+						}
+					}
+				}
+
+				// Updating last attribute group, set it as 0b0XXXXXXX
+				if (i == (updateGroups-1)){
 					if (anyAttribEnabled){
 						din.insertBefore(tempHeader);
 						lastGroupEmpty = false;

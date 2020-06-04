@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using hds.shared;
 
 namespace hds
@@ -51,6 +52,7 @@ namespace hds
             {
                 case 0x02:
                     Action.setValue(BufferHandler.readBytes(ref buffer, ref _offset, Action.getSize()));
+                    _offset = _offset + 2;
                 break;
 
 
@@ -98,7 +100,7 @@ namespace hds
 		                break;
             }
             
-            Store.world.sendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+            Store.world.SendViewPacketToAllPlayers(stateData, Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
 			return _offset;
 		}
 		
@@ -148,6 +150,66 @@ namespace hds
 			}
 			
 			return _offset;
+		}
+		
+		public byte[] GetSelfUpdateAttributes(List<Attribute> attributesNeedsUpdate){
+			
+			DynamicArray din = new DynamicArray();
+			bool lastGroupEmpty = true;
+			int attribCounter = 0;
+			
+			for (int i = (selfViewGroups-1);i>=0;i--){
+				int attribOffset = i*7;
+				bool anyAttribEnabled = false;
+				byte tempHeader = 0x00;
+				
+				for (int j = 6;j>=0;j--){
+					int position = attribOffset+j;
+					// This verifies that the attribute is in a group but groups has not 7 attributes
+					if (position<attributesSelfView.Length){ 
+						Attribute temp = attributesSelfView[attribOffset+j];
+
+						if (temp.isActive())
+						{
+							foreach (Attribute attribute in attributesNeedsUpdate)
+							{
+								if (attribute.getName().Equals(temp.getName()))
+								{
+									anyAttribEnabled = true;
+									attribCounter++;
+									tempHeader = (byte) (tempHeader + (1<<j)); // Displacement
+									din.insertBefore(temp.getValue());									
+								}
+							}
+						}
+					}
+				}
+
+				// Updating last attribute group, set it as 0b0XXXXXXX
+				if (i == (selfViewGroups-1)){
+					if (anyAttribEnabled){
+						din.insertBefore(tempHeader);
+						lastGroupEmpty = false;
+					}
+				}
+				// Updating other than last attribute group
+				else{
+					if (!lastGroupEmpty){
+						tempHeader = (byte) (tempHeader+0x80);
+						din.insertBefore(tempHeader);
+					}else{
+						if(anyAttribEnabled){
+							din.insertBefore(tempHeader);
+							lastGroupEmpty = false;
+						}
+					}				
+				}
+
+			}
+			
+			//add the counter of attributes sent
+			din.insertBefore((byte)attribCounter);
+			return din.getBytes();
 		}
 		
 	}

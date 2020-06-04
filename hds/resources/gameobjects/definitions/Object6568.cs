@@ -15,7 +15,7 @@ namespace hds
         public Attribute Hidden = new Attribute(1, "Hidden");
         public Attribute Orientation = new Attribute(16, "Orientation");
 
-        public Object6568(string name, UInt16 _goid, UInt32 _relatedStaticObjId) : base(5, 2, 10, 7,
+        public Object6568(string name, UInt16 _goid, UInt32 _relatedStaticObjId) : base(5, 2, 
             name, _goid, _relatedStaticObjId)
         {
             this.AddAttribute(ref Position, 0, -1);
