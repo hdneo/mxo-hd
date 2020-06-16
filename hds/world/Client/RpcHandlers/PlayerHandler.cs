@@ -157,8 +157,8 @@ namespace hds
                 Faction faction = Store.dbManager.WorldDbHandler.fetchFaction(factionId);
                 faction.masterPlayerCharId =
                     Store.dbManager.WorldDbHandler.getCharIdByHandle(faction.masterPlayerHandle);
-                pak.SendFactionInfo(Store.currentClient, faction);
-                pak.SendFactionCrews(Store.currentClient, faction);
+                pak.SendFactionInfo(Store.currentClient, faction, false);
+                pak.SendFactionCrews(Store.currentClient, faction, false);
 
             }
             
@@ -169,8 +169,9 @@ namespace hds
             Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
             List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
             pak.SendCrewInfo(Store.currentClient, crewData, members);
-            
-            
+            pak.sendCrewAndFactionEnableWindow(Store.currentClient);
+
+
 
         }
 

@@ -62,7 +62,7 @@ namespace hds
                     signpost.AnimationID0.setValue(new byte[]{ 0x02, 0x00, 0x00, 0x3A});
                     signpost.SignpostOrgID.setValue(0);
                     signpost.DescriptionID.setValue(new byte[]{ 0x3D, 0x0B, 0x00, 0x58});
-                    signpost.SignpostReqLevel.setValue(3);
+                    signpost.SignpostReqLevel.setValue(0);
                     signpost.Orientation.setValue(StringUtils.hexStringToBytes(objectValues.quat));
                     
                     String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoId;

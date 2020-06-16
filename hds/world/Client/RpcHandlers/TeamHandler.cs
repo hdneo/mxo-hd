@@ -82,7 +82,7 @@ namespace hds
                         if (crewData.factionId > 0)
                         {
                             Store.currentClient.playerInstance.FactionID.setValue(crewData.factionId);
-                            new FCHandler().ProcessFactionInfoUpdate();
+                            new FCHandler().ProcessFactionInfoUpdate(false);
                         }
 
                         string characterName =

@@ -84,9 +84,10 @@ namespace hds
 
         // Faction and crew
         CLIENT_FACTION_INFO = 0xf4,
+        CLIENT_FACTION_INVITE = 0x7a,
         CLIENT_FACTION_DISBAND_FACTION = 0x77,
         CLIENT_DEPOSIT_MONEY_FACTION_CREW = 0x78,
-        CLIENT_CREW_INVITE_PLAYER = 0x6e,
+        CLIENT_FACTION_CREW_INVITE_PLAYER = 0x6e,
         
     }
 
@@ -159,6 +160,7 @@ namespace hds
         SERVER_CREW_INVITE = 0x8088,
         SERVER_JOIN_GROUP = 0x70,
         SERVER_LEAVE_GROUP = 0x72,
+        SERVER_FACTION_CREATE_ERROR = 0x7b,
         SERVER_FACTION_PLAYER_INFO = 0x7c,
         SERVER_FACTION_UPDATE_MONEY = 0x79
 

@@ -24,7 +24,7 @@ namespace hds
             // 112,CurrentTimerState,EventID,4
             // 260,Orientation,LTQuaternion,16
             WorldSocket.entityIdCounter++;
-            ClientView view = client.viewMan.getViewForEntityAndGo(WorldSocket.entityIdCounter, 47080);
+            ClientView view = client.viewMan.GetViewForEntityAndGo(WorldSocket.entityIdCounter, 47080);
 
             PacketContent pak = new PacketContent();
             pak.addUint16(1, 1);

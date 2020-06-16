@@ -26,7 +26,7 @@ namespace hds{
 					}
 					
 				}
-				
+
 				if (command.Equals("?gotopos") && commands.Length==4){
 					// parse the coord parameters parameters as int
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().teleport(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3])), false);
@@ -66,16 +66,7 @@ namespace hds{
 
                 }
 
-				if (command.Contains("?loot"))
-				{
-					UInt32 objectId = UInt32.Parse(commands[1]);
-					
-					ServerPackets packets = new ServerPackets();
-					packets.sendLootWindowTest(Store.currentClient,objectId);
-
-				}
-
-			    if (command.Contains("?moa"))
+                if (command.Contains("?moa"))
 			    {
 			        string hexMoa = commands[1];
 			        byte[] moaRSI = StringUtils.hexStringToBytes(hexMoa);
@@ -255,24 +246,25 @@ namespace hds{
 
                 if (command.Contains("?testrpc")){
 
-                    UInt16 maxRPC = 33279;
+                    UInt16 maxRPC = 255;
                     // Just to reference 
                     if (Store.currentClient.playerData.currentTestRPC <= maxRPC){
 
                         // Only if it is below we send it - we test with a 5 size packet
                         DynamicArray din = new DynamicArray();
-                        if (Store.currentClient.playerData.currentTestRPC < 127)
+                        if (Store.currentClient.playerData.currentTestRPC < 256)
                         {
-                            din.append(NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.currentTestRPC));
+	                        din.append(0x80);
+	                        din.append(NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.currentTestRPC));
                         }
                         else
                         {
+	                        din.append(0x81);
                             din.append(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.currentTestRPC, 0));
                         }
                         
-                        din.append(0x00);
-                        din.append(0x00);
-                        din.append(0x00);
+                        // Test Faction Invites
+                        din.append(StringUtils.hexStringToBytes("0C001C000000000000000E00416674657257686F72754E656F001D00416674657257686F72754E656F2773204D697373696F6E205465616D00"));
 
                         Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
 						

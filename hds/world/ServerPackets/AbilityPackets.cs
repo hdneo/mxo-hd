@@ -95,7 +95,7 @@ namespace hds
                     String hexViewStateOther = StringUtils.bytesToString_NS(viewStateOtherData.returnFinalPacket());
                     String hexMyselfStateData = StringUtils.bytesToString_NS(myselfStateData.returnFinalPacket());
                     
-                    if (viewId == 2)
+                    if (viewId == 2 || viewId == 0)
                     {
                         Output.WriteDebugLog("View ID Ability SelfState for View ID 2 from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
                         Output.WriteDebugLog("Update Ability FX on OtherState Views from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);

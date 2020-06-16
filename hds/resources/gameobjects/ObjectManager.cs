@@ -5,10 +5,8 @@ namespace hds.resources.gameobjects
 {
 	public class ObjectManager
 	{
-
 		private readonly Hashtable _currentObjects;
-				
-				
+		
 		public ObjectManager (){
 			_currentObjects = new Hashtable();
 			Output.WriteLine("[SHEEVA] Object Manager Operative. Welcome back");

@@ -17,7 +17,7 @@ namespace hds
                 ArrayList deadPlayers = new ArrayList();
 
                 // Clean 
-                lock (WorldSocket.Clients.SyncRoot)
+                lock (WorldSocket.Clients)
                 {
                     foreach (string clientKey in WorldSocket.Clients.Keys)
                     {
@@ -48,7 +48,7 @@ namespace hds
             {
                 foreach (var serverEntity in WorldSocket.gameServerEntities)
                 {
-                    lock (WorldSocket.Clients.SyncRoot)
+                    lock (WorldSocket.Clients)
                     {
                         foreach (var clientKey in WorldSocket.Clients.Keys)
                         {
@@ -71,7 +71,7 @@ namespace hds
             {
                 Subway thisSubway = (Subway) WorldSocket.subways[i];
 
-                lock (WorldSocket.Clients.SyncRoot)
+                lock (WorldSocket.Clients)
                 {
                     foreach (string clientKey in WorldSocket.Clients.Keys)
                     {
@@ -85,7 +85,6 @@ namespace hds
                             if (thisclient.playerData.getOnWorld() == true &&
                                 thisclient.playerData.waitForRPCShutDown == false)
                             {
-                                Maths math = new Maths();
                                 double playerX = 0;
                                 double playerY = 0;
                                 double playerZ = 0;
@@ -95,12 +94,12 @@ namespace hds
                                 bool objectInCircle = mathUtils.IsInCircle((float) playerX, (float) playerZ,
                                     (float) thisSubway.worldObject.pos_x, (float) thisSubway.worldObject.pos_z, 5000);
 
-                                // Spawn Mob if its in Visibility Range
+                                // EntityHackString
                                 String entityHackString =
                                     "" + thisSubway.worldObject.metrId + "" + thisSubway.worldObject.mxoId;
                                 UInt64 entityStaticId = UInt64.Parse(entityHackString);
 
-                                ClientView view = Store.currentClient.viewMan.getViewForEntityAndGo(entityStaticId,
+                                ClientView view = Store.currentClient.viewMan.GetViewForEntityAndGo(entityStaticId,
                                     NumericalUtils.ByteArrayToUint16(thisSubway.worldObject.type, 1));
                                 
                                 if (!view.viewCreated &&
@@ -119,7 +118,6 @@ namespace hds
                                 if (view.viewCreated && !objectInCircle &&
                                     thisSubway.worldObject.metrId == thisclient.playerData.getDistrictId())
                                 {
-                                    // ToDo: delete mob
                                     ServerPackets packets = new ServerPackets();
                                     packets.sendDeleteViewPacket(thisclient, view.ViewID);
                                     thisclient.viewMan.removeViewByViewId(view.ViewID);
@@ -133,7 +131,7 @@ namespace hds
 
         private static void CheckForNPC()
         {
-            lock (WorldSocket.Clients.SyncRoot)
+            lock (WorldSocket.Clients)
             {
                 foreach (string clientKey in WorldSocket.Clients.Keys)
                 {
@@ -167,7 +165,7 @@ namespace hds
             {
                 Mob thismob = (Mob) WorldSocket.mobs[i];
 
-                lock (WorldSocket.Clients.SyncRoot)
+                lock (WorldSocket.Clients)
                 {
                     foreach (string clientKey in WorldSocket.Clients.Keys)
                     {
@@ -192,7 +190,7 @@ namespace hds
                                     (float) thismob.getXPos(), (float) thismob.getZPos(), 5000);
 
                                 // Spawn Mob if its in Visibility Range
-                                ClientView mobView = thisclient.viewMan.getViewForEntityAndGo(thismob.getEntityId(),
+                                ClientView mobView = thisclient.viewMan.GetViewForEntityAndGo(thismob.getEntityId(),
                                     NumericalUtils.ByteArrayToUint16(thismob.getGoId(), 1));
                                 if (mobView.viewCreated == false &&
                                     thismob.getDistrict() == thisclient.playerData.getDistrictId() &&
@@ -239,7 +237,7 @@ namespace hds
         private static void CheckPlayerViews()
         {
             // Check for Player Views
-            lock (WorldSocket.Clients.SyncRoot)
+            lock (WorldSocket.Clients)
             {
                 foreach (string clientKey in WorldSocket.Clients.Keys)
                 {
@@ -251,7 +249,7 @@ namespace hds
                         WorldClient otherClient = WorldSocket.Clients[clientOtherKey] as WorldClient;
                         if (otherClient != currentClient)
                         {
-                            ClientView clientView = currentClient.viewMan.getViewForEntityAndGo(
+                            ClientView clientView = currentClient.viewMan.GetViewForEntityAndGo(
                                 otherClient.playerData.getEntityId(),
                                 NumericalUtils.ByteArrayToUint16(otherClient.playerInstance.GetGoid(), 1));
 
@@ -313,7 +311,7 @@ namespace hds
                 foreach (string client in WorldSocket.Clients.Keys)
                 {
                     WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
-                    ClientView view = otherclient.viewMan.getViewForEntityAndGo(deadClient.playerData.getEntityId(),
+                    ClientView view = otherclient.viewMan.GetViewForEntityAndGo(deadClient.playerData.getEntityId(),
                         NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
 
                     Store.dbManager.WorldDbHandler.SetOnlineStatus(otherclient.playerData.getCharID(), 0);
@@ -330,7 +328,7 @@ namespace hds
                 // ToDo: Announce friendlists from other users that you are going offline (just collect all players whohave this client in list and send the packet)
                 // ToDo: Finally save the current character Data to the Database^^
                 Output.WriteLine("Removed inactive Client with Key " + key);
-                lock (WorldSocket.Clients.SyncRoot)
+                lock (WorldSocket.Clients)
                 {
                     WorldSocket.Clients.Remove(key);
                 }

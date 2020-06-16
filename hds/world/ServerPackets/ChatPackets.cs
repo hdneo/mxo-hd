@@ -8,66 +8,42 @@ namespace hds
 {
     public partial class ServerPackets
     {
-        public void SendChatMessage(WorldClient fromClient, string message, UInt32 charId, string handle, string scope)
+        public void SendChatMessage(WorldClient fromClient, string message, UInt32 charId, string handle, UInt16 scopeId)
         {
-            byte typeByte;
-            switch (scope)
-            {
-                case "TEAM":
-                    typeByte = 0x05;
-                    break;
-                case "CREW":
-                    typeByte = 0x02;
-                    break;
-
-                case "FACTION":
-                    typeByte = 0x03;
-                    break;
-
-                case "AREA":
-                    typeByte = 0x10;
-                    break;
-                default:
-                    typeByte = 0x07;
-                    break;
-            }
-
-
-            UInt16 messageSize = (UInt16) (message.Length + 1);
-
-            byte[] messageSizeHex = NumericalUtils.uint16ToByteArray(messageSize, 1);
-
-            UInt32 offsetMessage = (uint) handle.Length + 35 + 2 + 2;
+            
+            UInt32 offsetMessage = (uint) handle.Length + 36 + 3;
             PacketContent pak = new PacketContent();
             pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addByte(0);
-            pak.addUint32(charId, 0);
-            pak.addUint16(36, 0);
-            pak.addUint32(offsetMessage, 0);
-            pak.addHexBytes("000000000000000000000000000000000000000000000000");
+            pak.addUint16(scopeId,1);
+            pak.addUint32(charId, 1);
+            pak.addUint32(36, 1);
+            pak.addUint32(offsetMessage, 1);
+            pak.addHexBytes("000000000000000000000000000000000000000000"); // Unknown Zeros currently
             pak.addSizedTerminatedString(handle);
             pak.addSizedTerminatedString(message);
 
-            switch (typeByte)
+            switch (scopeId)
             {
-                case 0x02:
-                    UInt32 factionId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(),
-                            1);
-                    Store.world.SendRPCToCrewMembers(factionId, Store.currentClient, pak.returnFinalPacket(), true);
-                    break;
-                case 0x03:
+                // 20 = Faction_Broadcast - never used ?
+                case 18:
                     UInt32 crewId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(),
                             1);
-                    Store.world.SendRPCToFactionMembers(crewId, Store.currentClient, pak.returnFinalPacket(), true);
+                    Store.world.SendRPCToCrewMembers(crewId, Store.currentClient, pak.returnFinalPacket(), false);
+                    break;
+                case 19:
+                case 20:
+                    UInt32 factionId =
+                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(),
+                            1);
+                    Store.world.SendRPCToFactionMembers(factionId, Store.currentClient, pak.returnFinalPacket(), false);
                     break;
 
-                case 0x05:
+                case 21:
                     UInt32 missionTeamId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(),
                             1);
-                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), true);
+                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), false);
                     break;
 
                 default:

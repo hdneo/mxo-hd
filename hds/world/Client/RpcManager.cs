@@ -92,11 +92,14 @@ namespace hds{
 		            break;
 
 		        // Faction and Crews
-		        case (int) RPCRequestHeader.CLIENT_CREW_INVITE_PLAYER:
+		        case (int) RPCRequestHeader.CLIENT_FACTION_CREW_INVITE_PLAYER:
 		            new FCHandler().processInvitePlayerToCrew(ref rpcData);
 		            break;
+		        case (int) RPCRequestHeader.CLIENT_FACTION_INVITE:
+			        new FCHandler().ProcessInvitePlayerToNewFaction(ref rpcData);
+			        break;
 		        case (int) RPCRequestHeader.CLIENT_FACTION_INFO:
-		            new FCHandler().processLoadFactionName(ref rpcData);
+		            new FCHandler().ProcessLoadFactionName(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_DEPOSIT_MONEY_FACTION_CREW:
 			        new FCHandler().ProcessDepositMoney(ref rpcData);

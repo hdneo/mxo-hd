@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
@@ -21,7 +23,7 @@ namespace hds
             
         public const int SIO_UDP_CONNRESET = -1744830452;
 
-        public static Hashtable Clients { get; set; }
+        public static Dictionary<string, WorldClient> Clients { get; set; }
 
         // Collection to store the spawned npcs 
         public static ArrayList mobs = ArrayList.Synchronized(new ArrayList());
@@ -37,7 +39,7 @@ namespace hds
         public WorldSocket()
         {
 
-            Clients = new Hashtable();
+            Clients = new Dictionary<string, WorldClient>();
             objMan = new ObjectManager();
 
             listenThread = new Thread(ListenForAllClients);
@@ -63,7 +65,7 @@ namespace hds
         /// <param name="packet">Packet Stream</param>
         public void sendRPCToOnePlayer(UInt32 charId, byte[] packet)
         {
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
@@ -84,7 +86,7 @@ namespace hds
         /// <param name="playerHandle">Player Handle to send the Packet</param>
         public void SendRPCToOnePlayerByHandle(byte[] packet, string playerHandle)
         {
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
 
                 foreach (string clientKey in Clients.Keys)
@@ -114,7 +116,7 @@ namespace hds
         public void sendRPCToAllOtherPlayers(ClientData myself, byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients.SyncRoot){
+            lock(Clients){
                 foreach (string clientKey in Clients.Keys)
                 {
                     // Populate a message to all players 
@@ -135,7 +137,7 @@ namespace hds
         public void SendRPCToCrewMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients.SyncRoot){
+            lock(Clients){
                 foreach (string clientKey in Clients.Keys)
                 {
                     // Populate a message to all players to my crew
@@ -157,22 +159,22 @@ namespace hds
         public void SendRPCToFactionMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients.SyncRoot){
-                foreach (string clientKey in Clients.Keys)
-                {
-                    // Populate a message to all players to my crew
-                    WorldClient client = Clients[clientKey] as WorldClient;
-                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(),1) == groupId)
-                    {
-                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
-                        {
-                            // create the RPC Message
-                            client.messageQueue.addRpcMessage(data);
-                            client.FlushQueue();    
-                        }
-                        
-                    }
+            lock (Clients)
+            {
+                var clients = from clientCollection in Clients
+                    where NumericalUtils.ByteArrayToUint32(clientCollection.Value.playerInstance.FactionID.getValue(),1) == groupId
+                    select clientCollection;
 
+                foreach (KeyValuePair<string, WorldClient> theClient in clients)
+                {
+                    WorldClient client = theClient.Value;
+
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
                 }
             }
         }
@@ -180,21 +182,24 @@ namespace hds
         public void SendRPCToMissionTeamMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock(Clients.SyncRoot){
-                foreach (string clientKey in Clients.Keys)
-                {
-                    // Populate a message to all players to my crew
-                    WorldClient client = Clients[clientKey] as WorldClient;
-                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.MissionTeamID.getValue(),1) == groupId)
-                    {
-                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
-                        {
-                            // create the RPC Message
-                            client.messageQueue.addRpcMessage(data);
-                            client.FlushQueue();    
-                        }
-                    }
+            lock (Clients)
+            {
+                var clients = from clientCollection in Clients
+                    where NumericalUtils.ByteArrayToUint32(
+                        clientCollection.Value.playerInstance.MissionTeamID.getValue(), 1) == groupId
+                    select clientCollection;
 
+                foreach (KeyValuePair<string, WorldClient> theClient in clients)
+                {
+                    WorldClient client = theClient.Value;
+                    // Populate a message to all players to my crew
+
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
                 }
             }
         }
@@ -207,7 +212,7 @@ namespace hds
                 handles.Add(friend["handle"].ToString());
             }
 
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
@@ -234,11 +239,11 @@ namespace hds
         public void sendRPCToAllPlayers(byte[] data)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
-                    WorldClient client = Clients[clientKey] as WorldClient;
+                    WorldClient client = Clients[clientKey];
                     client.messageQueue.addRpcMessage(data);
                     client.FlushQueue();
                 }
@@ -254,7 +259,7 @@ namespace hds
         public void SendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
         {
             // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
@@ -265,7 +270,7 @@ namespace hds
                         Output.Write("[ViewThread] Handle View For all Packet for charId : " + charId.ToString());
                         #endif
                         // Get or generate a View for the GoID 
-                        ClientView view = client.viewMan.getViewForEntityAndGo(entityId, goId);
+                        ClientView view = client.viewMan.GetViewForEntityAndGo(entityId, goId);
                         PacketContent viewPacket = new PacketContent();
 
                         if (view.viewCreated == false)
@@ -314,7 +319,7 @@ namespace hds
                 return;
             }
 
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 
                 foreach (string clientKey in Clients.Keys)
@@ -333,7 +338,7 @@ namespace hds
 
         public void SendViewUpdateToClientWhoHasStaticObjectSpawned(PacketContent packet, StaticWorldObject worldObject, string debugMessage)
         {
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
@@ -341,7 +346,7 @@ namespace hds
                     UInt64 entityStaticId = UInt64.Parse(entityHackString);
                     
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    ClientView objectView = client.viewMan.getViewForEntityAndGo(entityStaticId, NumericalUtils.ByteArrayToUint16(worldObject.type, 1));
+                    ClientView objectView = client.viewMan.GetViewForEntityAndGo(entityStaticId, NumericalUtils.ByteArrayToUint16(worldObject.type, 1));
                     if (objectView.viewCreated && worldObject.metrId == client.playerData.getDistrictId() && client.playerData.getOnWorld())
                     {
                         ServerPackets pak = new ServerPackets();
@@ -354,12 +359,12 @@ namespace hds
 
         public void SendViewUpdateToClientsWhoHasMobSpawned(PacketContent packet, Mob mob)
         {
-            lock (Clients.SyncRoot)
+            lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    ClientView mobView = client.viewMan.getViewForEntityAndGo(mob.getEntityId(), NumericalUtils.ByteArrayToUint16(mob.getGoId(), 1));
+                    ClientView mobView = client.viewMan.GetViewForEntityAndGo(mob.getEntityId(), NumericalUtils.ByteArrayToUint16(mob.getGoId(), 1));
                     if (mobView.viewCreated == true && mob.getDistrict() == client.playerData.getDistrictId() && client.playerData.getOnWorld())
                     {
                         ServerPackets pak = new ServerPackets();
@@ -385,7 +390,7 @@ namespace hds
                 ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
 
                 // TODO CLIENT CHECK AND HANDLING
-                lock (Clients.SyncRoot)
+                lock (Clients)
                 {
                     WorldClient value;
                     if (Clients.ContainsKey(Remote.ToString()))

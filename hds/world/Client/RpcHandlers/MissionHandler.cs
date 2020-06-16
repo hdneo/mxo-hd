@@ -20,10 +20,10 @@ namespace hds
             ServerPackets pak = new ServerPackets();
 
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);
-            pak.sendSetMissionObjective(1, 0, "This is the test Mission, mate", Store.currentClient);
+            pak.sendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
             pak.sendSetMissionObjective(2, 0, "Success", Store.currentClient);
             pak.sendSetMissionObjective(3, 2, "Failed Remain", Store.currentClient);
-            pak.sendSetMissionObjective(4, 3, "Failed Clear", Store.currentClient);
+            pak.sendSetMissionObjective(4, 0, "Failed Clear", Store.currentClient);
         }
 
         public void processMissionList(ref byte[] packet)
@@ -43,7 +43,6 @@ namespace hds
             UInt32 unknownUint = reader.readUInt32(1); // Maybe its just an offset of uint8 - we dont care and know lol
             reader.incrementOffsetByValue(1);
             String handleToInvite = reader.readSizedZeroTerminatedString();
-
             // ToDo: implement the right response for the player who get the invite
         }
 

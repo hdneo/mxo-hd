@@ -14,6 +14,28 @@ namespace hds
         public void processChat(ref byte[] packetData)
         {
 
+            PacketReader reader = new PacketReader(packetData);
+            UInt16 typeId = reader.readUInt16(1);
+
+            string typeString = "AREA";
+
+            switch (typeId)
+            {
+                case 19:
+                    typeString = "FACTION";
+                    break;
+                case 18:
+                    typeString = "CREW";
+                    break;
+                case 21:
+                    typeString = "TEAM";
+                    break;
+                default:
+                    typeString = "AREA";
+                    break;
+                
+            }
+            
             chatCommands = new ChatCommandsHelper();
             int offset = 0;
 
@@ -36,7 +58,7 @@ namespace hds
                 {
                     // Not a Param - lets distribute the Message throw our Area 
                     ServerPackets pak = new ServerPackets();
-                    pak.SendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), "AREA");
+                    pak.SendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), typeId);
                     // ToDo: Send the ChatMessage to the Scope of Players
 
                     

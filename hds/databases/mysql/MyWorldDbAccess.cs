@@ -5,8 +5,6 @@ using System.Data;
 using hds.databases.interfaces;
 using hds.shared;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using hds.world.Structures;
 using MySql.Data.MySqlClient;
 
@@ -156,6 +154,92 @@ namespace hds.databases{
 	        
 	        factionData.crews = GetCrewsForFaction(factionData.factionId);
 	        return factionData;
+        }
+
+        public bool isFactionnameAvailable(string factionname)
+        {
+	        bool isFactionNameAvailable = true;
+	        OpenConnection();
+	        string query = "SELECT id FROM factions WHERE name = '" + factionname.Trim() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+
+	        while (dr.Read())
+	        {
+		        // if we have just one entry - we have found a faction
+		        isFactionNameAvailable = false;
+	        }
+	        CloseConnection();
+	        return isFactionNameAvailable;
+        }
+
+        public bool isHandleCaptainOfACrew(string handle)
+        {
+	        bool isCaptainOfCrew = false;
+	        OpenConnection();
+	        string query = "SELECT id FROM crews WHERE master_player_handle = '" + handle.Trim() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+
+	        while (dr.Read())
+	        {
+		        // if we have just one entry - we have found a faction
+		        isCaptainOfCrew = true;
+	        }
+	        CloseConnection();
+	        return isCaptainOfCrew;
+        }
+
+        public UInt32 createFaction(string factionname, Crew masterCrew, Crew secondCrew)
+        {
+	        ExecuteNonResultQuery("INSERT INTO factions SET name='" + factionname.Trim() + "', master_player_handle='" + masterCrew.characterMasterName + "', money=0, created_at=NOW() ");
+	        
+	        OpenConnection();
+	        string query = "SELECT id FROM factions WHERE name='" + factionname.Trim() + "' LIMIT 1";
+	        queryExecuter = conn.CreateCommand();
+	        queryExecuter.CommandText = query;
+	        dr = queryExecuter.ExecuteReader();
+
+	        UInt32 factionId = 0;
+	        while (dr.Read())
+	        {
+		        factionId = (UInt32) dr.GetInt32(0);
+	        }
+	        CloseConnection();
+	        
+	        if (factionId > 0)
+	        {
+		        ExecuteNonResultQuery("UPDATE crews SET faction_id= '" + factionId +
+		                              "' WHERE master_player_handle = '" + masterCrew.characterMasterName +
+		                              "' LIMIT 1");
+		        ExecuteNonResultQuery("UPDATE crews SET faction_id= '" + factionId +
+		                              "' WHERE master_player_handle = '" + secondCrew.characterMasterName +
+		                              "' LIMIT 1");
+		        
+		        OpenConnection();
+		        string crewIdsQuery = "SELECT id FROM crews WHERE faction_id='" + factionId + "' ";
+		        queryExecuter = conn.CreateCommand();
+		        queryExecuter.CommandText = crewIdsQuery;
+		        dr = queryExecuter.ExecuteReader();
+		        
+		        
+				List<UInt32> crewIds = new List<uint>();
+		        while (dr.Read())
+		        {
+			        crewIds.Add((UInt32) dr.GetInt32(0));
+
+		        }
+		        CloseConnection();
+
+		        foreach (UInt32 crewId in crewIds)
+		        {
+			        ExecuteNonResultQuery("UPDATE characters SET factionId = '" + factionId + "' WHERE crewId = '" + crewId + "' ");
+		        }
+	        }
+
+	        return factionId;
         }
 
         public void IncreaseCrewMoney(UInt32 crewId, UInt32 amount)
@@ -398,7 +482,7 @@ namespace hds.databases{
 		{
 			OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
-			string sqlQuery="Select handle,x,y,z,rotation,healthC,healthM,innerStrC,innerStrM,level,profession,alignment,pvpflag,firstName,lastName,exp,cash,district,districtId,factionId,crewId from characters where charId='"+charID+"'";
+			string sqlQuery="Select handle,x,y,z,rotation,healthC,healthM,innerStrC,innerStrM,level,profession,alignment,pvpflag,firstName,lastName,exp,cash,district,districtId,factionId,crewId, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion from characters where charId='"+charID+"'";
 			queryExecuter= conn.CreateCommand();
 			queryExecuter.CommandText = sqlQuery;					
 			dr= queryExecuter.ExecuteReader();
@@ -428,25 +512,31 @@ namespace hds.databases{
 				//data.setPlayerValue("pvpFlag",(int)dr.GetDecimal(12));
 				Store.currentClient.playerInstance.RealFirstName.setValue(dr.GetString(13));
 				Store.currentClient.playerInstance.RealLastName.setValue(dr.GetString(14));
-				
+
 				Store.currentClient.playerData.setExperience((long)dr.GetDecimal(15));
 				Store.currentClient.playerData.setInfo((long)dr.GetDecimal(16));
 				Store.currentClient.playerData.setDistrict(dr.GetString(17));
                 Store.currentClient.playerData.setDistrictId((uint)dr.GetInt16(18));
+                
+                
+                
 				UInt32 factionId = (uint) dr.GetInt16(19);
 				UInt32 crewId = (uint) dr.GetInt16(20);
 
-				if (factionId > 0)
-				{
-					Store.currentClient.playerInstance.FactionID.enable();
-					Store.currentClient.playerInstance.FactionID.setValue(factionId);
-				}
+				Store.currentClient.playerInstance.FactionID.enable();
+				Store.currentClient.playerInstance.FactionID.setValue(factionId);
+				
+				Store.currentClient.playerInstance.CrewID.enable();
+				Store.currentClient.playerInstance.CrewID.setValue(crewId);
 
-				if (crewId > 0)
-				{
-					Store.currentClient.playerInstance.CrewID.enable();
-					Store.currentClient.playerInstance.CrewID.setValue(crewId);
-				}
+				Store.currentClient.playerInstance.ReputationMerovingian.setValue((UInt16) dr.GetDecimal(21));
+				Store.currentClient.playerInstance.ReputationMachines.setValue((UInt16) dr.GetDecimal(22));
+				Store.currentClient.playerInstance.ReputationNiobe.setValue((UInt16) dr.GetDecimal(23));
+				Store.currentClient.playerInstance.ReputationPluribusNeo.setValue((UInt16) dr.GetDecimal(24));
+				Store.currentClient.playerInstance.ReputationCypherites.setValue((UInt16) dr.GetDecimal(25));
+				Store.currentClient.playerInstance.ReputationGMOrganization.setValue((UInt16) dr.GetDecimal(26));
+				Store.currentClient.playerInstance.ReputationZionMilitary.setValue((UInt16) dr.GetDecimal(27));
+				
 
 			}
 			
@@ -609,6 +699,7 @@ namespace hds.databases{
 			                       handle + "' ";
 			ExecuteNonResultQuery(positionQuery);
 			Output.WriteLine(StringUtils.bytesToString(StringUtils.stringToBytes(positionQuery)));
+			Output.writeToLogForConsole("[WORLD DB ACCESS ]" + positionQuery);
 
 			string rsiQuery = "update rsivalues set sex='" + rsiValues[0] + "',body='" + rsiValues[1] + "',hat='" +
 			                  rsiValues[2] + "',face='" + rsiValues[3] + "',shirt='" + rsiValues[4] + "',coat='" +

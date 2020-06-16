@@ -9,7 +9,7 @@ namespace hds
 {
     class FCHandler
     {
-        public void processLoadFactionName(ref byte[] packet)
+        public void ProcessLoadFactionName(ref byte[] packet)
         {
 
             PacketReader packetReader = new PacketReader(packet);
@@ -65,6 +65,75 @@ namespace hds
                 pak.sendSystemChatMessage(Store.currentClient,"Crewname was already taken - please choose a new one","BROADCAST");
             }
 
+        }
+
+        public void ProcessInvitePlayerToNewFaction(ref byte[] packet)
+        {
+            PacketReader reader = new PacketReader(packet);
+            // We read the offset but we would not really need it (as we just read a sized terminated string)
+            UInt16 offsetHandleToInvite = reader.readUInt16(1);
+            UInt16 offsetFactionName = reader.readUInt16(1);
+            string factionName = reader.readSizedZeroTerminatedString();
+            string handleToInvite = reader.readSizedZeroTerminatedString();
+
+            string masterHandle =
+                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+            
+            if (Store.dbManager.WorldDbHandler.isFactionnameAvailable(factionName) && Store.dbManager.WorldDbHandler.isHandleCaptainOfACrew(handleToInvite) && Store.dbManager.WorldDbHandler.isHandleCaptainOfACrew(masterHandle))
+            {
+                // We should now create the faction and add the crews to it (and don't forget to update the members)
+                Crew crewMaster = Store.dbManager.WorldDbHandler.GetCrewData(Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(masterHandle));
+                Crew crewSecondCaptaint = Store.dbManager.WorldDbHandler.GetCrewData(Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(handleToInvite));
+                
+                UInt32 factionId = Store.dbManager.WorldDbHandler.createFaction(factionName, crewMaster, crewSecondCaptaint);
+                ServerPackets packets = new ServerPackets();
+                
+                if (factionId > 0)
+                {
+                    crewMaster.factionId = factionId;
+                    crewSecondCaptaint.factionId = factionId;
+                    // Update Faction Id
+                    var crewMembers = from crewMasterClients in WorldSocket.Clients
+                        where NumericalUtils.ByteArrayToUint32(crewMasterClients.Value.playerInstance.CrewID.getValue(),
+                                  1) ==
+                              crewMaster.crewId ||
+                              NumericalUtils.ByteArrayToUint32(crewMasterClients.Value.playerInstance.CrewID.getValue(),
+                                  1) == crewSecondCaptaint.crewId
+                        select crewMasterClients;
+
+                    foreach (var client in crewMembers)
+                    {
+                        client.Value.playerInstance.FactionID.setValue(factionId);
+                    }
+                    
+                    packets.SendJoinedGroup(1, factionId, crewMaster.crewId, crewMaster.characterMasterName);
+                    packets.SendJoinedGroup(1, factionId, crewSecondCaptaint.crewId, crewSecondCaptaint.characterMasterName);
+                    new FCHandler().ProcessFactionInfoUpdate(true);
+                    
+                    // Now selfView Updates
+                    foreach (var client in crewMembers)
+                    {
+
+                        List<Attribute> updateAttributes = new List<Attribute>();
+                        updateAttributes.Add(client.Value.playerInstance.FactionID);
+
+                        PacketContent viewStateData = new PacketContent();
+                        PacketContent myselfStateData = new PacketContent();
+                        viewStateData.addByteArray(client.Value.playerInstance.GetUpdateAttributes(updateAttributes));
+                        myselfStateData.addByteArray(client.Value.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+                        
+                        // OtherView
+                        Store.world.SendViewPacketToAllPlayers(viewStateData.returnFinalPacket(), client.Value.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(client.Value.playerInstance.GetGoid(),1), client.Value.playerData.getEntityId());
+                       
+                        // SelfView
+                        client.Value.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+                    }
+                }
+                else
+                {
+                    packets.SendFactionCreationError(Store.currentClient);    
+                }
+            }
         }
 
         public void ProcessDisbandFaction(ref byte[] packet)
@@ -172,7 +241,7 @@ namespace hds
             packet.SendCrewInfo(Store.currentClient, crewData, members);
         }
         
-        public void ProcessFactionInfoUpdate()
+        public void ProcessFactionInfoUpdate(bool sendToAllMembers)
         {
             // ToDo: maybe we can remove this as we update money on the other way (but we need to check if this is the case)
             UInt32 factionId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
@@ -182,9 +251,11 @@ namespace hds
                 Store.dbManager.WorldDbHandler.getCharIdByHandle(faction.masterPlayerHandle);
             
             ServerPackets packet = new ServerPackets();
-            packet.SendFactionInfo(Store.currentClient, faction);
-            packet.SendFactionCrews(Store.currentClient, faction);
+            
+            packet.SendFactionInfo(Store.currentClient, faction, sendToAllMembers);
+            packet.SendFactionCrews(Store.currentClient, faction, sendToAllMembers);
         }
+        
         
     }
 }

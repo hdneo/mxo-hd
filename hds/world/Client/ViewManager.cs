@@ -25,8 +25,7 @@ namespace hds
 
         public ClientView getViewById(UInt16 viewId)
         {
-            ClientView view = null;
-            view = views.Find(delegate(ClientView cv) { return cv.ViewID == viewId; });
+            ClientView view = views.Find(delegate(ClientView cv) { return cv.ViewID == viewId; });
             return view;
         }
 
@@ -41,7 +40,7 @@ namespace hds
 
         // This method should check if client has a view for a GoID 
         // If not it adds it to his List of Views and response the ClientView Object
-        public ClientView getViewForEntityAndGo(UInt64 entityId, UInt32 goID)
+        public ClientView GetViewForEntityAndGo(UInt64 entityId, UInt32 goID)
         {
 
             ClientView view = views.Find(delegate(ClientView cv) { return cv.entityId == entityId; });
@@ -56,12 +55,6 @@ namespace hds
             {
                 view = addView(entityId,goID);
             }
-            /*
-            else
-            {
-                // The View was already created
-                view.viewCreated = true;
-            }*/
             return view;
         }
 

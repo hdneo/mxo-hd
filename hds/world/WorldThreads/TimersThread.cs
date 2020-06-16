@@ -12,7 +12,7 @@ namespace hds
             {
                 // ToDo: This should update "timers" like Buffs, Skill Execution or something
                 Thread.Sleep(2000);
-                lock (WorldSocket.Clients.SyncRoot)
+                lock (WorldSocket.Clients)
                 {
                     CheckAndResendClients();
                     SavePlayers();

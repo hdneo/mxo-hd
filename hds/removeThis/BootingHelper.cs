@@ -87,7 +87,7 @@ namespace hds
             client.playerInstance.ReputationGMOrganization.enable();
             client.playerInstance.ReputationNiobe.enable();
             client.playerInstance.ReputationZionMilitary.enable();
-            client.playerInstance.ReputationNiobe.setValue(100); // ToDo: Replace with real data
+            
             
             if (NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(), 1) > 0)
             {

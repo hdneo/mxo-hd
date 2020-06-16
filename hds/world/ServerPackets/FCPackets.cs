@@ -19,22 +19,37 @@ namespace hds
             pak.addStringWithFixedSized(factionName, 42);
             Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
+        
+        public void sendCrewAndFactionEnableWindow(WorldClient client)
+        {
+            PacketContent pak = new PacketContent();
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_CREW_MEMBERS_LIST,0);
+            pak.addHexBytes("15A0070000000000000000000000000000000000000000210000000000230000000000");
+            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+
+        }
 
         public void SendCrewInfo(WorldClient client, Crew crew, List<CrewMember> members)
         {
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16) RPCResponseHeaders.SERVER_CREW_MEMBERS_LIST, 0);
-            pak.addUint32(client.playerData.getCharID(), 1);
-            pak.addUint32(crew.crewId, 1);
+            
             if (crew.crewId == 0)
             {
+                pak.addHexBytes("15A0070000000000000000000000000000000000000000210000000000230000000000");
+                client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+                
                 // Finalize the packet - we have now crew data
+                /*
                 pak.addUintShort(0);
                 pak.addUint32(0,1);
                 pak.addHexBytes("0000000000000000000000210000000000230000000000");
+                */
             }
             else
             {
+                pak.addUint32(client.playerData.getCharID(), 1);
+                pak.addUint32(crew.crewId, 1);
                 pak.addUintShort(crew.org);
                 pak.addUint16(33, 1); // CrewName Offset
 
@@ -87,7 +102,7 @@ namespace hds
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void SendFactionInfo(WorldClient client, Faction faction)
+        public void SendFactionInfo(WorldClient client, Faction faction, bool sendToAllMembers)
         {
             PacketContent pak = new PacketContent();
             pak.addUintShort((ushort) RPCResponseHeaders.SERVER_FACTION_PLAYER_INFO);
@@ -102,10 +117,27 @@ namespace hds
 
             pak.addUint32(faction.masterPlayerCharId, 1);
             pak.addUint32(faction.money, 1);
+            if (sendToAllMembers)
+            {
+                Store.world.SendRPCToFactionMembers(faction.factionId, client, pak.returnFinalPacket(), true);
+            }
+            else
+            {
+                client.messageQueue.addRpcMessage(pak.returnFinalPacket());    
+            }
+            
+        }
+
+        public void SendFactionCreationError(WorldClient client)
+        {
+            // We don't finally know the full packet format for the error but the header so we send something
+            PacketContent pak = new PacketContent();
+            pak.addUintShort((ushort) RPCResponseHeaders.SERVER_FACTION_CREATE_ERROR);
+            pak.addUint32(0,1);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
         }
 
-        public void SendFactionCrews(WorldClient client, Faction faction)
+        public void SendFactionCrews(WorldClient client, Faction faction, bool sendToAllMembers)
         {
             PacketContent pak = new PacketContent();
             pak.addUintShort((ushort) RPCResponseHeaders.SERVER_FACTION_PLAYER_INFO);
@@ -127,7 +159,14 @@ namespace hds
                 
             }
 
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            if (sendToAllMembers)
+            {
+                Store.world.SendRPCToFactionMembers(faction.factionId, client, pak.returnFinalPacket(), true);
+            }
+            else
+            {
+                client.messageQueue.addRpcMessage(pak.returnFinalPacket());    
+            }
         }
 
         public void SendMoneyUpdateFactionCrew(WorldClient client, ushort type, UInt32 moneyAmount, ushort IsMoneyGiving)
@@ -161,7 +200,7 @@ namespace hds
             pak.addUint16((ushort) RPCResponseHeaders.SERVER_CREW_INVITE,0);
             pak.addUint16(7, 1); // Start Offset for Charactername
             pak.addUint16(crewOffset, 1);
-            pak.addByte(0x01);
+            pak.addByte(0x01); // ToDo: Grab Org from Crew and place it here (this tells which reputation you get then)  
             pak.addSizedTerminatedString(
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
             pak.addSizedTerminatedString(crewName);
@@ -185,16 +224,8 @@ namespace hds
             {
                 case 1:
                     // Faction (crew joined the faction)
-                    Store.currentClient.playerInstance.FactionID.setValue(charOrGroupId);
-                    Store.currentClient.playerInstance.CrewID.setValue(groupId);
-                    
-                    List<Attribute> updateAttributes = new List<Attribute>();
-                    updateAttributes.Add(Store.currentClient.playerInstance.FactionID);
 
-                    viewResetStateData.addByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateAttributes));
-                    myselfStateData.addByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
-                    
-                    Store.world.SendRPCToFactionMembers(groupId, Store.currentClient, pak.returnFinalPacket(), false);
+                    Store.world.SendRPCToFactionMembers(groupId, Store.currentClient, pak.returnFinalPacket(), true);
                     break;
                 
                 case 2:

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using hds.resources.gameobjects;
 using hds.shared;
 
 namespace hds
@@ -11,8 +11,7 @@ namespace hds
     {
         public void SendSpawnStaticObject(WorldClient client, GameObject creationObjectData, UInt64 entityID)
         {
-
-            ClientView staticObjectView = client.viewMan.getViewForEntityAndGo(entityID,NumericalUtils.ByteArrayToUint16(creationObjectData.GetGoid(),1));
+            ClientView staticObjectView = client.viewMan.GetViewForEntityAndGo(entityID,NumericalUtils.ByteArrayToUint16(creationObjectData.GetGoid(),1));
             if (staticObjectView.viewCreated == false)
             {
                 PacketContent pak = new PacketContent();

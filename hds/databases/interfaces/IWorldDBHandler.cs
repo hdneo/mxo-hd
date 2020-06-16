@@ -18,6 +18,9 @@ namespace hds.databases.interfaces{
         ArrayList FetchPlayersWhoAddedMeToBuddylist(UInt32 charId);
         ArrayList fetchFriendList(UInt32 charId);
         Faction fetchFaction(UInt32 factionId);
+        bool isFactionnameAvailable(string factionname);
+        bool isHandleCaptainOfACrew(string handle);
+        UInt32 createFaction(string factionname, Crew masterCrew, Crew secondCrew);
         void IncreaseCrewMoney(UInt32 crewId, UInt32 amount);
         void DecreaseCrewMoney(UInt32 crewId, UInt32 amount);
         void IncreaseFactionMoney(UInt32 crewId, UInt32 amount);
