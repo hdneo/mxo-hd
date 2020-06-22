@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using hds.shared;
 using hds.world.Structures;
@@ -37,6 +38,7 @@ namespace hds
                 CheckPlayerViews();
                 CheckPlayerMobViews();
                 CheckForStaticSubways();
+                CheckForStaticObjectsViewsInRange();
                 Thread.Sleep(500);
             }
         }
@@ -78,7 +80,7 @@ namespace hds
                         // Loop through all clients
                         WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
 
-                        if (thisclient.Alive == true)
+                        if (thisclient.Alive)
                         {
                             // Check if
 
@@ -96,7 +98,7 @@ namespace hds
 
                                 // EntityHackString
                                 String entityHackString =
-                                    "" + thisSubway.worldObject.metrId + "" + thisSubway.worldObject.mxoId;
+                                    "" + thisSubway.worldObject.metrId + "" + thisSubway.worldObject.mxoStaticId;
                                 UInt64 entityStaticId = UInt64.Parse(entityHackString);
 
                                 ClientView view = Store.currentClient.viewMan.GetViewForEntityAndGo(entityStaticId,
@@ -129,16 +131,17 @@ namespace hds
             }
         }
 
-        private static void CheckForNPC()
+        private static void CheckForStaticObjectsViewsInRange()
         {
+            Maths mathUtils = new Maths();
+            // Used to spawn static ObjectViews in Range and handle them (Signpost, Collectors)
             lock (WorldSocket.Clients)
             {
-                foreach (string clientKey in WorldSocket.Clients.Keys)
+                foreach (KeyValuePair<string, WorldClient> client in WorldSocket.Clients)
                 {
+                    WorldClient thisclient = client.Value;
                     // Loop through all clients
-                    WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
-
-                    if (thisclient.Alive == true)
+                    if (thisclient.Alive)
                     {
                         // Check if
                         double playerX = 0;
@@ -146,11 +149,54 @@ namespace hds
                         double playerZ = 0;
                         NumericalUtils.LtVector3dToDoubles(thisclient.playerInstance.Position.getValue(), ref playerX,
                             ref playerY, ref playerZ);
-
-                        if (thisclient.playerData.getOnWorld() == true &&
+                        
+                        
+                        if (thisclient.playerData.getOnWorld() &&
                             thisclient.playerData.waitForRPCShutDown == false)
                         {
-                            // ToDo: Figure out Data for static info NPCs (does collector count? i dunno architekt would be great :)
+                            // Get Objects in Range
+                            var objects = from staticWorldObject in DataLoader.getInstance().WorldObjectsDB
+                                where mathUtils.IsInCircle((float) playerX, (float) playerZ,
+                                    (float) staticWorldObject.pos_x, (float) staticWorldObject.pos_z, 5000)
+                                && staticWorldObject.metrId == thisclient.playerData.getDistrictId()
+                                select staticWorldObject;
+
+                            foreach (StaticWorldObject staticWorldObject in objects)
+                            {
+                                UInt16 typeId = NumericalUtils.ByteArrayToUint16(staticWorldObject.type, 1);
+                                // WE get all staticObjects in range but we dont just want them all
+                                switch (typeId)
+                                {
+                                    case 8400:
+                                        var signPosts = from signPost in DataLoader.getInstance().Signposts
+                                            where signPost.mxoStaticId == staticWorldObject.staticId
+                                            select signPost;
+                                        if (signPosts.Count() == 1)
+                                        {
+                                            String entityHackString =
+                                                "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
+                                            UInt64 entityStaticId = UInt64.Parse(entityHackString);
+
+                                            ClientView view = Store.currentClient.viewMan.GetViewForEntityAndGo(entityStaticId,
+                                                NumericalUtils.ByteArrayToUint16(staticWorldObject.type, 1));
+                                
+                                            if (!view.viewCreated && thisclient.playerData.getOnWorld())
+                                            {
+
+                                                // ToDo: Refaktor ? 
+                                                /*
+                                                ServerPackets pak = new ServerPackets();
+                                                pak.SendSpawnStaticObject(thisclient, thisSubway.gameObjectData, entityStaticId);
+                                                view.spawnId = thisclient.playerData.spawnViewUpdateCounter;
+                                                view.viewCreated = true;
+                                                */
+                                            }
+
+                                        }
+                                        break;
+                                }
+                            }
+                            
                         }
                     }
                 }

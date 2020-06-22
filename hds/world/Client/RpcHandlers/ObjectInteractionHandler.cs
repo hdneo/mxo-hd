@@ -57,7 +57,7 @@ namespace hds{
 
             NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
             ServerPackets packets = new ServerPackets();
-            packets.sendSystemChatMessage(Store.currentClient,"Door ID " + staticWorldObject.mxoId + " Type ID " + typeId.ToString() +" POS X:" + staticWorldObject.pos_x.ToString() + " Y:" + staticWorldObject.pos_y.ToString() + " Z:" + staticWorldObject.pos_z.ToString() + typeId,"BROADCAST");
+            packets.sendSystemChatMessage(Store.currentClient,"Door ID " + staticWorldObject.mxoStaticId + " Type ID " + typeId.ToString() +" POS X:" + staticWorldObject.pos_x.ToString() + " Y:" + staticWorldObject.pos_y.ToString() + " Z:" + staticWorldObject.pos_z.ToString() + typeId,"BROADCAST");
 
 
             switch (typeId)
@@ -95,7 +95,7 @@ namespace hds{
                 case 7296:
                 case 7298:
                     // ObjectAttribute364
-                    ObjectAttributes364 door364 = new ObjectAttributes364("DOOR364",typeId,staticWorldObject.mxoId);
+                    ObjectAttributes364 door364 = new ObjectAttributes364("DOOR364",typeId,staticWorldObject.mxoStaticId);
                     door364.DisableAllAttributes();
                     door364.Orientation.enable();
                     door364.Position.enable();
@@ -107,7 +107,7 @@ namespace hds{
                     //door364.Orientation.setValue(StringUtils.hexStringToBytes("000000000000803F0000000000000000")); // ToDo: Replace it with staticWorldObject.quat when it is okay
 
                     // ToDo: We make a little Entity "Hack" so that we have a unique id : metrid + fullmxostatic_id is entity
-                    String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
+                    String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                     UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
                     packets.SendSpawnStaticObject(Store.currentClient,door364,entityId);
@@ -120,7 +120,7 @@ namespace hds{
                  case 417:
                  case 419:
 
-                     ObjectAttributes363 door363 = new ObjectAttributes363("DOOR363",typeId,staticWorldObject.mxoId);
+                     ObjectAttributes363 door363 = new ObjectAttributes363("DOOR363",typeId,staticWorldObject.mxoStaticId);
                      door363.DisableAllAttributes();
                      door363.Orientation.enable();
                      door363.Position.enable();
@@ -132,7 +132,7 @@ namespace hds{
                      door363.CurrentState.setValue(StringUtils.hexStringToBytes("34080000"));
 
                      // ToDo: We make a little Entity "Hack" so that we have a unique id : metrid + fullmxostatic_id is entity
-                     String entity363MxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoId;
+                     String entity363MxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                      UInt64 entity363Id = UInt64.Parse(entity363MxOHackString);
 
                      packets.SendSpawnStaticObject(Store.currentClient,door363,entity363Id);
@@ -237,7 +237,7 @@ namespace hds{
                                 pak.sendSystemChatMessage(Store.currentClient, "Enviroment Type ID " + objectValues.type + " name " + enviromentItem.getName(), "MODAL");
                                 break;
                     }
-                    pak.sendSystemChatMessage(Store.currentClient, "Enviroment Type ID " + objectValues.type + " name " + enviromentItem.getName(), "MODAL");
+                    pak.sendSystemChatMessage(Store.currentClient, "Enviroment Type ID " + NumericalUtils.ByteArrayToUint16(objectValues.type,1) + " name " + enviromentItem.getName(), "MODAL");
                     break;
                 
 

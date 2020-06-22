@@ -15,7 +15,7 @@ namespace hds
         public string quat; // should be changed
         public UInt16 sectorID;
         public UInt16 metrId;
-        public UInt32 mxoId;
+        public UInt32 mxoStaticId;
         public UInt32 staticId;
         public byte[] type;
         public string strType;

@@ -289,6 +289,15 @@ namespace hds
 			return din.getBytes();
 		}
 		
+		static public byte[] floatsToQuaternion(float w,float x,float y, float z){
+			DynamicArray din = new DynamicArray();
+			din.append(NumericalUtils.floatToByteArray(w,1));
+			din.append(NumericalUtils.floatToByteArray(x,1));
+			din.append(NumericalUtils.floatToByteArray(y,1));
+			din.append(NumericalUtils.floatToByteArray(z,1));
+			return din.getBytes();
+		}
+		
 		static public byte[] doublesToLtVector3d(double x,double y,double z){
 			DynamicArray din = new DynamicArray();
 			din.append(NumericalUtils.doubleToByteArray(x,1));

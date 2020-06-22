@@ -342,7 +342,7 @@ namespace hds
             {
                 foreach (string clientKey in Clients.Keys)
                 {
-                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoId;
+                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoStaticId;
                     UInt64 entityStaticId = UInt64.Parse(entityHackString);
                     
                     WorldClient client = Clients[clientKey] as WorldClient;

@@ -11,11 +11,11 @@ namespace hds
         public Attribute HalfExtents = new Attribute(12, "HalfExtents");
         public Attribute SignpostNameString = new Attribute(64, "SignpostNameString");
         public Attribute AnimationID0 = new Attribute(4, "REZ_ID");
-        public Attribute SignpostOrgID = new Attribute(4, "Organization::MissionOrg");
+        public Attribute SignpostOrgID = new Attribute(1, "Organization::MissionOrg");
         public Attribute DescriptionID = new Attribute(4, "REZ_ID");
         public Attribute SignpostReqReputation = new Attribute(2, "int16");
-        public Attribute SignpostReqLevel = new Attribute(2, "uint8");
-        public Attribute Orientation = new Attribute(2, "LTQuaternion");
+        public Attribute SignpostReqLevel = new Attribute(1, "uint8");
+        public Attribute Orientation = new Attribute(16, "LTQuaternion");
 
         public ObjectAttributes8400(string name, UInt16 _goid,UInt32 _relatedStaticObjId)
             : base(9, 1, name, _goid, _relatedStaticObjId)

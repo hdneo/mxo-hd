@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 
 using hds.shared;
@@ -46,29 +47,42 @@ namespace hds
             {
                 case 8400:
                     // Spawn Signpost
-                    ObjectAttributes8400 signpost = new ObjectAttributes8400("SIGNPOST",goId,objectValues.mxoId);
-                    signpost.DisableAllAttributes();
+                    ObjectAttributes8400 signpost = new ObjectAttributes8400("SIGNPOST",goId,objectValues.mxoStaticId);
                     
-                    signpost.Position.enable();
-                    signpost.SignpostNameString.enable();
-                    signpost.AnimationID0.enable();
-                    signpost.SignpostOrgID.enable();
-                    signpost.DescriptionID.enable();
-                    signpost.SignpostReqLevel.enable();
-                    signpost.Orientation.enable();
+                    var signPosts = from signPost in DataLoader.getInstance().Signposts
+                        where signPost.mxoStaticId == objectValues.mxoStaticId
+                        select signPost;
+                    if (signPosts.Count() > 0)
+                    {
+                        NPC_Singpost signpostNpc = signPosts.First();
+                        signpost.DisableAllAttributes();
+                    
+                        signpost.Position.enable();
+                        signpost.SignpostNameString.enable();
+                        signpost.AnimationID0.enable();
+                        signpost.SignpostOrgID.enable();
+                        signpost.DescriptionID.enable();
+                        signpost.SignpostReqReputation.enable();
+                        signpost.SignpostReqLevel.enable();
+                        signpost.Orientation.enable();
 
-                    signpost.Position.setValue(NumericalUtils.doublesToLtVector3d(xPos, yPos, zPos));
-                    signpost.SignpostNameString.setValue(StringUtils.stringToBytes("NPC_SIGN_ID_" + objectID));
-                    signpost.AnimationID0.setValue(new byte[]{ 0x02, 0x00, 0x00, 0x3A});
-                    signpost.SignpostOrgID.setValue(0);
-                    signpost.DescriptionID.setValue(new byte[]{ 0x3D, 0x0B, 0x00, 0x58});
-                    signpost.SignpostReqLevel.setValue(0);
-                    signpost.Orientation.setValue(StringUtils.hexStringToBytes(objectValues.quat));
+                        signpost.Position.setValue(NumericalUtils.doublesToLtVector3d(signpostNpc.xPos, signpostNpc.yPos, signpostNpc.zPos));
+                        signpost.SignpostNameString.setValue(signpostNpc.SingpostNameString);
+                        signpost.AnimationID0.setValue(signpostNpc.AnimationID0);
+                        signpost.SignpostOrgID.setValue(signpostNpc.SingpostOrgId);
+                        signpost.DescriptionID.setValue(signpostNpc.DescriptionRez_ID);
+                        signpost.SignpostReqReputation.setValue(signpostNpc.SingpostReqReputation);
+                        signpost.SignpostReqLevel.setValue(signpostNpc.SingpostReqLevel);
+                        
+                        signpost.Orientation.setValue(StringUtils.hexStringToBytes(objectValues.quat));
+                        //signpost.Orientation.setValue(NumericalUtils.floatsToQuaternion(signpostNpc.wQuad, signpostNpc.xQuad, signpostNpc.yQuad, signpostNpc.zQuad));
                     
-                    String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoId;
-                    UInt64 entityId = UInt64.Parse(entityMxOHackString);
+                        String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoStaticId;
+                        UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
-                    pak.SendSpawnStaticObject(Store.currentClient,signpost,entityId);
+                        pak.SendSpawnStaticObject(Store.currentClient,signpost,entityId);
+                    }
+                   
                     break;
                 
             }

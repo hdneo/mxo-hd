@@ -22,6 +22,8 @@ namespace hds
         public List<NewRSIItem> newRSIItemsDb = new List<NewRSIItem>();
         public List<Vendor> Vendors = new List<Vendor>();
         public List<Subway> Subways = new List<Subway>();
+        public List<NPC_Singpost> Signposts = new List<NPC_Singpost>();
+        
 
         public bool useSQLiteDatabase = false;
 
@@ -41,11 +43,66 @@ namespace hds
             loadClothingDB("data\\mxoClothing.csv");
 
             loadVendorItems("data\\vendor_items.csv");
-            
+            loadNPCSignPosts("data\\npcsign_parsed.csv");
             // Disabled for Debugging
             loadWorldObjectsDb("data\\staticObjects_slums.csv");
             loadWorldObjectsDb("data\\staticObjects_it.csv");
             loadWorldObjectsDb("data\\staticObjects_dt.csv");
+        }
+
+        private void loadNPCSignPosts(string path)
+        {
+            ArrayList csvData = loadCSV(path, ';');
+            int linecount = 1;
+            foreach (string[] data in csvData) {
+                if (linecount > 0)
+                {
+                    NPC_Singpost singpost = new NPC_Singpost();
+                    singpost.mxoStaticId = UInt32.Parse(data[0]);
+                    singpost.districtId = ushort.Parse(data[1]);
+                    singpost.xPos = float.Parse(data[3]);
+                    singpost.yPos = float.Parse(data[4]);
+                    singpost.zPos = float.Parse(data[5]);
+                    singpost.SingpostNameString = data[6];
+                    singpost.AnimationID0 = StringUtils.hexStringToBytes(data[7]);
+                    singpost.SingpostReqReputation = ushort.Parse(data[8]);
+                    singpost.DescriptionRez_ID = StringUtils.hexStringToBytes(data[9]);
+
+                    if (data.ElementAtOrDefault(10) != null)
+                    {
+                        singpost.wQuad = float.Parse(data[10]);
+                    }
+                    
+                    
+                    if (data.ElementAtOrDefault(11) != null)
+                    {
+                        if (data[11].Length > 0)
+                        {
+                            singpost.xQuad = float.Parse(data[11]);
+                        }
+                        
+                    }
+                    
+                    if (data.ElementAtOrDefault(12) != null)
+                    {
+                        if (data[12].Length > 0)
+                        {
+                            singpost.yQuad = float.Parse(data[12]);
+                        }
+                    }
+                    
+                    if (data.ElementAtOrDefault(13) != null)
+                    {
+                        if (data[13].Length > 0)
+                        {
+                            singpost.zQuad = float.Parse(data[13]);
+                        }
+                    }
+                    
+                    Signposts.Add(singpost);
+                }
+                linecount++;
+            }
         }
 
         public void loadNewRSIIDs(string path)
@@ -366,7 +423,7 @@ namespace hds
                     worldObject.sectorID = Convert.ToUInt16(data[1]);
                     
 
-                    worldObject.mxoId = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[2]), 1);
+                    worldObject.mxoStaticId = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[2]), 1);
                     worldObject.staticId = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[3]), 1);
                     worldObject.type = StringUtils.hexStringToBytes(data[4].Substring(0, 4));
                     worldObject.exterior = Convert.ToBoolean(data[5]);
@@ -389,13 +446,15 @@ namespace hds
         public void AddWorldObjectToWorldServer(StaticWorldObject worldObject)
         {
             UInt16 typeId = NumericalUtils.ByteArrayToUint16(worldObject.type, 1);
-            if (typeId == 6568)
+            switch (typeId)
             {
-                Subway subway = new Subway(worldObject);
-                Subways.Add(subway);
-                WorldSocket.subways.Add(subway);
-                WorldSocket.gameServerEntities.Add(subway);
-                subway.StartCountdown();
+                case 6568:
+                    Subway subway = new Subway(worldObject);
+                    Subways.Add(subway);
+                    WorldSocket.subways.Add(subway);
+                    WorldSocket.gameServerEntities.Add(subway);
+                    subway.StartCountdown();
+                    break;
             }
         }
 
@@ -654,7 +713,7 @@ namespace hds
             Output.WriteLine("REQUEST OBJECT WITH ID :" + StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray(objectId, 0)));
             StaticWorldObject worldObject = null;
 
-            worldObject = WorldObjectsDB.Find(delegate(StaticWorldObject temp) { return temp.mxoId == objectId; });
+            worldObject = WorldObjectsDB.Find(delegate(StaticWorldObject temp) { return temp.mxoStaticId == objectId; });
             if (worldObject == null)
             {
                 worldObject = new StaticWorldObject();

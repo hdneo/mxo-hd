@@ -26,7 +26,7 @@ namespace hds
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_RESPONSE_LIST,0);
             pak.addUint32(0, 0);
             pak.addUint16(contactId, 1);
-            pak.addUint16(7,1); // Unknown - in neo it has 1
+            pak.addUint16(1,1); // Unknown - in neo it has 1
             pak.addUintShort(0);
             pak.addUintShort((ushort)orgID);
             pak.addHexBytes("000000000000000000000000"); // The big unknown part - maybe some informations about the contact
@@ -35,8 +35,7 @@ namespace hds
 
             // ToDo: make it dynamic from a file or something
             ArrayList possibleMissions = new ArrayList();
-            possibleMissions.Add("Assassination");
-            possibleMissions.Add("Hack the Duality");
+            possibleMissions.Add("Change the Organisation");
             possibleMissions.Add("Welcome to HDS Experimental!");
             possibleMissions.Add("Party like '99");
 
@@ -47,7 +46,7 @@ namespace hds
                 missionListPak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_RESPONSE_NAME, 0);
                 missionListPak.addUint16(contactId, 1);
                 missionListPak.addUint16(i, 1);
-                missionListPak.addHexBytes("0f0001d00700000000"); // curently unknown
+                missionListPak.addHexBytes("0f0001d00700"); // curently unknown
                 missionListPak.addSizedTerminatedString(mission);
                 client.messageQueue.addRpcMessage(missionListPak.returnFinalPacket());
                 i++;
@@ -65,7 +64,7 @@ namespace hds
         {
             // Test a MissionList 
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISION_INFO_RESPONSE, 0);
+            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_INFO_RESPONSE, 0);
             pak.addHexBytes("0000000000002f000100000002a29f7e46a29f7e46000000000000000000d0060000310000b4c00c0028");
             pak.addHexBytes("42000001000002000D001300020002030200FFFFFDFF");
             pak.addSizedTerminatedString("Eliminate Agent Smith");
