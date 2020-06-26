@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Data.Common;
 using System.Linq;
-using System.Text;
-
 using hds.shared;
 
 namespace hds
@@ -38,8 +33,7 @@ namespace hds
             
             ServerPackets pak = new ServerPackets();
             #if DEBUG
-            pak.sendSystemChatMessage(Store.currentClient,"Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos,"BROADCAST");
-            Output.WriteDebugLog("Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos);
+                pak.sendSystemChatMessage(Store.currentClient,"Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos,"BROADCAST");
             #endif
 
             // TRy to spawn
@@ -47,8 +41,9 @@ namespace hds
             {
                 case 8400:
                     // Spawn Signpost
-                    ObjectAttributes8400 signpost = new ObjectAttributes8400("SIGNPOST",goId,objectValues.mxoStaticId);
-                    
+                    ObjectAttributes8400 signpost = new ObjectAttributes8400("SIGNPOST",goId);
+                    signpost.SetRelatedStaticObjId(objectValues.mxoStaticId);
+
                     var signPosts = from signPost in DataLoader.getInstance().Signposts
                         where signPost.mxoStaticId == objectValues.mxoStaticId
                         select signPost;
@@ -85,6 +80,10 @@ namespace hds
                    
                     break;
                 
+                default:
+                    Output.WriteDebugLog("Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos);
+                    break;
+
             }
            
         }

@@ -22,8 +22,8 @@ namespace hds
         public Attribute DetectTrapFX = new Attribute(4,"DetectTrapFX");
         public Attribute CurrentState = new Attribute(4,"CurrentState");
 
-        public ObjectAttributes364(string name,UInt16 _goid,UInt32 _relatedStaticObjId)
-            : base(14, 1, name, _goid, _relatedStaticObjId)
+        public ObjectAttributes364(string name,UInt16 _goid)
+            : base(14, 1, name, _goid, 0xFFFFFFFF)
         {
             this.AddAttribute(ref DisarmDifficulty,0,-1);
             this.AddAttribute(ref IsZionAligned,1,-1);

@@ -252,9 +252,9 @@ namespace hds
         }
 
 
-        public Object599 getCreationData()
+        public GameObject getCreationData()
         {
-            var themob = new Object599();
+            var themob = new GameObjectDefinitions().Object599;
             themob.DisableAllAttributes();
 
             themob.CharacterName.enable();

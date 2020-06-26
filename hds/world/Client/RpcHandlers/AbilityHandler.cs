@@ -104,8 +104,7 @@ namespace hds
                 NumericalUtils.ByteArrayToUint32(ability.getCastAnimStart(), 1));
         }
 
-
-        public void processHyperJump(ref byte[] rpcData)
+        public void ProcessJump(ref byte[] rpcData)
         {
             double xDest = 0;
             double yDest = 0;
@@ -114,6 +113,8 @@ namespace hds
             xDest = reader.readDouble(1);
             yDest = reader.readDouble(1);
             zDest = reader.readDouble(1);
+
+            UInt32 peakHeight = reader.readUInt32(1);
 
             // ToDo: figure out what this 6 bytes are could be
             // Skip 6 bytes as we currently didnt knew

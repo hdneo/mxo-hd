@@ -34,8 +34,8 @@ namespace hds.world.Structures
         public Subway(StaticWorldObject worldObject)
         {
             this.worldObject = worldObject;
-            gameObjectData = new Object6568("Subway Car Default",
-                NumericalUtils.ByteArrayToUint16(worldObject.type, 1), worldObject.mxoStaticId);
+            gameObjectData = new Object6568();
+            gameObjectData.SetRelatedStaticObjId(worldObject.mxoStaticId);
             gameObjectData.DisableAllAttributes();
             gameObjectData.Orientation.enable();
             gameObjectData.Position.enable();

@@ -17,8 +17,8 @@ namespace hds
         public Attribute SignpostReqLevel = new Attribute(1, "uint8");
         public Attribute Orientation = new Attribute(16, "LTQuaternion");
 
-        public ObjectAttributes8400(string name, UInt16 _goid,UInt32 _relatedStaticObjId)
-            : base(9, 1, name, _goid, _relatedStaticObjId)
+        public ObjectAttributes8400(string name, UInt16 _goid)
+            : base(9, 1, name, _goid, 0xFFFFFFFF)
         {
             this.AddAttribute(ref Position,0,-1);
             this.AddAttribute(ref HalfExtents,1,-1);

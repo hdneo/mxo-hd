@@ -4,7 +4,7 @@ using System.Security.Policy;
 
 namespace hds
 {
-	public class GameObject
+	public class GameObject : IGameObject
 	{
 		
 		private Attribute[] attributesCreation;
@@ -202,6 +202,10 @@ namespace hds
 			
 		}
 
+	}
+
+	public interface IGameObject
+	{
 	}
 }
 

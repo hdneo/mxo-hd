@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Collections;
-
+using System.Reflection;
 using hds.shared;
 
 namespace hds{
@@ -27,6 +27,28 @@ namespace hds{
 					
 				}
 
+				
+				if (command.Equals("?spawnobject") && commands.Length==2){
+					// parse the coord parameters parameters as int
+					UInt16 GoId = UInt16.Parse(commands[1]);
+					FieldInfo objectField = typeof(GameObjectDefinitions).GetField("Object" + GoId);
+					
+					// Generate the object just with the position value
+					ServerPackets packets = new ServerPackets();
+					if (objectField.FieldType == typeof(AttributeClass20))
+					{
+						AttributeClass20 gameObject = new AttributeClass20("LAPTOP", GoId);
+						gameObject.DisableAllAttributes();
+						gameObject.Position.enable();
+						gameObject.Position.setValue(Store.currentClient.playerInstance.Position.getValue());
+						UInt64 currentEntityId = WorldSocket.entityIdCounter;
+						WorldSocket.entityIdCounter++;
+						WorldSocket.gameServerEntities.Add(gameObject);
+						packets.SpawnDynamicOjbectView(Store.currentClient, gameObject, currentEntityId);
+					}
+
+				}
+				
 				if (command.Equals("?gotopos") && commands.Length==4){
 					// parse the coord parameters parameters as int
                     Store.currentClient.messageQueue.addObjectMessage(new PlayerHelper().teleport(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3])), false);

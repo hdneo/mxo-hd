@@ -58,7 +58,7 @@ namespace hds{
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_JUMP_START:
 		            //ToDo: Split Jump and Hyperjump
-			        new AbilityHandler().processHyperJump(ref rpcData);
+			        new AbilityHandler().ProcessJump(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_JUMP_CANCEL:
 					// ToDo: 

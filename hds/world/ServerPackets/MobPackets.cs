@@ -11,7 +11,7 @@ namespace hds
         public void SpawnMobView(WorldClient client, Mob thismob, ClientView mobView)
         {
             Output.WriteDebugLog("Spawn MobView Data ( Entity ID : " + thismob.getEntityId() + " Name:" + thismob.getName() + " ID: " + thismob.getMobId() + " RSI HEX: " + thismob.getRsiHex());
-            Object599 viewData = thismob.getCreationData();
+            GameObject viewData = thismob.getCreationData();
             PacketContent pak = new PacketContent();
             
             pak.addUint16(1, 1);
