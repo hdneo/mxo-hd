@@ -206,6 +206,11 @@ namespace hds
 
 	public interface IGameObject
 	{
+		UInt32 GetRelatedStaticObjId();
+		byte[] GetGoid();
+		void DisableAllAttributes();
+		byte[] GetCreationAttributes();
+		byte[] GetUpdateAttributes(List<Attribute> attributesNeedsUpdate);
 	}
 }
 

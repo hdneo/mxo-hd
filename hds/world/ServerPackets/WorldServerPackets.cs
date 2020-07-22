@@ -71,7 +71,7 @@ namespace hds
         public void SendServerSettingCheckMotdMessage(WorldClient client, string key)
         {
             PacketContent pak = new PacketContent();
-            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            pak.addUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
             int fullLen = key.Length + 2 + 4;
             pak.addInt16((short)fullLen,1);
             pak.addSizedString(key);
@@ -84,7 +84,7 @@ namespace hds
         public void SendServerSettingString(WorldClient client, string key, string value)
         {
             PacketContent pak = new PacketContent();
-            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            pak.addUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
             int fullLen = key.Length + value.Length;
             pak.addInt16((short)fullLen,1);
             pak.addSizedString(key);

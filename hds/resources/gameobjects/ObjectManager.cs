@@ -32,7 +32,7 @@ namespace hds.resources.gameobjects
 			_currentObjects.Remove(key);
 		}
 		
-		public DynamicArray GenerateCreationPacket(GameObject go,UInt16 viewID, byte idCounter){
+		public DynamicArray GenerateCreationPacket(IGameObject go,UInt16 viewID, byte idCounter){
             
 			DynamicArray din = new DynamicArray();
             byte fullyDynamicFlag=0x08;

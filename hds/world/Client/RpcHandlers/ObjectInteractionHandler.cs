@@ -86,7 +86,7 @@ namespace hds
                 String entity363MxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                 UInt64 entity363Id = UInt64.Parse(entity363MxOHackString);
 
-                packets.SendSpawnStaticObject(Store.currentClient, door363, entity363Id);
+                packets.SendSpawnGameObject(Store.currentClient, door363, entity363Id);
             }
             else if (objectField.FieldType == typeof(AttributeClass364))
             {
@@ -107,7 +107,7 @@ namespace hds
                 String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                 UInt64 entityId = UInt64.Parse(entityMxOHackString);
 
-                packets.SendSpawnStaticObject(Store.currentClient, door364, entityId);
+                packets.SendSpawnGameObject(Store.currentClient, door364, entityId);
             } else if (objectField.FieldType == typeof(AttributeClass365))
             {
                 AttributeClass365 door364 = new AttributeClass365("DOOR365", typeId);
@@ -127,7 +127,7 @@ namespace hds
                 String entityMxOHackString = "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                 UInt64 entityId = UInt64.Parse(entityMxOHackString);
 
-                packets.SendSpawnStaticObject(Store.currentClient, door364, entityId);
+                packets.SendSpawnGameObject(Store.currentClient, door364, entityId);
             }
 
             switch (typeId)

@@ -22,8 +22,10 @@ namespace hds
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);
             pak.sendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
             pak.sendSetMissionObjective(2, 0, "Success", Store.currentClient);
-            pak.sendSetMissionObjective(3, 2, "Failed Remain", Store.currentClient);
-            pak.sendSetMissionObjective(4, 0, "Failed Clear", Store.currentClient);
+            pak.sendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
+            pak.sendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
+            pak.sendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
+            pak.sendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
         }
 
         public void processMissionList(ref byte[] packet)

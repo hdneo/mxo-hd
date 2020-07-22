@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using hds.shared;
 
@@ -29,24 +31,118 @@ namespace hds{
 
 				
 				if (command.Equals("?spawnobject") && commands.Length==2){
+					
+					// This works ! 
 					// parse the coord parameters parameters as int
 					UInt16 GoId = UInt16.Parse(commands[1]);
-					FieldInfo objectField = typeof(GameObjectDefinitions).GetField("Object" + GoId);
-					
-					// Generate the object just with the position value
-					ServerPackets packets = new ServerPackets();
-					if (objectField.FieldType == typeof(AttributeClass20))
+					GameObjectDefinitions def = new GameObjectDefinitions();
+					FieldInfo info = typeof(GameObjectDefinitions).GetField("Object"+ GoId);
+					var instance = (GameObject)info.GetValue(def);
+					instance.DisableAllAttributes();
+
+					bool hasFieldsEnabled = false;
+					foreach (var propertyInfo in instance.GetType().GetFields())
 					{
-						AttributeClass20 gameObject = new AttributeClass20("LAPTOP", GoId);
-						gameObject.DisableAllAttributes();
-						gameObject.Position.enable();
-						gameObject.Position.setValue(Store.currentClient.playerInstance.Position.getValue());
-						UInt64 currentEntityId = WorldSocket.entityIdCounter;
-						WorldSocket.entityIdCounter++;
-						WorldSocket.gameServerEntities.Add(gameObject);
-						packets.SpawnDynamicOjbectView(Store.currentClient, gameObject, currentEntityId);
+						Attribute theAttribute = (Attribute) propertyInfo.GetValue(instance);
+						switch (theAttribute.getName())
+						{
+							case "Position":
+								hasFieldsEnabled = true;
+								theAttribute.enable();
+								theAttribute.setValue(Store.currentClient.playerInstance.Position.getValue());
+								break;
+
+							case "Orientation":
+								hasFieldsEnabled = true;
+								theAttribute.enable();
+								theAttribute.setValue(Store.currentClient.playerInstance.YawInterval.getValue());
+								break;
+						}
 					}
 
+					ServerPackets packets = new ServerPackets();
+					
+					if (hasFieldsEnabled)
+					{
+						UInt64 currentEntityId = WorldSocket.entityIdCounter;
+						WorldSocket.entityIdCounter++;
+						WorldSocket.gameServerEntities.Add(instance);
+						packets.SendSpawnGameObject(Store.currentClient, instance, currentEntityId);
+					}
+				}
+
+				if (command.Equals("?org") && commands.Length == 2)
+				{
+					int orgId = 0;
+					try
+					{
+						orgId = Int16.Parse(commands[1].ToString());
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine(ex);
+					}
+
+					if (orgId < 6)
+					{
+					
+						Store.dbManager.WorldDbHandler.SetOrgId(Store.currentClient.playerData.getCharID(), orgId);
+						List<Attribute> updateAttributes = new List<Attribute>();
+						Store.currentClient.playerInstance.OrganizationID.setValue(orgId);
+						updateAttributes.Add(Store.currentClient.playerInstance.OrganizationID);
+						
+						PacketContent myselfStateData = new PacketContent();
+						myselfStateData.addByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+						Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+					}
+				}
+				
+				if (command.Equals("?rep") && commands.Length == 3)
+				{
+
+					int reputation = 0;
+					try
+					{
+						reputation = Int16.Parse(commands[2].ToString());
+					}
+					catch (Exception exception)
+					{
+						Console.WriteLine(exception);
+					}
+					
+					List<Attribute> updateAttributes = new List<Attribute>();
+
+					bool changedReputation = false;
+					switch (commands[1].ToString())
+					{
+						case "zion":
+							changedReputation = true;
+							Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),"repZion", reputation);
+							Store.currentClient.playerInstance.ReputationZionMilitary.setValue(reputation);
+							updateAttributes.Add(Store.currentClient.playerInstance.ReputationZionMilitary);
+							break;
+						case "machine":
+							changedReputation = true;
+							Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),"repMachine", reputation);
+							Store.currentClient.playerInstance.ReputationMachines.setValue(reputation);
+							updateAttributes.Add(Store.currentClient.playerInstance.ReputationMachines);
+							break;
+						case "mero":
+							changedReputation = true;
+							Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),"repMero", reputation);
+							Store.currentClient.playerInstance.ReputationMerovingian.setValue(reputation);
+							updateAttributes.Add(Store.currentClient.playerInstance.ReputationMerovingian);
+							break;
+						default:
+							break;
+					}
+
+					if (changedReputation)
+					{
+						PacketContent myselfStateData = new PacketContent();
+						myselfStateData.addByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+						Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+					}
 				}
 				
 				if (command.Equals("?gotopos") && commands.Length==4){
@@ -300,7 +396,7 @@ namespace hds{
                 }
 				
 				if (command.Equals("?save")){
-                    new PlayerHelper().savePlayerInfo(Store.currentClient);
+                    new PlayerHelper().SavePlayerInfo(Store.currentClient);
 
                     ServerPackets pak = new ServerPackets();
                     pak.sendSaveCharDataMessage(Store.currentClient, StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));

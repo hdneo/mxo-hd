@@ -147,7 +147,7 @@ namespace hds
 
         public void SendPlayerFriendList(WorldClient client)
         {
-            ArrayList friends =  Store.dbManager.WorldDbHandler.fetchFriendList(Store.currentClient.playerData.getCharID());
+            ArrayList friends =  Store.dbManager.WorldDbHandler.FetchFriendList(Store.currentClient.playerData.getCharID());
 
             if (friends.Count > 0)
             {
@@ -272,7 +272,7 @@ namespace hds
             pak.addUint16(0,1);
 
             // Get Data from DB and save
-            Hashtable characterData = Store.dbManager.WorldDbHandler.getCharInfo(client.playerData.getCharID());
+            Hashtable characterData = Store.dbManager.WorldDbHandler.GetCharInfo(client.playerData.getCharID());
             String backgroundTextt = characterData["background"].ToString();
             pak.addSizedTerminatedString(backgroundTextt);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());

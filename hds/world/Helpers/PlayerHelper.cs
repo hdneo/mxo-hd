@@ -194,25 +194,10 @@ namespace hds
             Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
         }
 
-        // ToDo: Move it to player Packets and make a ?moa command for it
-        public void processChangeMoaRSI(byte[] rsi)
-        {
-            // ToDo: proove to remove
-            DynamicArray din = new DynamicArray();
-            din.append(0x03);
-            din.append(0x02);
-            din.append(0x00);
-            din.append(StringUtils.hexStringToBytes("028100808080b052c7de12ab04"));
-            din.append(rsi);
-            din.append(0x41);
-            din.append(0x00);
-        }
-
-
         /// <summary>
         /// Helper Methods 
         /// </summary>
-        public void savePlayerInfo(WorldClient client)
+        public void SavePlayerInfo(WorldClient client)
         {
             Store.dbManager.WorldDbHandler.SavePlayer(client);
         }

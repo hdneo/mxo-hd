@@ -8,18 +8,21 @@ namespace hds.databases.interfaces{
     
     public interface IWorldDBHandler
     {
-        UInt32 getCharIdByHandle(string handle);
-        Hashtable getCharInfo (UInt32 charId);
-        Hashtable getCharInfoByHandle(string handle);
-        UInt32 getUserIdForCharId(byte[] charIdHex);
-        string getPathForDistrictKey(string key);
+        UInt32 GetCharIdByHandle(string handle);
+        Hashtable GetCharInfo (UInt32 charId);
+
+        void SetReputation(UInt32 charId, string reputationColumn, int value);
+        void SetOrgId(UInt32 charId, int orgId);
+        Hashtable GetCharInfoByHandle(string handle);
+        UInt32 GetUserIdForCharId(byte[] charIdHex);
+        string GetPathForDistrictKey(string key);
         void AddHandleToFriendList(string handleToAdd, UInt32 charId);
         void RemoveHandleFromFriendList(string handleToRemove, UInt32 charId);
         ArrayList FetchPlayersWhoAddedMeToBuddylist(UInt32 charId);
-        ArrayList fetchFriendList(UInt32 charId);
-        Faction fetchFaction(UInt32 factionId);
-        bool isFactionnameAvailable(string factionname);
-        bool isHandleCaptainOfACrew(string handle);
+        ArrayList FetchFriendList(UInt32 charId);
+        Faction FetchFaction(UInt32 factionId);
+        bool IsFactionnameAvailable(string factionname);
+        bool IsHandleCaptainOfACrew(string handle);
         UInt32 createFaction(string factionname, Crew masterCrew, Crew secondCrew);
         void IncreaseCrewMoney(UInt32 crewId, UInt32 amount);
         void DecreaseCrewMoney(UInt32 crewId, UInt32 amount);
@@ -32,12 +35,11 @@ namespace hds.databases.interfaces{
         void AddCrewToFaction(UInt32 factionId, UInt32 crewId);
         void RemoveCrewFromFaction(UInt32 factionId, UInt32 crewId);
         void DeleteCrew(UInt32 crewId);
-        void CreateFaction(Crew crew1, Crew crew2, string factionName);
-        
+
         void updateLocationByHL(UInt16 district, UInt16 hardline);
         void updateSourceHlForObjectTracking(UInt16 sourceDistrict, UInt16 sourceHl, UInt32 lastObjectId);
-        void setPlayerValues();
-        void setRsiValues();
+        void SetPlayerValues();
+        void SetRsiValues();
         void SetOnlineStatus(UInt32 charId, ushort isOnline);
         void ResetOnlineStatus();
         void SavePlayer(WorldClient client);
@@ -49,11 +51,11 @@ namespace hds.databases.interfaces{
         //NEW
         void UpdateInventorySlot(UInt16 sourceSlot, UInt16 destSlot, UInt32 charId);
         UInt16 GetFirstNewSlot();
-        void addItemToInventory(UInt16 slotId, UInt32 itemGoID);
+        void AddItemToInventory(UInt16 slotId, UInt32 itemGoID);
         void setBackground(string backgroundText);
         UInt32 GetItemGOIDAtInventorySlot(UInt16 slotId);
         void UpdateRsiPartValue(string part, uint value, UInt32 charId);
-        bool isSlotinUseByItem(UInt16 slotId);
+        bool IsSlotinUseByItem(UInt16 slotId);
 
         bool IsCrewNameAvailable(string crewName);
         void AddCrew(string crewName, string masterHandle);

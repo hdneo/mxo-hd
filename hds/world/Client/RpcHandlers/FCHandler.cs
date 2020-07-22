@@ -79,7 +79,7 @@ namespace hds
             string masterHandle =
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
             
-            if (Store.dbManager.WorldDbHandler.isFactionnameAvailable(factionName) && Store.dbManager.WorldDbHandler.isHandleCaptainOfACrew(handleToInvite) && Store.dbManager.WorldDbHandler.isHandleCaptainOfACrew(masterHandle))
+            if (Store.dbManager.WorldDbHandler.IsFactionnameAvailable(factionName) && Store.dbManager.WorldDbHandler.IsHandleCaptainOfACrew(handleToInvite) && Store.dbManager.WorldDbHandler.IsHandleCaptainOfACrew(masterHandle))
             {
                 // We should now create the faction and add the crews to it (and don't forget to update the members)
                 Crew crewMaster = Store.dbManager.WorldDbHandler.GetCrewData(Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(masterHandle));
@@ -246,9 +246,9 @@ namespace hds
             // ToDo: maybe we can remove this as we update money on the other way (but we need to check if this is the case)
             UInt32 factionId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
             
-            Faction faction = Store.dbManager.WorldDbHandler.fetchFaction(factionId);
+            Faction faction = Store.dbManager.WorldDbHandler.FetchFaction(factionId);
             faction.masterPlayerCharId =
-                Store.dbManager.WorldDbHandler.getCharIdByHandle(faction.masterPlayerHandle);
+                Store.dbManager.WorldDbHandler.GetCharIdByHandle(faction.masterPlayerHandle);
             
             ServerPackets packet = new ServerPackets();
             

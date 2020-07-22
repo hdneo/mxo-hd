@@ -47,7 +47,7 @@ namespace hds
 
         private static void CheckForFinalJackout(WorldClient thisclient)
         {
-            if (thisclient.playerData.isJackoutInProgress == true &&
+            if (thisclient.playerData.isJackoutInProgress &&
                 (thisclient.playerData.jackoutStartTime - TimeUtils.getUnixTimeUint32()) > 5)
             {
                 ServerPackets packets = new ServerPackets();
@@ -57,11 +57,11 @@ namespace hds
 
         private static void CheckToSaveClientData(WorldClient thisclient)
         {
-            if (thisclient != null && (TimeUtils.getUnixTimeUint32() - thisclient.playerData.lastSaveTime) > 20)
+            if (thisclient != null && (TimeUtils.getUnixTimeUint32() - thisclient.playerData.lastSaveTime) > 20 && thisclient.playerData.getOnWorld())
             {
                 thisclient.playerData.lastSaveTime = TimeUtils.getUnixTimeUint32();
                 // Save Player
-                new PlayerHelper().savePlayerInfo(thisclient);
+                new PlayerHelper().SavePlayerInfo(thisclient);
                 // Notify Player about save
                 ServerPackets pak = new ServerPackets();
                 pak.sendSaveCharDataMessage(thisclient,

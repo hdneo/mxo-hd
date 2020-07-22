@@ -24,6 +24,7 @@ Currently many features are just working "partically" or just started to impleme
 But this is nearly a state which will be deployed to our "experimental" Server soon.
 
 Partically working features:
+- Signposts
 - Hyperjump (works but crappy and not really high enough)
 - Multi Player support (it "should" work but wasnt tested enough so you should see each other and hopefully you can chat)
 - Mission System (still at the beginning)
@@ -38,23 +39,52 @@ Partically working features:
 - Vendors are implemented (but selling items doesnt work and buy items doesnt decrease amount of money :))
   Also i parsed all possible vendors from logs but many vendors missing which need be filled later.
   For Fun and that you didnt see a vendor window the first vendor from the CSV is the "default vendor".
-- Prepared Crew and Factions Functionality (just prepared - you cann ask a user to join crew but nothing will really happen)
+- WIP: Crew and Factions Functionality (you can create crews and join factions / create factions but some parts are missing like updating all "online" playerviews)
 
 Server Features:
-- Entity and View System: Every View has an internal entityId so that we can just spawn view on static and dynmaic obbjects. Well as it is some time ago where i implemented it - i dunno how good it works.
-- Network System changed a lot: we have now message Queues for RPC and Object related Messages. And it will be resend until ack (if it works properly :))
-- Encryption Library Changed: to move to .NET Framework 4.0 and to compile for 64 Bit i created an encryption interface. So we use a C# Library and a C# implementation.
+- Entity and View System: Every View has an internal entityId so that we can just spawn view on static and dynamic obbjects.
+- Network System: we have now message Queues for RPC and Object related Messages. And it will be resend until ack.
+- Encryption Library Changed (but not finally - we still use engimaLib): to move to .NET Framework 4.0 and to compile for 64 Bit i created an encryption interface. 
+  So we use a C# Library and a C# implementation.
   The Reason for this is that EngimaLib had to be recompiled for 64 Bit (as it is a C++ Library) but i am not sure if the base libs are able to compile 64 Bit.
   As i dont know if this works well and how good the performance is i created a Encryption Interface and moved the Engima Implemenation there.
   So if it doesnt work we could easily change back.
 
+Chat commands:
+There are some ingame commands we added that you can use in HardlineDreams.
+- ?org <OrgId> 
+   Change the players aligment / organisation (possible values are 0 - 3)
+- ?rep <OrgName> <Amount> 
+  Set the reputation for an organisation. 
+  - Example: for zion ?rep zion 120 
+  - Example: for machine: ?rep machine 120
+  - Example: for mero: ?rep mero 120
+- ?spawngameobject <GoId>
+  Spawns a GameObject of Type GoId in your current position and rotation. This can only work if this type of Go has values for Position and rotation (all other possible attributes are not set).
+  This works with reflections.
+- ?gotopos X Y Z 
+- ?rsi <part> <value> : you can change rsi parts but be careful with it
+- ?spawndatanode : This spawn a datanode
+- ?moa <hexMoa> 
+  Change the moa (only visible to yourself currently)
+- ?playanim <animId>
+  Play an animation.
+- ?playmove <moveid> 
+  Should play movement (again i am not sure if this works)
+- ?mob
+  This should spawn a testmob but this doesnt work currently 
+
+There are some other commands implemented but they are not important.
+ 
+
 ## The Future
-We still continue the development on this project. 
-The next goals are:
-- hyperjump improvements
-- Abilities part 1 (hyperspeed, castable abilities for buffs for example)
-- doors with correct values (currently we have some wrong values)
-- more and more researching
+We still continue the development on this project. There is no real "roadmap" or something - we implement the stuff on the fly.
+This is because we need to research, test and implement everytime.
+
+So the next goals be: 
+- Real HyperJump
+- Crew and Faction Managment Finalize
+- Static Objects with correct values (some positions are currently wrong)
 
 
 ## Other Files
@@ -78,7 +108,7 @@ Also check out our other repositories for helpful stuff like packets tools etc.
 You can use Visual Studio 2017 (which we recommend currently and use it). 
 However - Mono Develop should work too.
 
-Rider works again too (2017.2 EAP) - the 2017.1 had some bugs where HDS didnt really start.
+Rider works again too - i used Rider as its the best C# IDE out there :).
 
 ## Get the Server running
 First you should extract the data.zip file in the "Debug/data" directory (there are 3 CSV Files).

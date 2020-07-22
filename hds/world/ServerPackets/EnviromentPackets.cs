@@ -9,7 +9,7 @@ namespace hds
 {
     public partial class ServerPackets
     {
-        public void SendSpawnStaticObject(WorldClient client, GameObject creationObjectData, UInt64 entityID)
+        public void SendSpawnGameObject(WorldClient client, GameObject creationObjectData, UInt64 entityID)
         {
             ClientView staticObjectView = client.viewMan.GetViewForEntityAndGo(entityID,NumericalUtils.ByteArrayToUint16(creationObjectData.GetGoid(),1));
             if (staticObjectView.viewCreated == false)
@@ -26,24 +26,6 @@ namespace hds
                 staticObjectView.viewCreated = true;
             }
 
-        }
-        
-        public void SpawnDynamicOjbectView(WorldClient client, GameObject creationObjectData, UInt64 entityID)
-        {
-            ClientView staticObjectView = client.viewMan.GetViewForEntityAndGo(entityID,NumericalUtils.ByteArrayToUint16(creationObjectData.GetGoid(),1));
-            if (staticObjectView.viewCreated == false)
-            {
-                PacketContent pak = new PacketContent();
-
-                pak.addUint16(1, 1);
-                pak.addByteArray(Store.world.objMan.GenerateCreationPacket(creationObjectData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
-                pak.addUint16(staticObjectView.ViewID, 1);
-                pak.addByte(0x00);
- 
-                client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
-                client.FlushQueue();
-                staticObjectView.viewCreated = true;
-            }
         }
 
         public void SendUpdateViewStatePacket(WorldClient client, UInt16 viewId, byte[] updateData)

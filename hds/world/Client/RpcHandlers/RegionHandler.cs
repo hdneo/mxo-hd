@@ -75,7 +75,7 @@ namespace hds
                         String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoStaticId;
                         UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
-                        pak.SendSpawnStaticObject(Store.currentClient,signpost,entityId);
+                        pak.SendSpawnGameObject(Store.currentClient,signpost,entityId);
                     }
                    
                     break;

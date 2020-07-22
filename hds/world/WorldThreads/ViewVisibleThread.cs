@@ -110,7 +110,7 @@ namespace hds
                                     objectInCircle)
                                 {
                                     ServerPackets pak = new ServerPackets();
-                                    pak.SendSpawnStaticObject(thisclient, thisSubway.gameObjectData, entityStaticId);
+                                    pak.SendSpawnGameObject(thisclient, thisSubway.gameObjectData, entityStaticId);
                                     view.spawnId = thisclient.playerData.spawnViewUpdateCounter;
                                     view.viewCreated = true;
                                 }

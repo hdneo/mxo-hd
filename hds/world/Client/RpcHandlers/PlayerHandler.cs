@@ -154,9 +154,9 @@ namespace hds
                 NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
             if (factionId > 0)
             {
-                Faction faction = Store.dbManager.WorldDbHandler.fetchFaction(factionId);
+                Faction faction = Store.dbManager.WorldDbHandler.FetchFaction(factionId);
                 faction.masterPlayerCharId =
-                    Store.dbManager.WorldDbHandler.getCharIdByHandle(faction.masterPlayerHandle);
+                    Store.dbManager.WorldDbHandler.GetCharIdByHandle(faction.masterPlayerHandle);
                 pak.SendFactionInfo(Store.currentClient, faction, false);
                 pak.SendFactionCrews(Store.currentClient, faction, false);
 
@@ -182,8 +182,8 @@ namespace hds
 
             Store.currentClient.playerData.setCharID(reader.readUInt32(1));
 
-            Store.dbManager.WorldDbHandler.setPlayerValues();
-            Store.dbManager.WorldDbHandler.setRsiValues();
+            Store.dbManager.WorldDbHandler.SetPlayerValues();
+            Store.dbManager.WorldDbHandler.SetRsiValues();
             Store.dbManager.WorldDbHandler.SetOnlineStatus(Store.currentClient.playerData.getCharID(), 1);
 
             // send the init UDP packet * 5
@@ -251,7 +251,7 @@ namespace hds
             string handle = reader.readSizedString();
             
             // Load Details from Database about the Handle
-            Hashtable charInfo = Store.dbManager.WorldDbHandler.getCharInfoByHandle(handle);
+            Hashtable charInfo = Store.dbManager.WorldDbHandler.GetCharInfoByHandle(handle);
             if (charInfo.Count > 0)
             {
                 ServerPackets packets = new ServerPackets();

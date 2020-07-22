@@ -29,7 +29,7 @@ namespace hds
             // ToDo: Get free slot, add item to Inventory
             // This method is called from looting and vendor buy (so vendor buy must care about money decrease)
             UInt16 freeSlot = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
-            Store.dbManager.WorldDbHandler.addItemToInventory(freeSlot, itemID);
+            Store.dbManager.WorldDbHandler.AddItemToInventory(freeSlot, itemID);
 
             ServerPackets pak = new ServerPackets();
             ushort amount = 0; // ToDo : make this dynamic lol
@@ -122,7 +122,7 @@ namespace hds
             ServerPackets pak = new ServerPackets();
             pak.sendInventoryItemMove(sourceSlot, newSlotId, Store.currentClient);
 
-            Store.dbManager.WorldDbHandler.setRsiValues();
+            Store.dbManager.WorldDbHandler.SetRsiValues();
 
             int[] current = Store.currentClient.playerData.getRsiValues();
             Store.currentClient.playerData.setRsiValues(current);
@@ -214,7 +214,7 @@ namespace hds
             {
                 Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partColor,item.getColorId(), Store.currentClient.playerData.getCharID());
             }
-            Store.dbManager.WorldDbHandler.setRsiValues();
+            Store.dbManager.WorldDbHandler.SetRsiValues();
 
             int[] current = Store.currentClient.playerData.getRsiValues();
             Store.currentClient.playerData.setRsiValues(current);
@@ -224,7 +224,7 @@ namespace hds
             // Move the wear item from the wearing slot to the next new slot (but maybe doesnt work if inventory is full)
 
             ServerPackets pak = new ServerPackets();
-            if (Store.dbManager.WorldDbHandler.isSlotinUseByItem(toRealSlotId))
+            if (Store.dbManager.WorldDbHandler.IsSlotinUseByItem(toRealSlotId))
             {
                 UInt16 newSlotId = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
                 Store.dbManager.WorldDbHandler.UpdateInventorySlot(toRealSlotId,newSlotId, Store.currentClient.playerData.getCharID());

@@ -49,7 +49,7 @@ namespace hds.databases{
 		}
 		
 		
-		public UInt32 getUserIdForCharId(byte[] charIdHex){
+		public UInt32 GetUserIdForCharId(byte[] charIdHex){
 			OpenConnection();	 
 			UInt32 charId = NumericalUtils.ByteArrayToUint32(charIdHex,1);
 			Output.OptWriteLine("[WORLD] Checking from DB:"+charId);
@@ -72,7 +72,7 @@ namespace hds.databases{
 
 		public void AddHandleToFriendList(string handleToAdd, UInt32 charId)
 		{
-			UInt32 friendId = getCharIdByHandle(handleToAdd);
+			UInt32 friendId = GetCharIdByHandle(handleToAdd);
 			ExecuteNonResultQuery("INSERT INTO buddylist SET charId='" + charId +
 			                      "', friendId='" + friendId + "', is_ignored=0 ");
 			
@@ -80,7 +80,7 @@ namespace hds.databases{
 
 		public void RemoveHandleFromFriendList(string handleToRemove, UInt32 charId)
 		{
-			UInt32 friendId = getCharIdByHandle(handleToRemove);
+			UInt32 friendId = GetCharIdByHandle(handleToRemove);
 			ExecuteNonResultQuery(
 				"DELETE FROM buddylist WHERE charId='" + charId + "' AND friendId='" + friendId + "' ");
 			
@@ -108,7 +108,7 @@ namespace hds.databases{
 			return friends;
 		}
 		
-        public ArrayList fetchFriendList(UInt32 charId)
+        public ArrayList FetchFriendList(UInt32 charId)
         {
 	        OpenConnection();
             ArrayList friends = new ArrayList();
@@ -132,7 +132,7 @@ namespace hds.databases{
         }
 
 
-        public Faction fetchFaction(uint factionId)
+        public Faction FetchFaction(uint factionId)
         {
 	        Faction factionData = new Faction();
 	        OpenConnection();
@@ -156,7 +156,7 @@ namespace hds.databases{
 	        return factionData;
         }
 
-        public bool isFactionnameAvailable(string factionname)
+        public bool IsFactionnameAvailable(string factionname)
         {
 	        bool isFactionNameAvailable = true;
 	        OpenConnection();
@@ -174,7 +174,7 @@ namespace hds.databases{
 	        return isFactionNameAvailable;
         }
 
-        public bool isHandleCaptainOfACrew(string handle)
+        public bool IsHandleCaptainOfACrew(string handle)
         {
 	        bool isCaptainOfCrew = false;
 	        OpenConnection();
@@ -322,7 +322,7 @@ namespace hds.databases{
 	        List<Crew> crews = new List<Crew>();
 	        foreach (Crew theCrew in tmpCrews)
 	        {
-		        theCrew.masterPlayerCharId = getCharIdByHandle(theCrew.characterMasterName);
+		        theCrew.masterPlayerCharId = GetCharIdByHandle(theCrew.characterMasterName);
 		        crews.Add(theCrew);
 	        }
 	        
@@ -382,13 +382,8 @@ namespace hds.databases{
 	        ExecuteNonResultQuery("UPDATE crews SET faction_id = '0' WHERE id='" + crewId + "' AND faction_id = '" + factionId + "' ");
         }
 
-        public void CreateFaction(Crew crew1, Crew crew2, string factionName)
-        {
-	        throw new NotImplementedException();
-        }
 
-
-        public string getPathForDistrictKey(string key){
+        public string GetPathForDistrictKey(string key){
 	        OpenConnection();
 			string sqlQuery="select path from districts where districts.key = '"+key+"'";
 			queryExecuter= conn.CreateCommand();
@@ -478,7 +473,7 @@ namespace hds.databases{
             
         }
 		
-		public void setPlayerValues()
+		public void SetPlayerValues()
 		{
 			OpenConnection();
             UInt32 charID = Store.currentClient.playerData.getCharID();
@@ -545,7 +540,7 @@ namespace hds.databases{
 			
 		}
 
-		public UInt32 getCharIdByHandle(string handle)
+		public UInt32 GetCharIdByHandle(string handle)
 		{
 			OpenConnection();
 			string sqlQuery = "SELECT charId FROM characters WHERE handle = '"+handle.Trim()+"' LIMIT 1";
@@ -566,7 +561,7 @@ namespace hds.databases{
 			return charId;
 		}
 		
-        public Hashtable getCharInfo(UInt32 charId)
+        public Hashtable GetCharInfo(UInt32 charId)
         {
 	        OpenConnection();
             string sqlQuery = "SELECT firstName,lastName,background, district, repMero, repMachine, repNiobe, repEPN, repCYPH, repGM, repZion, exp, cash FROM characters WHERE charId = '" + charId.ToString() + "' LIMIT 1";
@@ -597,8 +592,24 @@ namespace hds.databases{
 
             return data;
         }
-        
-        public Hashtable getCharInfoByHandle(string handle)
+
+        public void SetReputation(uint charId, string reputationColumn, int value)
+        {
+	        OpenConnection();
+	        string sqlQuery = "UPDATE characters SET " + reputationColumn + "=" + value + " WHERE charId= " + charId +
+	                          " LIMIT 1";
+	        ExecuteNonResultQuery(sqlQuery);
+	        
+        }
+
+        public void SetOrgId(uint charId, int orgId)
+        {
+	        OpenConnection();
+	        string sqlQuery = "UPDATE characters SET alignment = " + orgId + " WHERE charId= " + charId + " LIMIT 1";
+	        ExecuteNonResultQuery(sqlQuery);
+        }
+
+        public Hashtable GetCharInfoByHandle(string handle)
         {
 	        OpenConnection();
 	        handle = handle.Substring(0, handle.Length - 1);
@@ -637,7 +648,7 @@ namespace hds.databases{
 	        return data;
         }
 
-		public void setRsiValues(){
+		public void SetRsiValues(){
 			OpenConnection();
 			int charID = (int) Store.currentClient.playerData.getCharID();
 			string sqlQuery="Select sex,body,hat,face,shirt,coat,pants,shoes,gloves,glasses,hair,facialdetail,shirtcolor,pantscolor,coatcolor,shoecolor,glassescolor,haircolor,skintone,tattoo,facialdetailcolor,leggins from rsivalues where charId='"+charID+"'";
@@ -724,7 +735,7 @@ namespace hds.databases{
 	        ExecuteNonResultQuery("UPDATE inventory SET slot = '" + destSlot.ToString() + "' WHERE slot = '" + sourceSlot.ToString() + "' AND charID = '" + charId + "' LIMIT 1");
         }
 
-        public bool isSlotinUseByItem(UInt16 slotId)
+        public bool IsSlotinUseByItem(UInt16 slotId)
         {
 	        OpenConnection();
             bool isSlotInUse = false;
@@ -911,7 +922,7 @@ namespace hds.databases{
             return freeSlot;
         }
 
-        public void addItemToInventory (UInt16 slotId, UInt32 itemGoID)
+        public void AddItemToInventory (UInt16 slotId, UInt32 itemGoID)
         {
 	        UInt32 charID = Store.currentClient.playerData.getCharID();
             ExecuteNonResultQuery("INSERT INTO inventory SET charId = '" + charID.ToString() + "' , goid = '" +
