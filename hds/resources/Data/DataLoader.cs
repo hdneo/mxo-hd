@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using hds.world.Structures;
 
 namespace hds
@@ -12,7 +13,7 @@ namespace hds
     {
         private static DataLoader Instance;
         private readonly Maths mathUtils = new Maths();
-        
+
         // Data Storage - maybe we need to change this to something better (like a AbilityQuery Object)
         public List<AbilityItem> AbilityDB = new List<AbilityItem>(); // holds our Ability DB
         public List<GameObjectItem> GODB = new List<GameObjectItem>(); // Holds the GameObjects
@@ -23,7 +24,8 @@ namespace hds
         public List<Vendor> Vendors = new List<Vendor>();
         public List<Subway> Subways = new List<Subway>();
         public List<NPC_Singpost> Signposts = new List<NPC_Singpost>();
-        
+        public List<Mission> missions = new List<Mission>();
+
 
         public bool useSQLiteDatabase = false;
 
@@ -31,14 +33,17 @@ namespace hds
         private DataLoader()
         {
             loadEmotes();
+            LoadMissions();
             loadNewRSIIDs("data\\newrsiIDs.csv");
             loadGODB("data\\gameobjects.csv");
-            #if !DEBUG
+#if !DEBUG
             loadMobs("data\\mob.csv");
-            loadMobs("data\\mob_parsed.csv");            
-            #endif
-            
-           
+            loadMobs("data\\mob_parsed.csv");
+#else
+            loadMobs("data\\mob_just_some_and_winter.csv");
+#endif
+
+
             loadAbilityDB("data\\abilityIDs.csv");
             loadClothingDB("data\\mxoClothing.csv");
 
@@ -50,11 +55,98 @@ namespace hds
             loadWorldObjectsDb("data\\staticObjects_dt.csv");
         }
 
+        public void LoadMissions()
+        {
+            string[] xmlMissionFiles = Directory.GetFiles(@".\data\missions", "*.xml");
+
+            foreach (string file in xmlMissionFiles)
+            {
+                XmlDocument missionDocument = new XmlDocument();
+                missionDocument.Load(file);
+
+                XmlNode missionNode = missionDocument.SelectSingleNode("mission");
+                if (missionNode != null && missionNode.HasChildNodes)
+                {
+                    Mission theMission = new Mission();
+                    theMission.title = missionNode.Attributes["title"].InnerText;
+                    theMission.description = missionNode.Attributes["description"].InnerText;
+                    theMission.exp = int.Parse(missionNode.Attributes["exp"].InnerText);
+                    theMission.info = int.Parse(missionNode.Attributes["info"].InnerText);
+                    theMission.repZion = int.Parse(missionNode.Attributes["repZion"].InnerText);
+                    theMission.repMachine = int.Parse(missionNode.Attributes["repMachine"].InnerText);
+                    theMission.repMero = int.Parse(missionNode.Attributes["repMero"].InnerText);
+
+                    foreach (XmlNode childNode in missionNode.ChildNodes)
+                    {
+                        if (childNode.Name.Equals("phase"))
+                        {
+                            MissionPhase phase = new MissionPhase();
+
+                            foreach (XmlNode phaseItem in childNode.ChildNodes)
+                            {
+                                switch (phaseItem.Name)
+                                {
+                                    case "dialog":
+                                        MissionDialog dialog = new MissionDialog();
+                                        dialog.text = phaseItem.Attributes["text"].InnerText;
+                                        dialog.type = phaseItem.Attributes["type"].InnerText;
+                                        var innerText = phaseItem.Attributes["trigger"].InnerText;
+                                        dialog.trigger = (MissionDialog.DIALOG_TRIGGER)Enum.Parse(typeof(MissionDialog.DIALOG_TRIGGER), innerText,
+                                            true);
+                                        phase.dialogs.Add(dialog);
+                                        break;
+                                    
+                                    case "objective":
+                                        MissionObjective objective = new MissionObjective();
+                                        objective.description = phaseItem.Attributes["description"].InnerText;
+                                        objective.command = phaseItem.Attributes["command"].InnerText;
+                                        if (phaseItem.Attributes["item"] != null)
+                                        {
+                                            objective.itemId =
+                                                StringUtils.hexStringToBytes(phaseItem.Attributes["item"].InnerText);
+                                        }
+
+                                        objective.dialog = phaseItem.Attributes["dialog"].InnerText;
+                                        phase.missionObjectives.Add(objective);
+                                        break;
+                                    case "npc":
+                                        Mob theMob = new Mob();
+                                        theMob.setName(phaseItem.Attributes["handle"].InnerText);
+                                        theMob.setLevel(ushort.Parse(phaseItem.Attributes["level"].InnerText));
+                                        theMob.setHealthM(UInt16.Parse(phaseItem.Attributes["maxHP"].InnerText));
+                                        theMob.setRsiHex(phaseItem.Attributes["rsi"].InnerText);
+                                        theMob.setXPos(float.Parse(phaseItem.Attributes["x"].InnerText));
+                                        theMob.setYPos(float.Parse(phaseItem.Attributes["y"].InnerText));
+                                        theMob.setZPos(float.Parse(phaseItem.Attributes["z"].InnerText));
+                                        phase.npcs.Add(theMob);
+                                        break;
+                                    
+                                    case "gameobject":
+                                        // ToDo: this is a little bit tricky
+                                        break;
+                                }
+                            }
+                            theMission.phases.Add(phase);
+                        }
+                    }
+                    missions.Add(theMission);
+                }
+            }
+        }
+
+        public List<Mission> FindMissions(UInt16 contactId, uint orgId)
+        {
+            // ToDo: filter by contact and org
+            return missions;
+            
+        }
+
         private void loadNPCSignPosts(string path)
         {
             ArrayList csvData = loadCSV(path, ';');
             int linecount = 1;
-            foreach (string[] data in csvData) {
+            foreach (string[] data in csvData)
+            {
                 if (linecount > 0)
                 {
                     NPC_Singpost singpost = new NPC_Singpost();
@@ -72,17 +164,16 @@ namespace hds
                     {
                         singpost.wQuad = float.Parse(data[10]);
                     }
-                    
-                    
+
+
                     if (data.ElementAtOrDefault(11) != null)
                     {
                         if (data[11].Length > 0)
                         {
                             singpost.xQuad = float.Parse(data[11]);
                         }
-                        
                     }
-                    
+
                     if (data.ElementAtOrDefault(12) != null)
                     {
                         if (data[12].Length > 0)
@@ -90,7 +181,7 @@ namespace hds
                             singpost.yQuad = float.Parse(data[12]);
                         }
                     }
-                    
+
                     if (data.ElementAtOrDefault(13) != null)
                     {
                         if (data[13].Length > 0)
@@ -98,9 +189,10 @@ namespace hds
                             singpost.zQuad = float.Parse(data[13]);
                         }
                     }
-                    
+
                     Signposts.Add(singpost);
                 }
+
                 linecount++;
             }
         }
@@ -110,7 +202,8 @@ namespace hds
             Output.Write("Loading RSI IDs for Character Creation ..");
             ArrayList newRSIDB = loadCSV(path, ',');
             int linecount = 1;
-            foreach (string[] data in newRSIDB) { 
+            foreach (string[] data in newRSIDB)
+            {
                 if (linecount > 1)
                 {
                     NewRSIItem item = new NewRSIItem();
@@ -121,19 +214,23 @@ namespace hds
                     item.gender = ushort.Parse(data[4]);
                     newRSIItemsDb.Add(item);
                 }
+
                 linecount++;
             }
         }
 
         public NewRSIItem getNewRSIItemByTypeAndID(string type, UInt16 newRSIID)
         {
-            NewRSIItem newrsiItemTemp = newRSIItemsDb.Find(delegate (NewRSIItem temp) { return temp.newRSIID == newRSIID && temp.type==type; });
+            NewRSIItem newrsiItemTemp = newRSIItemsDb.Find(delegate(NewRSIItem temp)
+            {
+                return temp.newRSIID == newRSIID && temp.type == type;
+            });
             if (newrsiItemTemp == null)
             {
                 NewRSIItem emptyItem = new NewRSIItem();
                 return emptyItem;
-
             }
+
             return newrsiItemTemp;
         }
 
@@ -146,7 +243,6 @@ namespace hds
             int linecount = 1;
             foreach (string[] data in goDB)
             {
-
                 //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " GOID:  " + data[1].ToString() + " Name " + data[0].ToString());
                 if (linecount > 1)
                 {
@@ -158,7 +254,7 @@ namespace hds
                         rotation = uint.Parse(data[10]);
                     }
 
-                  
+
                     if (data[4].Length > 0 && data[5].Length > 0)
                     {
                         bool error = false;
@@ -174,12 +270,14 @@ namespace hds
                         {
                             error = true;
                         }
-                        theMob.setMobId((ushort)linecount);
+
+                        theMob.setMobId((ushort) linecount);
                         theMob.setRsiHex(data[6]);
                         if (!isNumberEven(data[6].Length))
                         {
                             error = true;
                         }
+
                         theMob.setXPos(double.Parse(data[7]));
                         theMob.setYPos(double.Parse(data[8]));
                         theMob.setZPos(double.Parse(data[9]));
@@ -196,9 +294,9 @@ namespace hds
                             WorldSocket.mobs.Add(theMob);
                             WorldSocket.gameServerEntities.Add(theMob);
                         }
-                        
                     }
                 }
+
                 linecount++;
             }
         }
@@ -223,25 +321,23 @@ namespace hds
                 //Console.Write("\r{0}%   ", i);
                 i++;
             }
+
             Output.Write(i + " Entrys added !\n");
             // lets test a little bit to see what data is there
-            
-             
-            
+
+
             return rows;
         }
 
         public void loadGODB(string path)
         {
-
             // This is just an example of loading CSV    
             //return dataTable;
             Output.Write("Loading GameObjects ..");
-            ArrayList goDB = loadCSV(path,',');
+            ArrayList goDB = loadCSV(path, ',');
             int linecount = 0;
             foreach (string[] data in goDB)
             {
-
                 //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " GOID:  " + data[1].ToString() + " Name " + data[0].ToString());
 
                 GameObjectItem goItem = new GameObjectItem();
@@ -250,7 +346,6 @@ namespace hds
                 GODB.Add(goItem);
                 linecount++;
             }
-            
         }
 
         public void loadAbilityDB(string path)
@@ -258,12 +353,11 @@ namespace hds
             Output.Write("Loading Abilities..");
 
             // load the CSV into an ArrayList collection
-            ArrayList abilityDB = loadCSV(path,';');
+            ArrayList abilityDB = loadCSV(path, ';');
 
             int linecount = 1;
 
             // Create a new List 
-            
 
 
             foreach (string[] data in abilityDB)
@@ -284,7 +378,6 @@ namespace hds
                     {
                         if (data[4].Length > 0)
                         {
-                            
                             ability.setCastingTime(float.Parse(data[4], CultureInfo.InvariantCulture));
                         }
                     }
@@ -349,7 +442,7 @@ namespace hds
                     {
                         if (data[12].Length > 0)
                         {
-                            CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+                            CultureInfo ci = (CultureInfo) CultureInfo.CurrentCulture.Clone();
                             ci.NumberFormat.CurrencyDecimalSeparator = ".";
                             ability.setBuffTime(float.Parse(data[12], NumberStyles.Any, ci));
                         }
@@ -365,24 +458,21 @@ namespace hds
 
                     AbilityDB.Add(ability);
                 }
-                
+
 
                 linecount++;
             }
-            
-            
         }
 
         public void loadClothingDB(string path)
         {
             Output.Write("Loading Clothing..");
 
-            ArrayList itemRSIMap = loadCSV(path,';');
+            ArrayList itemRSIMap = loadCSV(path, ';');
 
             int linecount = 1;
             foreach (string[] data in itemRSIMap)
             {
-
                 if (linecount > 1)
                 {
                     //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " GOID:  " + data[1].ToString() + " Name " + data[0].ToString());
@@ -396,9 +486,8 @@ namespace hds
                     clothItem.setModelId(Convert.ToUInt16(data[4]));
                     clothItem.setColorId(Convert.ToUInt16(data[5]));
                     ClothingRSIDB.Add(clothItem);
-
                 }
-                
+
                 linecount++;
             }
         }
@@ -412,7 +501,6 @@ namespace hds
             int linecount = 1;
             foreach (string[] data in staticWorldObjects)
             {
-
                 if (linecount > 1)
                 {
                     //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " GOID:  " + data[1].ToString() + " Name " + data[0].ToString());
@@ -421,9 +509,10 @@ namespace hds
 
                     worldObject.metrId = Convert.ToUInt16(data[0]);
                     worldObject.sectorID = Convert.ToUInt16(data[1]);
-                    
 
-                    worldObject.mxoStaticId = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[2]), 1);
+
+                    worldObject.mxoStaticId =
+                        NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[2]), 1);
                     worldObject.staticId = NumericalUtils.ByteArrayToUint32(StringUtils.hexStringToBytes(data[3]), 1);
                     worldObject.type = StringUtils.hexStringToBytes(data[4].Substring(0, 4));
                     worldObject.exterior = Convert.ToBoolean(data[5]);
@@ -436,7 +525,6 @@ namespace hds
                     WorldObjectsDB.Add(worldObject);
                     AddWorldObjectToWorldServer(worldObject);
                     worldObject = null;
-
                 }
 
                 linecount++;
@@ -460,16 +548,14 @@ namespace hds
 
         public void loadVendorItems(string dataVendorItemsCsv)
         {
-
             // metr_id;vendor_static_id;items
-            ArrayList vendorItems = loadCSV(dataVendorItemsCsv,';');
+            ArrayList vendorItems = loadCSV(dataVendorItemsCsv, ';');
 
             int linecount = 1;
 
             // Create a new List
             foreach (string[] data in vendorItems)
             {
-
                 if (linecount > 1)
                 {
                     /*
@@ -481,13 +567,12 @@ namespace hds
 
                     string intValues = data[2];
                     UInt32[] items = intValues.Split(',').Select(n => Convert.ToUInt32(n)).ToArray();
-                    Vendor theVendor = new Vendor(Convert.ToUInt16(data[0]),Convert.ToUInt32(data[1]),items);
+                    Vendor theVendor = new Vendor(Convert.ToUInt16(data[0]), Convert.ToUInt32(data[1]), items);
                     Vendors.Add(theVendor);
                 }
+
                 linecount++;
             }
-
-
         }
 
         public void loadEmotes()
@@ -693,27 +778,35 @@ namespace hds
         public byte findEmoteByLongId(UInt32 _emoteLongId)
         {
             byte emoteIdShort = 0x00;
-            EmoteItem emoteItem = Emotes.Find(delegate (EmoteItem temp) { return temp.emoteIDLong == _emoteLongId; });
-            if(emoteItem!= null)
+            EmoteItem emoteItem = Emotes.Find(delegate(EmoteItem temp) { return temp.emoteIDLong == _emoteLongId; });
+            if (emoteItem != null)
             {
                 emoteIdShort = emoteItem.emoteShortID;
             }
+
             return emoteIdShort;
         }
 
-        public List<StaticWorldObject> findObjectsBySectorWorldRangeAndType(float x, float z,uint metrId, UInt16 typeId)
+        public List<StaticWorldObject> findObjectsBySectorWorldRangeAndType(float x, float z, uint metrId,
+            UInt16 typeId)
         {
-            IEnumerable<StaticWorldObject> staticWorldObjectsIenumerator = WorldObjectsDB.Where(w => w.metrId == metrId && NumericalUtils.ByteArrayToUint16(w.type, 1) == typeId && mathUtils.IsInCircle(x,z, (float)w.pos_x, (float)w.pos_z, 5000));
+            IEnumerable<StaticWorldObject> staticWorldObjectsIenumerator = WorldObjectsDB.Where(w =>
+                w.metrId == metrId && NumericalUtils.ByteArrayToUint16(w.type, 1) == typeId &&
+                mathUtils.IsInCircle(x, z, (float) w.pos_x, (float) w.pos_z, 5000));
             List<StaticWorldObject> TempStaticWorldObjects = staticWorldObjectsIenumerator.ToList();
             return TempStaticWorldObjects;
         }
 
         public StaticWorldObject getObjectValues(UInt32 objectId)
         {
-            Output.WriteLine("REQUEST OBJECT WITH ID :" + StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray(objectId, 0)));
+            Output.WriteLine("REQUEST OBJECT WITH ID :" +
+                             StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray(objectId, 0)));
             StaticWorldObject worldObject = null;
 
-            worldObject = WorldObjectsDB.Find(delegate(StaticWorldObject temp) { return temp.mxoStaticId == objectId; });
+            worldObject = WorldObjectsDB.Find(delegate(StaticWorldObject temp)
+            {
+                return temp.mxoStaticId == objectId;
+            });
             if (worldObject == null)
             {
                 worldObject = new StaticWorldObject();
@@ -726,14 +819,12 @@ namespace hds
         {
             AbilityItem abTemp = AbilityDB.Find(delegate(AbilityItem a) { return a.getAbilityID() == id; });
             return abTemp;
-           
         }
 
         public GameObjectItem getGameObjectItemById(UInt16 id)
         {
-            GameObjectItem goItem =  GODB.Find(delegate(GameObjectItem a) { return a.getGOID() == id; });
+            GameObjectItem goItem = GODB.Find(delegate(GameObjectItem a) { return a.getGOID() == id; });
             return goItem;
-
         }
 
         public Vendor getVendorByGoIDandMetrId(UInt32 GoID, UInt16 metrId)
@@ -742,7 +833,7 @@ namespace hds
 
             // Finds the Vendor By Id and MetrId
             // theVendor = Vendors.Find(c => (c.vendorStaticID == GoID && c.metrId == metrId));
-            
+
             // Finds the Vendor only by ID as i think that there are so few IDs that the are not double in worlds
             // Also they could be wrong metrId by the parser so this should work better :)
             theVendor = Vendors.Find(c => (c.vendorStaticID == GoID));
@@ -754,18 +845,20 @@ namespace hds
             }
 
             return theVendor;
-
         }
 
         public ClothingItem getItemValues(UInt32 itemID)
         {
-            ClothingItem clothingTemp = ClothingRSIDB.Find(delegate(ClothingItem temp) { return temp.getGoidDecimal() == itemID; });
+            ClothingItem clothingTemp = ClothingRSIDB.Find(delegate(ClothingItem temp)
+            {
+                return temp.getGoidDecimal() == itemID;
+            });
             if (clothingTemp == null)
             {
                 ClothingItem emptyItem = new ClothingItem();
                 return emptyItem;
-
             }
+
             return clothingTemp;
         }
 
@@ -777,8 +870,8 @@ namespace hds
             {
                 Instance = new DataLoader();
             }
+
             return Instance;
         }
     }
-
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Text;
 using hds.shared;
 using System.Collections.Generic;
@@ -48,112 +47,6 @@ namespace hds
             din.append(0x00);
             Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
         }
-
-
-        public void processLoadAbility(ref byte[] packet)
-        {
-            // read the values from the packet
-            PacketReader reader = new PacketReader(packet);
-            UInt32 staticObjectID = reader.readUInt32(1);
-            UInt16 unloadFlag = reader.readUInt16(1);
-            UInt16 loadFlag = reader.readUInt16(1);
-            UInt16 countAbilities = reader.readUInt16(1);
-
-            int pointer = 11; // Start at index 11
-            List<UInt16> abilitySlots = new List<UInt16>();
-
-            for (int i = 1; i <= countAbilities; i++)
-            {
-                // This must be looped 
-                byte[] slotByteID = new byte[2];
-                ArrayUtils.copyTo(packet, pointer, slotByteID, 0, 2);
-                pointer = pointer + 2;
-
-                byte[] abilityByteID = new byte[2];
-                ArrayUtils.copyTo(packet, pointer, abilityByteID, 0, 2);
-                pointer = pointer + 4;
-
-                byte[] abilityByteLevel = new byte[2];
-                ArrayUtils.copyTo(packet, pointer, abilityByteLevel, 0, 2);
-                pointer = pointer + 3;
-
-
-                UInt16 slotID = NumericalUtils.ByteArrayToUint16(slotByteID, 1);
-                UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(abilityByteID, 1);
-                UInt16 AbilityLevel = NumericalUtils.ByteArrayToUint16(abilityByteLevel, 1);
-
-                PacketContent pak = new PacketContent();
-                if (unloadFlag > 0)
-                {
-                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
-                    pak.addByteArray(abilityByteID);
-                }
-                else
-                {
-                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
-                    pak.addByteArray(abilityByteID);
-                    pak.addByteArray(abilityByteLevel);
-                    pak.addByteArray(slotByteID);
-                }
-                abilitySlots.Add(slotID);
-                Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
-            }
-
-
-            if (unloadFlag > 0)
-            {
-                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 0);
-            }
-            else
-            {
-                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 1);
-            }
-        }
-
-        public void processTargetChange(ref byte[] rpcData, WorldClient currentClient)
-        {
-            UInt16 viewId = NumericalUtils.ByteArrayToUint16(new byte[] {rpcData[0], rpcData[1]}, 1);
-            ushort spawnId = rpcData[2];
-            // ToDo: add this to the ClientData
-
-            if (viewId == 0)
-            {
-                viewId = 2;
-            }
-            currentClient.playerData.currentSelectedTargetViewId = viewId;
-            currentClient.playerData.currentSelectedTargetSpawnId = spawnId;
-            ServerPackets pak = new ServerPackets();
-            pak.sendSystemChatMessage(Store.currentClient,
-                "TARGET CHANGE For ViewID " + viewId.ToString() + " AND SPAWN ID : " + spawnId.ToString(), "MODAL");
-        }
-
-        public void processUpdateExp()
-        {
-            Random rand = new Random();
-            UInt32 expval = (UInt32) rand.Next(1000, 200000);
-            ArrayList content = new ArrayList();
-
-            // ToDo  : Save new EXP Value in the Database and update mpm exp
-            // ToDo2 : Check if exp events are running to multiple the EXP 
-            // The Animation
-            DynamicArray expanim = new DynamicArray();
-            expanim.append(0x80);
-            expanim.append(0xe6);
-            expanim.append(NumericalUtils.uint32ToByteArray(expval, 1));
-            expanim.append(0x01); // Gain Type 
-            expanim.append(StringUtils.hexStringToBytes("000000"));
-            Store.currentClient.messageQueue.addRpcMessage(expanim.getBytes());
-
-            // The BAR
-            DynamicArray expbar = new DynamicArray();
-            expbar.append(0x80);
-            expbar.append(0xe5);
-            expbar.append(NumericalUtils.uint32ToByteArray(expval, 1));
-            expbar.append(0x01); // Gain Type 
-            expbar.append(StringUtils.hexStringToBytes("000000"));
-            Store.currentClient.messageQueue.addRpcMessage(expbar.getBytes());
-        }
-
 
         public void processSelfUpdateHealth(UInt16 viewId, UInt16 healthC)
         {

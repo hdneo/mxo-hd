@@ -8,8 +8,9 @@ namespace hds
 {
     public class MissionHandler
     {
-        public void processMissionaccept(ref byte[] packet)
+        public void ProcessMissionaccept(ref byte[] packet)
         {
+            // ToDo: figure out if time and diffulty is in the packet
             byte[] contactBytes = { packet[0], packet[1] };
             UInt16 contactId = NumericalUtils.ByteArrayToUint16(contactBytes, 1);
             ushort missionId = packet[2];
@@ -19,6 +20,8 @@ namespace hds
             #endif
             ServerPackets pak = new ServerPackets();
 
+            new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
+            
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);
             pak.sendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
             pak.sendSetMissionObjective(2, 0, "Success", Store.currentClient);
@@ -30,12 +33,23 @@ namespace hds
 
         public void processMissionList(ref byte[] packet)
         {
+            
             new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
+            PacketReader reader = new PacketReader(packet);
+            
+            UInt16 contactId = reader.readUInt16(1);
+            uint orgID = reader.readUint8();
+            // ToDo: Load the possible missions from the given contactId
+
+            /*
             byte[] contactBytes = { packet[0], packet[1] };
             UInt16 contactId = NumericalUtils.ByteArrayToUint16(contactBytes,1);
             uint orgID = packet[2];
+            */
             ServerPackets pak = new ServerPackets();
-            pak.sendMissionList(contactId, orgID, Store.currentClient);
+            
+            Store.currentClient.playerData.currentMissionList = DataLoader.getInstance().FindMissions(contactId, orgID); 
+            pak.sendMissionList(contactId, orgID, Store.currentClient.playerData.currentMissionList, Store.currentClient);
         }
 
         public void processInvitePlayerToMissionTeam(ref byte[] packet)
@@ -50,8 +64,20 @@ namespace hds
 
         public void processLoadMissionInfo(ref byte[] packet)
         {
+            PacketReader reader = new PacketReader(packet);
+            UInt16 incrementMissionRequest = reader.readUInt16(1);
+            // ToDo: we need to capture the mission index from list (which means we need to store the list in the session somewhere?)
+            UInt16 missionIndexFromList = reader.readUInt16(1);
+
+            Mission theMission = Store.currentClient.playerData.currentMissionList[missionIndexFromList];
+            
+            uint missionTime = reader.readUint8();
+            uint difficulty = reader.readUint8();
+            
+            uint unknownLastByte = reader.readUint8();
+            
             ServerPackets pak = new ServerPackets();
-            pak.sendMissionInfo(Store.currentClient);
+            pak.sendMissionInfo(theMission, Store.currentClient);
         }
 
         public void processAbortMission(ref byte[] packet)

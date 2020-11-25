@@ -31,6 +31,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <LangVersion>7</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -123,6 +124,10 @@
     <Compile Include="resources\Data\AbilityItem.cs" />
     <Compile Include="resources\Data\ClothingItem.cs" />
     <Compile Include="resources\Data\EmoteItem.cs" />
+    <Compile Include="resources\Data\Mission.cs" />
+    <Compile Include="resources\Data\MissionDialog.cs" />
+    <Compile Include="resources\Data\MissionObjective.cs" />
+    <Compile Include="resources\Data\MissionPhase.cs" />
     <Compile Include="resources\Data\NewRSIItem.cs" />
     <Compile Include="resources\Data\NPC_Singpost.cs" />
     <Compile Include="resources\Data\StaticObject.cs" />
@@ -1483,6 +1488,7 @@
     <Compile Include="world\Client\Network\SequencedMessage.cs" />
     <Compile Include="world\Client\Network\WorldPacket.cs" />
     <Compile Include="world\Client\RpcHandlers\BuddylistHandler.cs" />
+    <Compile Include="world\Client\RpcHandlers\CombatHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\FCHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\MissionHandler.cs" />
     <Compile Include="world\Client\RpcHandlers\RegionHandler.cs" />

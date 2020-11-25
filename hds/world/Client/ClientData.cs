@@ -29,6 +29,8 @@ namespace hds
 		private string missionTeam;
 		
 		public List<BuffSkill> currentBuffs;
+		public List<Mission> currentMissionList;
+		
 		private float clientSimTime;
         public long lastSimTimeUpdate = 0; // Timer
         private bool UDPSessionEstablished;
@@ -39,7 +41,6 @@ namespace hds
         // This vars needs to be refaktored / deleted (they are more for testing)
         public UInt16 currentTestRPC = 55;  // 0-127 = DONE, all 0x81XX -> done ToDo: 127-256 and 80XX(didnt found higher) Needs to be removed (hell the only way to store the current value) Start Point is : 32769 / Brek Point 1 : 32827 | Break Point 2: 33056 (need later for Subway)
         public UInt32 lastClickedObjectId = 0; // Temp for Hardline ObjectID Tracking - call upload hardline before teleporting so we know the last clicked object ID and save it (if not isset) to the Hardline list to assing it
-        public UInt16 newViewIdCounter = 7;
         public UInt16 spawnViewUpdateCounter = 1; // maybe the wording is wrong - need to change this later
         private UInt16 jumpID = 1;
         public bool isJumping = false;
@@ -58,7 +59,7 @@ namespace hds
 			
 			pss = 0x00;
 			onWorld = false;
-			setupPlayerData();
+			SetupPlayerData();
 
 		}
 
@@ -71,7 +72,7 @@ namespace hds
             return temp;
         }
 
-        public void setupPlayerData()
+        public void SetupPlayerData()
         {
             // This init buffs, current skills, missions etc.
             currentBuffs = new List<BuffSkill>();

@@ -170,9 +170,6 @@ namespace hds
             List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
             pak.SendCrewInfo(Store.currentClient, crewData, members);
             pak.sendCrewAndFactionEnableWindow(Store.currentClient);
-
-
-
         }
 
         public void processInitUDPSession(ref byte[] packetData)
@@ -259,6 +256,83 @@ namespace hds
                 packets.SendPlayerBackground(Store.currentClient, charInfo);
             }
             
+        }
+        
+        public void ProcessTargetChange(ref byte[] rpcData, WorldClient currentClient)
+        {
+            UInt16 viewId = NumericalUtils.ByteArrayToUint16(new byte[] {rpcData[0], rpcData[1]}, 1);
+            ushort spawnId = rpcData[2];
+            // ToDo: add this to the ClientData
+
+            if (viewId == 0)
+            {
+                viewId = 2;
+            }
+            currentClient.playerData.currentSelectedTargetViewId = viewId;
+            currentClient.playerData.currentSelectedTargetSpawnId = spawnId;
+            ServerPackets pak = new ServerPackets();
+            pak.sendSystemChatMessage(Store.currentClient,
+                "TARGET CHANGE For ViewID " + viewId.ToString() + " AND SPAWN ID : " + spawnId.ToString(), "MODAL");
+        }
+        
+        public void ProcessLoadAbility(ref byte[] packet)
+        {
+            // read the values from the packet
+            PacketReader reader = new PacketReader(packet);
+            UInt32 staticObjectID = reader.readUInt32(1);
+            UInt16 unloadFlag = reader.readUInt16(1);
+            UInt16 loadFlag = reader.readUInt16(1);
+            UInt16 countAbilities = reader.readUInt16(1);
+
+            int pointer = 11; // Start at index 11
+            List<UInt16> abilitySlots = new List<UInt16>();
+
+            for (int i = 1; i <= countAbilities; i++)
+            {
+                // This must be looped 
+                byte[] slotByteID = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, slotByteID, 0, 2);
+                pointer = pointer + 2;
+
+                byte[] abilityByteID = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, abilityByteID, 0, 2);
+                pointer = pointer + 4;
+
+                byte[] abilityByteLevel = new byte[2];
+                ArrayUtils.copyTo(packet, pointer, abilityByteLevel, 0, 2);
+                pointer = pointer + 3;
+
+
+                UInt16 slotID = NumericalUtils.ByteArrayToUint16(slotByteID, 1);
+                UInt16 AbilityID = NumericalUtils.ByteArrayToUint16(abilityByteID, 1);
+                UInt16 AbilityLevel = NumericalUtils.ByteArrayToUint16(abilityByteLevel, 1);
+
+                PacketContent pak = new PacketContent();
+                if (unloadFlag > 0)
+                {
+                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
+                    pak.addByteArray(abilityByteID);
+                }
+                else
+                {
+                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
+                    pak.addByteArray(abilityByteID);
+                    pak.addByteArray(abilityByteLevel);
+                    pak.addByteArray(slotByteID);
+                }
+                abilitySlots.Add(slotID);
+                Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            }
+
+
+            if (unloadFlag > 0)
+            {
+                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 0);
+            }
+            else
+            {
+                Store.dbManager.WorldDbHandler.UpdateAbilityLoadOut(abilitySlots, 1);
+            }
         }
     }
 }

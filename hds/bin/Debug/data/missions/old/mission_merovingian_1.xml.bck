@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config>
+	<data title="Welcome in Matrix" exp="500" info="100" description="Just for test">
+		<total objective="4" npc="2" detail="Mission Area: X:296 Y:5 Z:-25" />
+		
+		<objective1 description="Talk to Denise." idNpc="5" command="TALK"  dial="Nice to meet you, %. Something of very strange is coming from Mara.. Defeat Andromeda!" />
+		<objective2 description="Defeat Andromeda." idNpc="6" command="DEFEAT" dial="Kill him!" />
+		<objective3 description="Loot Andromeda." idNpc="6" command="LOOT" item="6bbb0000" dial="NONE" />
+		<objective4 description="Give RSI Mask to Denise." idNpc="5" command="GIVE" item="6bbb0000" dial="Thank you, %!" />
+		
+		<npc1 type="FRIENDLY" x="296" y="5" z="-25" idNpc="5" handle="Denise" rsi="86010058" level="60" />
+		<npc2 type="HOSTILE" x="296" y="5" z="-22" idNpc="6" handle="Andromeda" rsi="13050008" level="5" maxHP="500" />
+		
+	</data>
+</config>

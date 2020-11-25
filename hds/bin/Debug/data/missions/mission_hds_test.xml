@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<mission title="Welcome in Matrix" exp="500" info="100" description="Just for test" repZion="1" repMero="1" repMachine="1">
+	<phase>
+		<dialog type="OPERATOR" trigger="ENTER" text="Andromeda is a danger exile which needs to be eliminate to safe the matrix from a big crash." />
+		<npc type="HOSTILE" x="296" y="5" z="-22" idNpc="6" handle="Andromeda" rsi="13050008" level="5" maxHP="500" />
+		<npc type="FRIENDLY" x="296" y="5" z="-25" idNpc="5" handle="Denise" rsi="86010058" level="60" maxHP="500" />
+		<objective description="Talk to Denise." idNpc="5" command="TALK" dialog="Nice to meet you, %. Something of very strange is coming from Mara.. Defeat Andromeda!" />
+		<objective description="Defeat Andromeda." idNpc="6" command="DEFEAT" dialog="Kill him!" />
+		<objective description="Loot Andromeda." idNpc="6" command="LOOT" item="6bbb0000" dialog="NONE" />
+		<objective description="Give RSI Mask to Denise." idNpc="5" command="GIVE" item="6bbb0000" dialog="Thank you, %!" />
+	</phase>
+	
+	<phase>
+		<objective description="Searching the mainframe" gameObjectId="357" command="GET" dialog="Somewhere in this mainframe is phunky data my friend. Search it!" />
+		<gameobject goId="357" x="296" y="5" z="-25" name="MainFrame" /> 
+
+	</phase>
+	
+</mission>

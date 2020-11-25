@@ -59,38 +59,6 @@ namespace hds
             Store.currentClient.messageQueue.addObjectMessage(hyperJumpTestPak, true);
         }
 
-        public void testCloseCombat(ref byte[] packet)
-        {
-            byte[] targetViewWithSpawnId = new byte[4];
-            ArrayUtils.copy(packet, 0, targetViewWithSpawnId, 0, 4);
-            string hexString = StringUtils.bytesToString_NS(targetViewWithSpawnId);
-            string hexStringPak = StringUtils.bytesToString_NS(packet);
-            Store.currentClient.messageQueue.addObjectMessage(StringUtils.hexStringToBytes("020003010C00808400808080800100001000"), false); // Make me combat mode "on"
-
-            // The 55 View Packet
-            PacketContent ilCombatHandler = new PacketContent();
-            ilCombatHandler.addHexBytes("01000C370036CDAB0205");
-            ilCombatHandler.addByteArray(Store.currentClient.playerInstance.Position.getValue());
-            ilCombatHandler.addHexBytes("cdec4023"); // Time starts i think
-            ilCombatHandler.addHexBytes("fd0000"); // view ID fd00
-            Store.currentClient.messageQueue.addObjectMessage(ilCombatHandler.returnFinalPacket(), false);
-            Store.currentClient.FlushQueue();
-            // The other 03 Packet for combat
-            PacketContent unknownCreatePak = new PacketContent();
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("010002A700"));
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("FD00")); // ViewID from Combat Object 
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01"));
-            unknownCreatePak.addByteArray(Store.currentClient.playerInstance.Position.getValue());
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("0100000003000000"));
-            unknownCreatePak.addByteArray(targetViewWithSpawnId);
-            unknownCreatePak.addUint16(2, 1);
-            unknownCreatePak.addUint16(Store.currentClient.playerData.selfSpawnIdCounter, 1); 
-            unknownCreatePak.addByteArray(StringUtils.hexStringToBytes("01010207030000200BF5C2000020C19420B9C300000000000020C100000000070001001201000007037608E00603145200008B0B0024145200008B0B0024882300008B0B00240000000000000000000000000000000064000000640000000010001010000000020000001000000002000000000000000000000000"));
-            Store.currentClient.messageQueue.addObjectMessage(unknownCreatePak.returnFinalPacket(), false);
-            Store.currentClient.FlushQueue();
-
-        }
-
         public void testRemoveCloseCombat(ref byte[] packet)
         {
             ServerPackets serverPackets = new ServerPackets();

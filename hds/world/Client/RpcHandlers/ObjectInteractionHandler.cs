@@ -54,10 +54,6 @@ namespace hds
             WorldSocket.gameServerEntities.Add(staticWorldObject);
             UInt16 typeId = NumericalUtils.ByteArrayToUint16(staticWorldObject.type, 1);
 
-            Store.currentClient.playerData
-                    .newViewIdCounter
-                ++; // It is just for a test Later we will change this to have a List with Views and Object IDs
-
             NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
             ServerPackets packets = new ServerPackets();
             packets.sendSystemChatMessage(Store.currentClient,

@@ -30,17 +30,17 @@ namespace hds{
 					#if DEBUG
 		            Output.WriteRpcLog("CLOSE COMBAT REQUEST");
 					#endif
-		            new TestUnitHandler().testCloseCombat(ref rpcData);
+		            new CombatHandler().ProcessRequestCloseCombat(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_LEAVE_COMBAT:
-
+			        new CombatHandler().ProcessLeaveCloseCombat(ref rpcData);
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_RANGE_COMBAT:
 			        #if DEBUG
 		            Output.WriteRpcLog("RANGE COMBAT REQUEST");
 					#endif
-		            new TestUnitHandler().testCloseCombat(ref rpcData);
+		            new CombatHandler().ProcessRangeCombatRequest(ref rpcData);
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_CHAT:
@@ -65,7 +65,7 @@ namespace hds{
 					new AbilityHandler().processHyperJumpCancel(ref rpcData);
 			        break;
 		        case (int) RPCRequestHeader.CLIENT_TARGET:
-		            new PlayerHelper().processTargetChange(ref rpcData, Store.currentClient);
+		            new PlayerHandler().ProcessTargetChange(ref rpcData, Store.currentClient);
 		            break;
 			    case (int) RPCRequestHeader.CLIENT_MISSION_INVITE_PLAYER:
 				    new MissionHandler().processInvitePlayerToMissionTeam(ref rpcData);
@@ -77,7 +77,7 @@ namespace hds{
 		            new MissionHandler().processLoadMissionInfo(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_MISSION_ACCEPT:
-		            new MissionHandler().processMissionaccept(ref rpcData);
+		            new MissionHandler().ProcessMissionaccept(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_MISSION_ABORT:
 		            new MissionHandler().processAbortMission(ref rpcData);
@@ -116,10 +116,11 @@ namespace hds{
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_CHANGE_CT:
 			        // ToDo: Implement Change of CT
+			        new CombatHandler().ProcessChangeTactic(ref rpcData);
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_ABILITY_LOADER:
-		            new PlayerHelper().processLoadAbility(ref rpcData);
+		            new PlayerHandler().ProcessLoadAbility(ref rpcData);
 		            break;
 
 		        case (int) RPCRequestHeader.CLIENT_HARDLINE_EXIT_LA_CONFIRM:

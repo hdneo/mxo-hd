@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<mission title="Defeat Agent Smith" exp="500" info="100" description="Search and defeat Agent Smith." repZion="1" repMero="1" repMachine="1">
+	<phase>
+		<dialog type="OPERATOR" trigger="ENTER" text="Smith is a danger exile which needs to be eliminate to safe the matrix from a big crash." />
+		<npc type="HOSTILE" x="296" y="5" z="-22" idNpc="6" handle="Smith" rsi="4e000036" level="50" maxHP="500" />
+		<npc type="FRIENDLY" x="296" y="5" z="-25" idNpc="5" handle="Morpheus" rsi="04000556" level="60" maxHP="500" />
+		<objective description="Talk to Denise." idNpc="5" command="TALK" dialog="Nice to meet you, %. Something of very strange is coming from Mara.. Defeat Smith!" />
+		<objective description="Defeat Smith." idNpc="6" command="DEFEAT" dialog="Kill him!" />
+		<objective description="Loot Smith." idNpc="6" command="LOOT" item="6bbb0000" dialog="NONE" />
+	</phase>
+	
+	<phase>
+		<objective description="Searching the mainframe" gameObjectId="357" command="GET" dialog="Somewhere in this mainframe is phunky data my friend. Search it!" />
+		<gameobject goId="357" x="296" y="5" z="-25" name="MainFrame" /> 
+	</phase>
+	
+</mission>

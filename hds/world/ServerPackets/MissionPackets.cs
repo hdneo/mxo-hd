@@ -10,7 +10,7 @@ namespace hds
     public partial class ServerPackets 
     {
 
-        public void sendMissionList(UInt16 contactId, uint orgID, WorldClient client)
+        public void sendMissionList(UInt16 contactId, uint orgID, List<Mission> missions, WorldClient client)
         {
             /*
              * ToDo: check if mission team was created or not
@@ -21,53 +21,64 @@ namespace hds
              * Examples:
              * Neo: 18 80 95 00 00 00 00 06 00 07 00 00 01 d0 07 00 00 31 00 00 b4 c0 0c 00 28 
              * Luz: 18 80 95 00 00 00 00 05 00 01 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00
+             * Raj: 18 80 95 00 00 00 00 00 00 01 00 01 00 22 00 00 00 f3 13 00 58 a5 11 00 0a (just one mission in list "The Hunter" - PB i think)
+             * Raj: 18 80 95 00 00 00 00 00 00 01 00 01 00 34 00 00 00 15 14 00 58 a8 11 00 0a (just one mission in list "Pretty Retribution" - PB i think)
              */
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_RESPONSE_LIST,0);
-            pak.addUint32(0, 0);
+            pak.addUint32(0, 0); // Unknown UInt32
             pak.addUint16(contactId, 1);
-            pak.addUint16(1,1); // Unknown - in neo it has 1
+            pak.addUint16((ushort) missions.Count,1); // len of missions "categorys" to list
             pak.addUintShort(0);
             pak.addUintShort((ushort)orgID);
             pak.addHexBytes("000000000000000000000000"); // The big unknown part - maybe some informations about the contact
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
 
-
-            // ToDo: make it dynamic from a file or something
-            ArrayList possibleMissions = new ArrayList();
-            possibleMissions.Add("Change the Organisation");
-            possibleMissions.Add("Welcome to HDS Experimental!");
-            possibleMissions.Add("Party like '99");
+            
+            // ArrayList possibleMissions = new ArrayList();
+            // possibleMissions.Add("Change the Organisation");
+            // possibleMissions.Add("Welcome to HDS Experimental!");
+            // possibleMissions.Add("Party like '99");
 
             UInt16 i = 0;
-            foreach (string mission in possibleMissions)
+            foreach (Mission mission in missions)
             {
                 PacketContent missionListPak = new PacketContent();
                 missionListPak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_RESPONSE_NAME, 0);
                 missionListPak.addUint16(contactId, 1);
                 missionListPak.addUint16(i, 1);
-                missionListPak.addHexBytes("0f0001d00700"); // curently unknown
-                missionListPak.addSizedTerminatedString(mission);
+                missionListPak.addHexBytes("0f0001"); // curently unknown
+                missionListPak.addUint32(0,1); // ContactId or something (if zero it just takes from the org but maybe needed for special contacts - seen d0070000 (Tyndal))
+                missionListPak.addUint16(0,1); // Unknown
+                missionListPak.addSizedTerminatedString(mission.title);
                 client.messageQueue.addRpcMessage(missionListPak.returnFinalPacket());
                 i++;
             }
 
             // And finally again a resposne
             PacketContent finalResponse = new PacketContent();
-            finalResponse.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_RESPONSE_UNKNOWN, 0);
+            finalResponse.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_LIST_END, 0);
             finalResponse.addUint16(contactId, 1);
             client.messageQueue.addRpcMessage(finalResponse.returnFinalPacket());
             
         }
 
-        public void sendMissionInfo(WorldClient client)
+        public void sendMissionInfo(Mission mission, WorldClient client)
         {
             // Test a MissionList 
             PacketContent pak = new PacketContent();
             pak.addUint16((UInt16)RPCResponseHeaders.SERVER_MISSION_INFO_RESPONSE, 0);
-            pak.addHexBytes("0000000000002f000100000002a29f7e46a29f7e46000000000000000000d0060000310000b4c00c0028");
+            pak.addHexBytes("0000000000002f000100000002");
+
+            // ToDo: calculate distance for the first and last location 
+            float firstLocationDistance = 120 * 100;
+            float maxLocationDistance = 230 * 100;
+            
+            pak.addFloat(firstLocationDistance,1);
+            pak.addFloat(maxLocationDistance,1);
+            pak.addHexBytes("000000000000000000d0060000310000b4c00c0028");
             pak.addHexBytes("42000001000002000D001300020002030200FFFFFDFF");
-            pak.addSizedTerminatedString("Eliminate Agent Smith");
+            pak.addSizedTerminatedString(mission.description);
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             client.FlushQueue();
         }
@@ -134,7 +145,7 @@ namespace hds
             pak.addUint16(6, 1);
             pak.addUintShort(state);
             pak.addSizedTerminatedString(missionObjective);
-            Output.WriteRpcLog("MISSION PAK: " + StringUtils.bytesToString(pak.returnFinalPacket()));
+            
             // Now send the message to the player queue
             client.messageQueue.addRpcMessage(pak.returnFinalPacket());
             
