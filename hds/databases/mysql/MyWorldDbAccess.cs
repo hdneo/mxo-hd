@@ -968,6 +968,32 @@ namespace hds.databases{
 			ExecuteNonResultQuery(sqlQuery);
         }
 
+	    public UInt16 GetCurrentAbilityLevel(Int32 abilityGoId, UInt32 charId)
+	    {
+		    OpenConnection();
+
+		    string sqlQuery = "SELECT level FROM char_abilities WHERE char_id = '" + charId + "' AND ability_id = '" + abilityGoId + "' LIMIT 1";
+		    queryExecuter = conn.CreateCommand();
+		    queryExecuter.CommandText = sqlQuery;
+		    dr = queryExecuter.ExecuteReader();
+
+		    UInt16 level = 0;
+		    while (dr.Read()){
+			    level = (UInt16)dr.GetInt16(0);
+		    }
+		    dr.Close();
+		    CloseConnection();
+		    return level;
+	    }
+
+	    public ushort UpgradeAbilityLevel(Int32 abilityGoID, uint level)
+	    {
+		    UInt32 charID = Store.currentClient.playerData.getCharID();
+		    UInt16 currentLevel = GetCurrentAbilityLevel(abilityGoID, charID);
+		    ExecuteNonResultQuery("UPDATE char_abilities SET level = " + currentLevel + level + " WHERE char_id=" + charID + " AND ability_id=" + abilityGoID + " LIMIT 1");
+		    return (ushort) (currentLevel + level);
+	    }
+
         public void SaveExperience(WorldClient client, long exp)
         {
 	        ExecuteNonResultQuery("UPDATE characters SET exp =" + exp + " WHERE charId= " + client.playerData.getCharID().ToString() + " LIMIT 1");

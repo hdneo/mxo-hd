@@ -13,7 +13,7 @@ namespace hds
         {
 
             PacketReader packetReader = new PacketReader(packet);
-            UInt32 factionId = packetReader.readUInt32(1);
+            UInt32 factionId = packetReader.ReadUInt32(1);
 
             string factionName = Store.dbManager.WorldDbHandler.GetFactionNameById(factionId);
             
@@ -32,12 +32,12 @@ namespace hds
             // ToDO: add it to the tempCrews and check if name is reserved on DB (and check if double names are possible)
             // ToDo: Questions 1. should we persist it directly to reserve crewname in the DB ? maybe its better
             PacketReader pakRead = new PacketReader(rpcData);
-            pakRead.incrementOffsetByValue(1);
+            pakRead.IncrementOffsetByValue(1);
 
-            UInt16 offsetHandle = pakRead.readUInt16(1);
-            UInt16 offsetCrewName = pakRead.readUInt16(1);
-            string crewName = pakRead.readSizedZeroTerminatedString().Trim();
-            string playerHandle = pakRead.readSizedZeroTerminatedString().Trim();
+            UInt16 offsetHandle = pakRead.ReadUInt16(1);
+            UInt16 offsetCrewName = pakRead.ReadUInt16(1);
+            string crewName = pakRead.ReadSizedZeroTerminatedString().Trim();
+            string playerHandle = pakRead.ReadSizedZeroTerminatedString().Trim();
             string crewCaptainHandle =
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
 
@@ -71,10 +71,10 @@ namespace hds
         {
             PacketReader reader = new PacketReader(packet);
             // We read the offset but we would not really need it (as we just read a sized terminated string)
-            UInt16 offsetHandleToInvite = reader.readUInt16(1);
-            UInt16 offsetFactionName = reader.readUInt16(1);
-            string factionName = reader.readSizedZeroTerminatedString();
-            string handleToInvite = reader.readSizedZeroTerminatedString();
+            UInt16 offsetHandleToInvite = reader.ReadUInt16(1);
+            UInt16 offsetFactionName = reader.ReadUInt16(1);
+            string factionName = reader.ReadSizedZeroTerminatedString();
+            string handleToInvite = reader.ReadSizedZeroTerminatedString();
 
             string masterHandle =
                 StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
@@ -93,7 +93,7 @@ namespace hds
                     crewMaster.factionId = factionId;
                     crewSecondCaptaint.factionId = factionId;
                     // Update Faction Id
-                    var crewMembers = from crewMasterClients in WorldSocket.Clients
+                    var crewMembers = from crewMasterClients in WorldServer.Clients
                         where NumericalUtils.ByteArrayToUint32(crewMasterClients.Value.playerInstance.CrewID.getValue(),
                                   1) ==
                               crewMaster.crewId ||
@@ -119,14 +119,14 @@ namespace hds
 
                         PacketContent viewStateData = new PacketContent();
                         PacketContent myselfStateData = new PacketContent();
-                        viewStateData.addByteArray(client.Value.playerInstance.GetUpdateAttributes(updateAttributes));
-                        myselfStateData.addByteArray(client.Value.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+                        viewStateData.AddByteArray(client.Value.playerInstance.GetUpdateAttributes(updateAttributes));
+                        myselfStateData.AddByteArray(client.Value.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
                         
                         // OtherView
-                        Store.world.SendViewPacketToAllPlayers(viewStateData.returnFinalPacket(), client.Value.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(client.Value.playerInstance.GetGoid(),1), client.Value.playerData.getEntityId());
+                        Store.world.SendViewPacketToAllPlayers(viewStateData.ReturnFinalPacket(), client.Value.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(client.Value.playerInstance.GetGoid(),1), client.Value.playerData.getEntityId());
                        
                         // SelfView
-                        client.Value.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+                        client.Value.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
                 else
@@ -144,7 +144,7 @@ namespace hds
         public void ProcessLeaveGroup(ref byte[] rpcData)
         {
             PacketReader reader = new PacketReader(rpcData);
-            uint groupType = reader.readUint8();
+            uint groupType = reader.ReadUint8();
 
             ServerPackets pak = new ServerPackets();
             // ToDo: when we leave we don't sent it to ourself (but maybe to the crew?)
@@ -176,9 +176,9 @@ namespace hds
         public void ProcessDepositMoney(ref byte[] rpcData)
         {
             PacketReader reader = new PacketReader(rpcData);
-            uint type = reader.readUint8();
-            UInt32 moneyToDepositOrTake = reader.readUInt32(1);
-            uint IsGivingMoney = reader.readUint8();
+            uint type = reader.ReadUint8();
+            UInt32 moneyToDepositOrTake = reader.ReadUInt32(1);
+            uint IsGivingMoney = reader.ReadUint8();
 
             ServerPackets packet = new ServerPackets();
             switch (type)

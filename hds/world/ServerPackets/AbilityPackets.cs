@@ -6,21 +6,31 @@ namespace hds
 {
     public partial class ServerPackets
     {
+        public void SendUpgradeAbilityLevel(UInt16 ability, UInt16 currentLevel)
+        {
+            PacketContent pak = new PacketContent();
+            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_UPGRADE_ABILITY, 0);
+            pak.AddUint16(ability, 1);
+            pak.AddUint16(currentLevel, 1);
+            pak.AddUint32(0, 1); // Needs more Research - found only 4 bytes zeros 
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+        }
+
         // Place Methods here for Skills
         public void SendCastAbilityBar(UInt16 abilityID, float timeProcessing)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_CAST_BAR_ABILITY, 0);
-            pak.addUint16(abilityID, 1);
-            pak.addHexBytes("00000000000000000000");
-            pak.addFloat(timeProcessing, 1);
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_CAST_BAR_ABILITY, 0);
+            pak.AddUint16(abilityID, 1);
+            pak.AddHexBytes("00000000000000000000");
+            pak.AddFloat(timeProcessing, 1);
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendCastAbilityOnEntityId(UInt16 viewId, UInt32 animationId, UInt16 value)
         {
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
-            
+
             if (viewId == 0)
             {
                 viewId = 2;
@@ -33,7 +43,7 @@ namespace hds
             }
 
             PacketContent myselfStateData = new PacketContent();
-            myselfStateData.addUint16(2, 1);
+            myselfStateData.AddUint16(2, 1);
             PacketContent viewStateOtherData = new PacketContent();
 
             switch (theGoID)
@@ -41,11 +51,11 @@ namespace hds
                 case 599:
 
                     // Its more a demo - we "one hit" the mob currently so we must update this 
-                    lock (WorldSocket.mobs.SyncRoot)
+                    lock (WorldServer.mobs.SyncRoot)
                     {
-                        for (int i = 0; i < WorldSocket.mobs.Count; i++)
+                        for (int i = 0; i < WorldServer.mobs.Count; i++)
                         {
-                            Mob thismob = (Mob) WorldSocket.mobs[i];
+                            Mob thismob = (Mob) WorldServer.mobs[i];
                             if (theView != null && thismob.getEntityId() == theView.entityId)
                             {
                                 thismob.HitEnemyWithDamage(value, animationId);
@@ -66,7 +76,7 @@ namespace hds
                                     thismob.setIsLootable(true);
                                 }
 
-                                WorldSocket.mobs[i] = thismob;
+                                WorldServer.mobs[i] = thismob;
                             }
                         }
                     }
@@ -83,37 +93,45 @@ namespace hds
 
                     effectCounter = (uint) Store.currentClient.playerInstance.EffectCounter.getValue()[0] + 1;
                     Store.currentClient.playerInstance.EffectCounter.setValue(effectCounter);
-                    
+
                     updateAttributes.Add(Store.currentClient.playerInstance.EffectID);
                     updateAttributes.Add(Store.currentClient.playerInstance.EffectCounter);
 
-                    viewStateOtherData.addByteArray(
+                    viewStateOtherData.AddByteArray(
                         Store.currentClient.playerInstance.GetUpdateAttributes(updateAttributes));
-                    myselfStateData.addByteArray(
-                        Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
+                    myselfStateData.AddByteArray(
+                        Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, false));
 
-                    String hexViewStateOther = StringUtils.bytesToString_NS(viewStateOtherData.returnFinalPacket());
-                    String hexMyselfStateData = StringUtils.bytesToString_NS(myselfStateData.returnFinalPacket());
-                    
+                    String hexViewStateOther = StringUtils.bytesToString_NS(viewStateOtherData.ReturnFinalPacket());
+                    String hexMyselfStateData = StringUtils.bytesToString_NS(myselfStateData.ReturnFinalPacket());
+
                     if (viewId == 2 || viewId == 0)
                     {
-                        Output.WriteDebugLog("View ID Ability SelfState for View ID 2 from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
-                        Output.WriteDebugLog("Update Ability FX on OtherState Views from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
-                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
-                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.returnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+                        Output.WriteDebugLog("View ID Ability SelfState for View ID 2 from " +
+                                             Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Output.WriteDebugLog("Update Ability FX on OtherState Views from " +
+                                             Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
+                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.ReturnFinalPacket(),
+                            Store.currentClient.playerData.getCharID(),
+                            NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1),
+                            Store.currentClient.playerData.getEntityId());
                     }
                     else
                     {
                         // This should show the FX only on otherViews but on the castTarget it should be shown the SelfViewUpdate
                         // Send selfView Packet to the Target
-                        Output.WriteDebugLog("View ID Ability SelfState for View ID " + viewId + " from " + Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
+                        Output.WriteDebugLog("View ID Ability SelfState for View ID " + viewId + " from " +
+                                             Store.currentClient.playerData.getCharID() + " : " + hexMyselfStateData);
                         Store.world.SendSelfViewUpdateToTarget(myselfStateData, viewId, Store.currentClient);
-                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.returnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+                        Store.world.SendViewPacketToAllPlayers(viewStateOtherData.ReturnFinalPacket(),
+                            Store.currentClient.playerData.getCharID(),
+                            NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1),
+                            Store.currentClient.playerData.getEntityId());
                     }
 
                     break;
             }
-            
         }
 
         public void SendHyperSpeed()
@@ -121,58 +139,101 @@ namespace hds
             byte[] updateCount =
                 NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addHexBytes("0288058c1e6666F63F80903200b056060028");
-            pak.addByteArray(updateCount);
-            pak.addHexBytes("0200000000");
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(2, 1);
+            pak.AddHexBytes("0288058c1e6666F63F80903200b056060028");
+            pak.AddByteArray(updateCount);
+            pak.AddHexBytes("0200000000");
+            Store.currentClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             Store.currentClient.FlushQueue();
         }
 
-        public void sendHyperJumpID(UInt32 possibleJumpID)
+        public void SendHyperJumpID(UInt32 possibleJumpID)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_HYPERJUMP_ID, 0);
-            pak.addUint32(possibleJumpID, 1);
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_HYPERJUMP_ID, 0);
+            pak.AddUint32(possibleJumpID, 1);
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos,
             float jumpHeight, uint endtime, ushort stepJumpId, uint maybeTimeBasedValue, bool isLastStep = false)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addByte(0x03);
-            pak.addByte(0x0d);
-            pak.addByte(0x08);
-            pak.addByte(0x00);
-            pak.addUintShort(Store.currentClient.playerData.getJumpID());
-            pak.addFloatLtVector3f(currentPos.x, currentPos.y, currentPos.z);
-            pak.addUintShort(stepJumpId);
-            pak.addUint32(maybeTimeBasedValue, 1);
+            pak.AddUint16(2, 1);
+            pak.AddByte(0x03);
+            pak.AddByte(0x0d);
+            pak.AddByte(0x08);
+            pak.AddByte(0x00);
+            pak.AddUShort(Store.currentClient.playerData.getJumpID());
+            pak.AddFloatLtVector3f(currentPos.x, currentPos.y, currentPos.z);
+            pak.AddUShort(stepJumpId);
+            pak.AddUint32(maybeTimeBasedValue, 1);
             // ToDo: Insert 2 missing bytes (or 4 as the next 2 bytes MAYBE wrong)
-            pak.addByte(0x8a);
-            pak.addByte(0x04);
-            pak.addByte(0x80);
-            pak.addByte(0x88);
-            pak.addByteArray(new byte[] {0x00, 0x00, 0x00, 0x00, 0xbc});
-            pak.addFloat(jumpHeight, 1);
-            pak.addUint16(4, 1);
-            pak.addUint32(endtime, 1);
-            pak.addDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
-            pak.addByteArray(new byte[] {0x80, 0x81, 0x00, 0x02});
+            pak.AddByte(0x8a);
+            pak.AddByte(0x04);
+            pak.AddByte(0x80);
+            pak.AddByte(0x88);
+            pak.AddByteArray(new byte[] {0x00, 0x00, 0x00, 0x00, 0xbc});
+            pak.AddFloat(jumpHeight, 1);
+            pak.AddUint16(4, 1);
+            pak.AddUint32(endtime, 1);
+            pak.AddDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
+            pak.AddByteArray(new byte[] {0x80, 0x81, 0x00, 0x02});
             if (isLastStep)
             {
-                pak.addByte(0x00);
+                pak.AddByte(0x00);
                 Store.currentClient.playerData.isJumping = false;
             }
             else
             {
-                pak.addByte(0x01);
+                pak.AddByte(0x01);
             }
 
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            Store.currentClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             Store.currentClient.FlushQueue();
+        }
+
+        public void SendHyperJumpWithOneStep(float xDestPos,
+            float yDestPos,
+            float zDestPos, UInt32 peakHeight, UInt32 endTime)
+        {
+            
+            List<Attribute> updateAttributes = new List<Attribute>();
+            Store.currentClient.playerInstance.JumpPeakHeight.enable();
+            Store.currentClient.playerInstance.JumpFlags.enable();
+            Store.currentClient.playerInstance.JumpDestination.enable();
+            Store.currentClient.playerInstance.JumpEndTime.enable();
+            Store.currentClient.playerInstance.InnerStrengthAvailable.enable();
+
+            Store.currentClient.playerInstance.JumpPeakHeight.setValue(peakHeight);
+            Store.currentClient.playerInstance.JumpFlags.setValue(4);
+            Store.currentClient.playerInstance.JumpEndTime.setValue(endTime);
+            Store.currentClient.playerInstance.InnerStrengthAvailable.setValue(284);
+            Store.currentClient.playerInstance.JumpDestination.setValue(NumericalUtils.doublesToLtVector3d(xDestPos, yDestPos, zDestPos));
+            
+            updateAttributes.Add(Store.currentClient.playerInstance.JumpPeakHeight);
+            updateAttributes.Add(Store.currentClient.playerInstance.JumpFlags);
+            updateAttributes.Add(Store.currentClient.playerInstance.JumpDestination);
+            updateAttributes.Add(Store.currentClient.playerInstance.JumpEndTime);
+            updateAttributes.Add(Store.currentClient.playerInstance.InnerStrengthAvailable);
+
+            PacketContent myselfStateData = new PacketContent();
+            myselfStateData.AddByte(0x03);
+            myselfStateData.AddByte(0x01);
+            myselfStateData.AddUint16(8,1);
+            myselfStateData.AddByteArray(
+                Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, false));
+
+            Store.world.SendSelfViewUpdate(myselfStateData, 2, Store.currentClient, true);
+            
+            // PacketContent pak = new PacketContent();
+            // pak.AddUint16(2, 1);
+            // pak.AddByteArray(new byte[] {0x03, 0x01, 0x08, 0x00, 0x80, 0x80, 0xbc});
+            // pak.AddUint32(peakHeight, 1);
+            // pak.AddByteArray(new byte[] {0x04, 0x00, 0x33, 0x4a, 0x31, 0x05});
+            // pak.AddDoubleLtVector3d(xDestPos, yDestPos, zDestPos);
+            // pak.AddByteArray(new byte[] {0x10, 0x1c, 0x01});
+            // Store.currentClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), true);
         }
 
         public void SendHyperJumpUpdate(float xFromPos, float yFromPos, float zFromPos, float xDestPos, float yDestPos,
@@ -180,26 +241,26 @@ namespace hds
         {
             // ToDo: make real repsonse 
             PacketContent pak = new PacketContent();
-            pak.addByte(0x02);
-            pak.addByte(0x00);
-            pak.addByte(0x03);
-            pak.addByte(0x09);
-            pak.addByte(0x08);
-            pak.addByte(0x00);
-            pak.addFloatLtVector3f(xFromPos, yFromPos, zFromPos);
-            pak.addUint32(startTime, 1);
-            pak.addByte(0x80);
-            pak.addByte(0x80);
-            pak.addByte(0xb8);
-            pak.addByte(0x14); // if 0xb8
-            pak.addByte(0x00); // if 0xb8
-            pak.addUint32(endTime, 1);
-            pak.addDoubleLtVector3d((double) xDestPos, (double) yDestPos, (double) zDestPos);
-            pak.addByteArray(new byte[] {0x10, 0xff, 0xff});
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), true);
+            pak.AddByte(0x02);
+            pak.AddByte(0x00);
+            pak.AddByte(0x03);
+            pak.AddByte(0x09);
+            pak.AddByte(0x08);
+            pak.AddByte(0x00);
+            pak.AddFloatLtVector3f(xFromPos, yFromPos, zFromPos);
+            pak.AddUint32(startTime, 1);
+            pak.AddByte(0x80);
+            pak.AddByte(0x80);
+            pak.AddByte(0xb8);
+            pak.AddByte(0x14); // if 0xb8
+            pak.AddByte(0x00); // if 0xb8
+            pak.AddUint32(endTime, 1);
+            pak.AddDoubleLtVector3d((double) xDestPos, (double) yDestPos, (double) zDestPos);
+            pak.AddByteArray(new byte[] {0x10, 0xff, 0xff});
+            pak.AddByte(0x00);
+            pak.AddByte(0x00);
+            pak.AddByte(0x00);
+            Store.currentClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), true);
         }
 
 
@@ -208,11 +269,11 @@ namespace hds
             ClientView theView = Store.currentClient.viewMan.getViewById(viewId);
 
             PacketContent pak = new PacketContent();
-            pak.addUint16(viewId, 1);
-            pak.addByteArray(new byte[] {0x02, 0x80, 0x80, 0x80, 0x90, 0xed, 0x00, 0x30});
-            pak.addUint32(animId, 0);
-            pak.addUintShort(Store.currentClient.playerData.assignSpawnIdCounter());
-            Store.currentClient.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(viewId, 1);
+            pak.AddByteArray(new byte[] {0x02, 0x80, 0x80, 0x80, 0x90, 0xed, 0x00, 0x30});
+            pak.AddUint32(animId, 0);
+            pak.AddUShort(Store.currentClient.playerData.assignSpawnIdCounter());
+            Store.currentClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
         }
 
         public void sendAbilityBuffToEntity()

@@ -23,12 +23,12 @@ namespace hds
             new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
             
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);
-            pak.sendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
-            pak.sendSetMissionObjective(2, 0, "Success", Store.currentClient);
-            pak.sendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
-            pak.sendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
-            pak.sendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
-            pak.sendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
+            pak.SendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
+            pak.SendSetMissionObjective(2, 0, "Success", Store.currentClient);
+            pak.SendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
+            pak.SendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
+            pak.SendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
+            pak.SendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
         }
 
         public void processMissionList(ref byte[] packet)
@@ -37,8 +37,8 @@ namespace hds
             new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
             PacketReader reader = new PacketReader(packet);
             
-            UInt16 contactId = reader.readUInt16(1);
-            uint orgID = reader.readUint8();
+            UInt16 contactId = reader.ReadUInt16(1);
+            uint orgID = reader.ReadUint8();
             // ToDo: Load the possible missions from the given contactId
 
             /*
@@ -56,25 +56,25 @@ namespace hds
         {
             // Read the Data
             PacketReader reader = new PacketReader(packet);
-            UInt32 unknownUint = reader.readUInt32(1); // Maybe its just an offset of uint8 - we dont care and know lol
-            reader.incrementOffsetByValue(1);
-            String handleToInvite = reader.readSizedZeroTerminatedString();
+            UInt32 unknownUint = reader.ReadUInt32(1); // Maybe its just an offset of uint8 - we dont care and know lol
+            reader.IncrementOffsetByValue(1);
+            String handleToInvite = reader.ReadSizedZeroTerminatedString();
             // ToDo: implement the right response for the player who get the invite
         }
 
         public void processLoadMissionInfo(ref byte[] packet)
         {
             PacketReader reader = new PacketReader(packet);
-            UInt16 incrementMissionRequest = reader.readUInt16(1);
+            UInt16 incrementMissionRequest = reader.ReadUInt16(1);
             // ToDo: we need to capture the mission index from list (which means we need to store the list in the session somewhere?)
-            UInt16 missionIndexFromList = reader.readUInt16(1);
+            UInt16 missionIndexFromList = reader.ReadUInt16(1);
 
             Mission theMission = Store.currentClient.playerData.currentMissionList[missionIndexFromList];
             
-            uint missionTime = reader.readUint8();
-            uint difficulty = reader.readUint8();
+            uint missionTime = reader.ReadUint8();
+            uint difficulty = reader.ReadUint8();
             
-            uint unknownLastByte = reader.readUint8();
+            uint unknownLastByte = reader.ReadUint8();
             
             ServerPackets pak = new ServerPackets();
             pak.sendMissionInfo(theMission, Store.currentClient);
@@ -83,7 +83,7 @@ namespace hds
         public void processAbortMission(ref byte[] packet)
         {
             ServerPackets pak = new ServerPackets();
-            pak.sendMissionAbort(Store.currentClient);
+            pak.SendMissionAbort(Store.currentClient);
         }
     }
 }

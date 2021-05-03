@@ -1,499 +1,483 @@
-﻿using System;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.Design;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Net;
-using System.IO;
-using System.Security.Cryptography;
+using hds.resources.gameobjects;
+using hds.shared;
 
-using ManyMonkeys.Cryptography;
-using System.Configuration;
-
-
-namespace servertest
+namespace hds
 {
-    class worldserver
+    
+    public class WorldServer
     {
-        /*
+
         private IPEndPoint udplistener;
         private Thread listenThread;
-        public int serverport;
-        int awake = 0;
-        Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        utils utilitys = new utils();
-        cipherman crypto = new cipherman();
-        // later this should be in the client class
-        uint cseq = 0;
-        uint sseq = 0;
-        uint pss = 0;
-        Int16 messagecounter = 0;
-        public PacketBuilder packet;
-        public Logging logger;
+        private int serverport;
+        private bool mainThreadWorking;    
+        private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            
+        public const int SIO_UDP_CONNRESET = -1744830452;
+
+        public static Dictionary<string, WorldClient> Clients { get; set; }
+
+        // Collection to store the spawned npcs 
+        public static ArrayList mobs = ArrayList.Synchronized(new ArrayList());
+        public static ArrayList subways = ArrayList.Synchronized(new ArrayList());
+        public static ArrayList missionTeams = ArrayList.Synchronized(new ArrayList());
+        public static UInt64 entityIdCounter = 1;
+        public static ArrayList gameServerEntities = ArrayList.Synchronized(new ArrayList()); // should hold all GameObject Entities where a view can be created (static, dynamic etc.)
+        private byte[] buffer;
         
+        public ObjectManager objMan { get; set; }
 
-        public worldserver(){
-            // Startup our Server Entities
-            AppSettingsReader worldConfig = new AppSettingsReader();
-            serverport = (int)worldConfig.GetValue("WorldServerPort", typeof(int));
-            this.startWorldServer();
-            packet = new PacketBuilder(messagecounter);
-            logger = new Logging();
-            
+
+        public WorldServer()
+        {
+
+            Clients = new Dictionary<string, WorldClient>();
+            objMan = new ObjectManager();
+
+            listenThread = new Thread(ListenForAllClients);
+            mainThreadWorking = true;
+            Output.WriteLine("[World Server] Set and ready at UDP port 10000");
+        }
+
+        public void StartServer()
+        {
+            listenThread.Start();
+            mainThreadWorking = true;
+        }
+
+        public void StopServer()
+        {
+            mainThreadWorking = false;
         }
         
-        public void startWorldServer(){
-           
-            udplistener = new IPEndPoint(IPAddress.Any, serverport);
-            this.listenThread = new Thread(new ThreadStart(ListenForAllClients));
-            this.listenThread.Start();
-            System.Console.WriteLine("[World Server] Started at Port "+serverport);
-        }
-
-        public void handleInput(object remoteobject)
+        
+        private void finalReceiveFrom(IAsyncResult iar)
         {
-            while (true)
-            {
-                EndPoint remote = remoteobject as EndPoint;
-                string message = Console.ReadLine();
-                byte[] response = { };
-                if (message.Contains("sendsub:") && message.EndsWith(";"))
-                {
-                    // strip the hexpacket, we start imediately after "send:" and cut len - 6 cause to strip the ";"
-                    string hexpacket = message.Substring(8, message.Length - 9);
-
-                    hexpacket = hexpacket.Trim();
-                    hexpacket = hexpacket.Replace(" ", "");
-
-                    Console.WriteLine("user want to send :" + hexpacket);
-                    packet.addMessage(utils.ToByteArray(hexpacket));
-                    response = packet.finishReliable();
-                    sendCrypted(response, remote);
-                    packet.resetPackets();
-                    Console.WriteLine("Send Sub ok");
-                }
-
-                if (message.Contains("send:") && message.EndsWith(";"))
-                {
-                    // for other packets than subpackets
-                    string hexpacket = message.Substring(5, message.Length - 6);
-                    hexpacket.Replace(" ", "");
-                    sendCrypted(response, remote);
-                    Console.WriteLine("Send Packet ok");
-                }
-            }
-        }
-
-        private void ListenForAllClients()
-        {
-
-            socket.Bind(this.udplistener);
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-            EndPoint Remote = (EndPoint)(sender);
             
+            Socket recvSocket = (Socket)iar.AsyncState;
+            EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
+            
+            int msgLen = 0;
 
-            Thread readlinethread = new Thread(new ParameterizedThreadStart(handleInput));
-           
-            readlinethread.Start(Remote);
-
-            while (true)
+            try
             {
-                // check if an input is done
-                //string stringInput = Console.ReadLine();
+                msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
+                byte[] finalMessage = new byte[msgLen];
+                ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
 
-                byte[] message = new byte[4096];
-                // Debug, show received packet in hex
-
-
-
-                int receivedDataLenght = socket.ReceiveFrom(message, ref Remote);
-
-                byte[] finalMessage = new byte[receivedDataLenght];
-
-                for (int i = 0; i < receivedDataLenght; i++)
+                // TODO CLIENT CHECK AND HANDLING
+                lock (Clients)
                 {
-                    finalMessage[i] = message[i];
-                }
-
-                if (receivedDataLenght > 0)
-                {
-                    Console.WriteLine("Datasize is :" + receivedDataLenght);
-                }
-
-
-                processPacket(finalMessage, Remote);
-                //socket.SendTo(message, receivedDataLenght, SocketFlags.None, Remote);
-
-
-            }
-        }
-
-        private void OnReceive(IAsyncResult ar)
-        {
-            IPEndPoint ipeSender = new IPEndPoint(IPAddress.Any, 0);
-            EndPoint epSender = (EndPoint)ipeSender;
-            socket.EndReceiveFrom(ar, ref epSender);
-
-
-        }
-
-        public void initWorldResponse(EndPoint remote)
-        {
-            // Here we send the Response 
-            byte[] response = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05 };
-
-            int i = 1;
-            // Send the initial udp session packets 5 times
-            while (i <= 5)
-            {
-
-                socket.SendTo(response, remote);
-                Console.WriteLine("[Debug World] Send initial packet "+i);
-                i++;
-            }
-            System.Threading.Thread.Sleep(1000);
-            // And now init the client with 2 encrypted packets
-            packet.resetPackets();
-
-            packet.addMessage(utils.ToByteArray("060E00010000007763104901440034007265736F757263652F776F726C64732F66696E616C5F776F726C642F736C756D735F62617272656E735F66756C6C2E6D657472002B0048616C6C6F7765656E5F4576656E742C57696E7465723348616C6C6F7765656E466C794579655453454300"));
-            packet.addMessage(utils.ToByteArray("80E5E7CBC01200000000"));
-            packet.addMessage(utils.ToByteArray("80E400286BEE00000000"));
-            packet.addMessage(utils.ToByteArray("80B24E0008000802"));
-            packet.addMessage(utils.ToByteArray("80B252000C000802"));
-            packet.addMessage(utils.ToByteArray("80B2540006000802"));
-            packet.addMessage(utils.ToByteArray("80B24F000A000802"));
-            packet.addMessage(utils.ToByteArray("80B2510008000802"));
-            packet.addMessage(utils.ToByteArray("80BC1500020000F70300000802000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500030000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500040000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500050000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500060000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500070000F70300000000000000000000000000"));
-
-            packet.addMessage(utils.ToByteArray("47000004010000000000000000000000000000001A0006000000010000000001010000000000800000000000000000"));
-            packet.addMessage(utils.ToByteArray("2E0700000000000000000000005900002E00000000000000000000000000000000000000"));
-
-            response = packet.finishReliable();   
-            sendCrypted(response, remote);
-
-            
-            // 2. encrypted packets(Flash Traffic URL)
-            // first lets reset all packet values in the packetbuilder object
-            packet.resetPackets();
-            
-            Array.Clear(response, 0, response.Length);
-            packet.addMessage(utils.ToByteArray("808628A9020000000000000000000000000000000000000000210000000000230000000000"));
-            packet.addMessage(utils.ToByteArray("81A900000700053F00687474703A2F2F7468656D61747269786F6E6C696E652E73746174696F6E2E736F6E792E636F6D2F70726F63657373466C617368547261666669632E766D00"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-            pss = 1;
-            packet.addMessage(utils.ToByteArray("060E00010000007763104901440034007265736F757263652F776F726C64732F66696E616C5F776F726C642F736C756D735F62617272656E735F66756C6C2E6D657472002B0048616C6C6F7765656E5F4576656E742C57696E7465723348616C6C6F7765656E466C794579655453454300"));
-            //packet.addMessage(utils.ToByteArray("80E5E7CBC01200000000"));
-            //packet.addMessage(utils.ToByteArray("80E400286BEE00000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-        }
-
-        public void initPlayerToGame(EndPoint remote)
-        {
-            pss = 1;
-            // first ack the packet
-            Ack(remote);
-            // now lets response 
-            byte[] response = { };
-
-            packet.actioncounter = 0;
-            packet.addMessage(utils.ToByteArray("060E00010000007763104901440034007265736F757263652F776F726C64732F66696E616C5F776F726C642F736C756D735F62617272656E735F66756C6C2E6D657472002B0048616C6C6F7765656E5F4576656E742C57696E7465723348616C6C6F7765656E466C794579655453454300"));
-            packet.addMessage(utils.ToByteArray("80E50000000000000000"));
-            packet.addMessage(utils.ToByteArray("80E40000000000000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-            // Second Packet
-            packet.addMessage(utils.ToByteArray("80B24E0008000802"));
-            packet.addMessage(utils.ToByteArray("80B252000C000802"));
-            packet.addMessage(utils.ToByteArray("80B2540006000802"));
-            packet.addMessage(utils.ToByteArray("80B24F000A000802"));
-            packet.addMessage(utils.ToByteArray("80B2510008000802"));
-            packet.addMessage(utils.ToByteArray("80BC1500020000F70300000802000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500030000F70300000702EC0000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500040000F70300005004000000000000000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-        }
-
-        public void initPlayerToWorld(EndPoint remote)
-        {
-            byte[] response = { };
-            // Initial Packets
-            pss = 1;
-            packet.addMessage(utils.ToByteArray("80B24E0008000802"));
-            packet.addMessage(utils.ToByteArray("80B252000C000802"));
-            packet.addMessage(utils.ToByteArray("80B2540006000802"));
-            packet.addMessage(utils.ToByteArray("80B24F000A000802"));
-            packet.addMessage(utils.ToByteArray("80B2510008000802"));
-            packet.addMessage(utils.ToByteArray("80BC1500020000F70300000802000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500030000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500040000F70300005004000000000000000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-            // Spawn Packet
-            pss = 15;
-            byte[] spawnPacket = utils.ToByteArray("020301000C0C00A5CDAB108846697368626F726E650000000000000000000000000000000000000000000000904C617572656E7A000000000000000000000000000000000000000000000000008088280A84F700C44D6F72706865757A7A7A00000000000000000000000000000000000000000000280AE90010000028A902002010200208C0000160002A40800000F7009900000000C0D8D1400000000000F07E40000000000097BD4032228088070C010010000002000000000401000B011680BC1500050000F7030000F403000000000000000000");
-            sendCrypted(spawnPacket, remote);
-
-            // Again some Action / GUI things 
-            packet.addMessage(utils.ToByteArray("80BC1500060000F70300000000000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BC1500070000F703000052040F0000000000000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-            // PVP max safe
-            pss = 127;
-
-            response = utils.ToByteArray("020301000C180A2ECDAB0101010000000300000000");
-            sendCrypted(response, remote);
-
-            packet.addMessage(utils.ToByteArray("80BC15001A000011000000F303000000000000000000"));
-            packet.addMessage(utils.ToByteArray("80BD051100000000000001"));
-            packet.addMessage(utils.ToByteArray("3A050011000A0050765053657276657200040006000000"));
-            packet.addMessage(utils.ToByteArray("3A0500170010005076504D6178536166654C6576656C0004000F000000"));
-            packet.addMessage(utils.ToByteArray("3A050014000D0057525F52657A4576656E7473002B0048616C6C6F7765656E5F4576656E742C57696E7465723348616C6C6F7765656E466C794579655453454300"));
-            packet.addMessage(utils.ToByteArray("3A0500190012004576656E74536C6F74315F456666656374000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-            response = utils.ToByteArray("02030100022400030001CF073B0005002103000000640064009600960000E0124600809343006086C60000");
-            sendCrypted(response, remote);
-
-            // Event and sky
-            packet.addMessage(utils.ToByteArray("3A0500190012004576656E74536C6F74325F456666656374000D00666C796D616E5F69646C653300"));
-            packet.addMessage(utils.ToByteArray("3A0500190012004576656E74536C6F74335F456666656374000A00666C795F766972757300"));
-            packet.addMessage(utils.ToByteArray("3A05001B001400466978656442696E6B49444F766572726964650002002000"));
-            packet.addMessage(utils.ToByteArray("8167170024001C2200C6011100000000000000310000080B004D6F72706865757A7A7A000B004D6F72706865757A7A7A0002000100000000000000"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-
-        }
-
-        public void testSubMessage(EndPoint remote)
-        {
-            // Test Sub packets
-            StreamReader tr = new StreamReader("subpacket.txt");
-            string submessage = tr.ReadLine();
-            submessage = submessage.Trim();
-            submessage = submessage.Replace(" ", "");
-            byte[] response = { };
-            packet.addMessage(utils.ToByteArray(submessage));
-            tr.Close();
-            //packet.addMessage(utils.ToByteArray("81170000000010001C4D0000000000000100000000088E220000")); // items could not be uploaded
-            //packet.addMessage(utils.ToByteArray("81190000000010001C4D0000000000000100000000088E220000")); // loot packet
-            //packet.addMessage(utils.ToByteArray("80ACD9000000000000000000000000000040")); // Evade Combat PRogress Bar
-            //packet.addMessage(utils.ToByteArray("0880FD000000000100"));
-            response = packet.finishReliable();
-            sendCrypted(response, remote);
-            packet.resetPackets();
-        }
-
-        public void testPacket(EndPoint remote)
-        {
-            // Test Sub packets
-            StreamReader tr = new StreamReader("packet_03.txt");
-            string submessage = tr.ReadLine();
-            submessage = submessage.Trim();
-            submessage = submessage.Replace(" ", "");
-            byte[] response = { };
-            response = utils.ToByteArray(submessage);
-            tr.Close();
-            //packet.addMessage(utils.ToByteArray("81170000000010001C4D0000000000000100000000088E220000")); // items could not be uploaded
-            //packet.addMessage(utils.ToByteArray("81190000000010001C4D0000000000000100000000088E220000")); // loot packet
-            //packet.addMessage(utils.ToByteArray("80ACD9000000000000000000000000000040")); // Evade Combat PRogress Bar
-            //packet.addMessage(utils.ToByteArray("0880FD000000000100"));
-            sendCrypted(response, remote);
-            packet.resetPackets();
-        }
-
-        public void Ack(EndPoint remote)
-        {
-            byte[] response = { };
-            pss = 127;
-            response = utils.ToByteArray("02");
-            sendCrypted(response, remote);
-        }
-
-        public void sendCrypted(byte[] plain,EndPoint remote)
-        {
-            logger.LogPacket(plain, "[Send Packet] Current Messagecount is " + packet.actioncounter + "");
-            sseq++;
-            utils tool = new utils();
-            Console.WriteLine("PSS: " + pss + " | CSEQ:" + cseq + " | SSEQ:" + sseq + "");
-            tool.showHex(plain, "before encryption");
-            byte[] encryptedResponse = crypto.encryptWorld(plain,sseq,cseq,pss);
-            string encryptedPacket = BitConverter.ToString(encryptedResponse);
-            encryptedPacket = encryptedPacket.Replace("-", " ");
-            socket.SendTo(encryptedResponse, remote);
-        }
-
-
-        public void processPacket(byte[] packet, EndPoint remote)
-        {
-            byte header = packet[0];
-            
-
-            switch (header)
-            {
-                case 0x00:
-
-                    if (awake == 0)
+                    WorldClient value;
+                    if (Clients.ContainsKey(Remote.ToString()))
                     {
-                        initWorldResponse(remote);
-                        awake = 1;
+                        value = Clients[Remote.ToString()] as WorldClient;
+                        Store.currentClient = Clients[Remote.ToString()] as WorldClient;
                     }
                     else
                     {
-                        // Just reply with the same thing
-                        socket.SendTo(packet, remote);
-                        
-                    }
-                break;
 
-                case 0x01:
-                    cseq++;
-                    byte[] decryptedPacket = crypto.decryptWorld(packet);
-                    //Array.Copy(decryptedPacket, 17, decryptedData, 0, decryptedPacket.Length);
-                    processDecryptedPacket(decryptedPacket, remote);
-                   
-                break;
+                        objMan.PushClient(Remote.ToString()); // Push first, then create it
+                        value = new WorldClient(Remote, socket, Remote.ToString());
+                        gameServerEntities.Add(objMan.GetAssignedObject(Remote.ToString()));
+                        value.playerData.setEntityId(entityIdCounter++);
+
+                        Clients.Add(Remote.ToString(), value);
+                    }
+                    // Once one player enters, clean all 
+                    Store.currentClient = value; // BEFORE processing
+
+                    value.processPacket(finalMessage);
+                }
+                // Listening for a new message
+                EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
+                try
+                {
+                    socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
+                }
+                catch (SocketException ex)
+                {
+                    // if we get exception - remove the client
+                    // ToDo:
+                    if (ex.ErrorCode == 10054)
+                    {
+                        // Client got removed by timeout
+                        Store.currentClient.Alive = false;
+                    }
+                }
+
+            }
+            catch (SocketException ex)
+            {
+                Output.WriteLine("Exception thrown by socket " + ex.SocketErrorCode + " " + ex.Message);
+                if (ex.ErrorCode == 10054)
+                {
+                    // Client got removed by timeout
+                    Store.currentClient.Alive = false;
+                }
+            }
+                
+        }
+
+        
+        private void ListenForAllClients()
+        {
+            byte[] byteTrue = new byte[4];
+            byteTrue[byteTrue.Length - 1] = 1;
+            socket.IOControl(SIO_UDP_CONNRESET, byteTrue, null);
+
+            serverport = 10000;
+            udplistener = new IPEndPoint(IPAddress.Any, serverport);
+            buffer = new byte[4096];
+            socket.Bind(udplistener);
+    
+            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
+            EndPoint Remote = sender;
+            try
+            {
+                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, new AsyncCallback(finalReceiveFrom), socket);
+            }catch(Exception ex)
+            {
+                Output.WriteDebugLog("Exception Thrown ListenForAllClients " + ex.Message);
+            }
+        }
+        
+
+        /// <summary>
+        /// Send a Message to One Player (like private Message)
+        /// </summary>
+        /// <param name="charId">CharId to send the Packet</param>
+        /// <param name="packet">Packet Stream</param>
+        public void SendRPCToOnePlayer(UInt32 charId, byte[] packet)
+        {
+            lock (Clients)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() == charId)
+                    {
+                        client.messageQueue.addRpcMessage(packet);
+                        client.FlushQueue();
+                    }
+                }
             }
         }
 
-        public void processDecryptedPacket(byte[] data,EndPoint remote)
+        /// <summary>
+        /// Send a Message to One Player (like private Message by Handle)
+        /// </summary>
+        /// <param name="packet">Packet Stream</param>
+        /// <param name="playerHandle">Player Handle to send the Packet</param>
+        public void SendRPCToOnePlayerByHandle(byte[] packet, string playerHandle)
         {
-            byte acktype = data[0];
-            byte packettype = data[1];
-
-            switch (acktype)
+            lock (Clients)
             {
-                case 0x02:
 
-                    switch (packettype)
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    string charname = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
+                    Output.writeToLogForConsole("Charname |" + charname + "| PlayerHandle |" + playerHandle + "|");
+                    int lenCharname = charname.Length;
+                    int playerHandleLen = playerHandle.Length;
+                    if (charname == playerHandle)
+                    {
+                        client.messageQueue.addRpcMessage(packet);
+                        client.FlushQueue();
+                    }
+                }
+            }
+
+        }
+
+
+        /// <summary>
+        /// Sends a RPC Message to all Players but not myself
+        /// NEEDS TESTING
+        /// </summary>
+        /// <param name="myself"></param>
+        /// <param name="data"></param>
+        public void SendRPCToAllOtherPlayers(ClientData myself, byte[] data)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock(Clients){
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players 
+                    // WE TEST THIS HERE!
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != myself.getCharID())
                     {
 
-                        case 0x04:
-                            processActionPacket(data,remote);
-                            Ack(remote);
-                        break;
-
-
-                        case 0x03:
-                            
-                            logger.LogPacket(data, "[World Server 03 packet request]");
-                            Ack(remote);
-                        break;
-
-                        case 0x05:
-                            // Process initial packets part 2
-                            // we call it "initPlayerToGame"
-
-                            Ack(remote);
-                            pss = 1;
-                            
-                            logger.LogPacket(data, "[World Server 05 packet request]");
-
-                        break;
-                        default:
-                            Ack(remote);
-                        break;
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
                     }
 
-                break;
-
-                case 0x42:
-                    Ack(remote);
-
-                break;
+                }
             }
         }
 
-        public void processActionPacket(byte[] packet, EndPoint remote)
+        public void SendRPCToCrewMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
         {
-            // ToDo: Parse the 04 packet, strip the messages and parse every message to handle it
-            // Idea : Do a while loop , while we process the submessages, add submessages to next packet
-            // And check how much submessages we have..to prevent to have a big size and send the stuff
-            
-            int messagecount = BitConverter.ToInt16(packet, 5) >>8;
-            
-            byte[] submessages = new byte[packet.Length-6];
-            Array.Copy(packet, 6, submessages,0, packet.Length-6);
-            Console.WriteLine("[World Processor] Request has " + messagecount + " Subpackets");
-            for (int i = 0; i < messagecount; i++)
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock(Clients){
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(),1) == groupId)
+                    {
+                        if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                        {
+                            // create the RPC Message
+                            client.messageQueue.addRpcMessage(data);
+                            client.FlushQueue();    
+                        }
+                    }
+
+                }
+            }
+        }
+        
+        public void SendRPCToFactionMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock (Clients)
             {
-                byte[] sizebyte = new byte[2];
-                sizebyte[0] = submessages[0];
-                sizebyte[1] = 0x00;
-                int size = BitConverter.ToInt16(sizebyte, 0);
-                Console.WriteLine("[WorldDebug] Size of submessages is " + size);       
-                byte[] message = new byte[size];
-                Array.Copy(submessages, 1, message, 0, size);
-                crypto.showPacket(message, "Submessage Received:");
-                // Log Submessage to file
+                var clients = from clientCollection in Clients
+                    where NumericalUtils.ByteArrayToUint32(clientCollection.Value.playerInstance.FactionID.getValue(),1) == groupId
+                    select clientCollection;
+
+                foreach (KeyValuePair<string, WorldClient> theClient in clients)
+                {
+                    WorldClient client = theClient.Value;
+
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+                }
+            }
+        }
+        
+        public void SendRPCToMissionTeamMembers(UInt32 groupId, WorldClient myself, byte[] data, bool ShouldSendToMyself)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock (Clients)
+            {
+                var clients = from clientCollection in Clients
+                    where NumericalUtils.ByteArrayToUint32(
+                        clientCollection.Value.playerInstance.MissionTeamID.getValue(), 1) == groupId
+                    select clientCollection;
+
+                foreach (KeyValuePair<string, WorldClient> theClient in clients)
+                {
+                    WorldClient client = theClient.Value;
+                    // Populate a message to all players to my crew
+
+                    if (client.playerData.getCharID() != myself.playerData.getCharID() || ShouldSendToMyself)
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+                }
+            }
+        }
+
+        public void SendRPCToPlayerList(ArrayList players, byte[] data)
+        {
+            List<string> handles = new List<string>();
+            foreach (Hashtable friend in players)
+            {
+                handles.Add(friend["handle"].ToString());
+            }
+
+            lock (Clients)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    // Populate a message to all players to my crew
+                    WorldClient client = Clients[clientKey] as WorldClient;
+
+                    string handleRecipient =
+                        StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
+                    if (handles.Contains(handleRecipient))
+                    {
+                        // create the RPC Message
+                        client.messageQueue.addRpcMessage(data);
+                        client.FlushQueue();
+                    }
+                }
+            }
+        }
+        
+
+        /// <summary>
+        /// Sends a RPC Message to all connected players including the sender
+        /// </summary>
+        /// <param name="data"></param>
+        public void sendRPCToAllPlayers(byte[] data)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock (Clients)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey];
+                    client.messageQueue.addRpcMessage(data);
+                    client.FlushQueue();
+                }
+            }
+        }
+
+        /// <summary>
+        /// This sends a View Create/Update/Delete Packet to all Players 
+        /// </summary>
+        /// <param name="data">Packet Stream without ViewID</param>
+        /// <param name="charId">from charId</param>
+        /// <param name="goId">from GoId</param>
+        public void SendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
+        {
+            // Send a global message to all connected Players (like shut down Server announce or something)
+            lock (Clients)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    if (client.playerData.getCharID() != charId)
+                    {
+                        #if DEBUG
+                        Output.Write("[ViewThread] Handle View For all Packet for charId : " + charId.ToString());
+                        #endif
+                        // Get or generate a View for the GoID 
+                        ClientView view = client.viewMan.GetViewForEntityAndGo(entityId, goId);
+                        PacketContent viewPacket = new PacketContent();
+
+                        if (view.viewCreated == false)
+                        {
+                            // if view is new , add the viewId at the end (cause its creation)
+                            // Remove the 03 01 00 (as it was generate previosly)
+                            viewPacket.AddByteArray(data);
+                            viewPacket.AddUint16(view.ViewID,1);
+                            viewPacket.AddByte(0x00);
+
+                        }
+                        else
+                        {
+                            // Update View
+                            viewPacket.AddUint16(view.ViewID,1);
+                            viewPacket.AddByteArray(data);
+                            viewPacket.AddByte(0x00);  
+                        }
+
+                        if (view.viewNeedsToBeDeleted)
+                        {
+                            // Delete one View
+                            viewPacket.AddByte(0x01);
+                            viewPacket.AddByte(0x00);
+                            viewPacket.AddByte(0x01); // Comand (Delete)
+                            viewPacket.AddUint16(1,1); // NumViews to Delete
+                            viewPacket.AddUint16(view.ViewID,1);
+                            viewPacket.AddByte(0x00);
+                        }
+
+                        
+                        client.messageQueue.addObjectMessage(viewPacket.ReturnFinalPacket(), false);
+                        client.FlushQueue();
+                    }
+                }
+            }
+        }
+
+        public void SendSelfViewUpdate(PacketContent pak, UInt16 viewId, WorldClient client, bool isTimed)
+        {
+            ServerPackets serverPackets = new ServerPackets();
+            serverPackets.SendUpdateViewStatePacket(client, viewId, pak.ReturnFinalPacket());
+        }
+
+        public void SendSelfViewUpdateToTarget(PacketContent pak, UInt16 targetViewId, WorldClient currentClient)
+        {
+
+            ClientView theView = currentClient.viewMan.getViewById(targetViewId);
+            if (theView == null)
+            {
+                return;
+            }
+            
+            if (theView.GoID != 12)
+            {
+                // it is no player - so we do nothing
+                return;
+            }
+
+            lock (Clients)
+            {
                 
-                logger.LogPacket(message, "[World Server 04 Submessage Client Request]");
-                processActionRequest(message, remote);
-
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient target = Clients[clientKey];
+                    if (target.playerData.getEntityId() == theView.entityId)
+                    {
+                        Output.WriteDebugLog("Update SelfViewState from Ability FX on OtherState Views from " + StringUtils.charBytesToString(currentClient.playerInstance.CharacterName.getValue()) + " to  " + StringUtils.charBytesToString(target.playerInstance.CharacterName.getValue()) + " HEX: " + StringUtils.bytesToString_NS(pak.ReturnFinalPacket()));
+                        target.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
+                        target.FlushQueue();
+                        return;
+                    }
+                }
             }
-
         }
 
-
-
-        public void processActionRequest(byte[] message, EndPoint remote)
+        public void SendViewUpdateToClientWhoHasStaticObjectSpawned(PacketContent packet, StaticWorldObject worldObject, string debugMessage)
         {
-            byte opcode = message[0];
-            switch (opcode)
+            lock (Clients)
             {
-                case 0x05:
-                    initPlayerToWorld(remote);
-                break;
-
-                case 0x28:
-                    testPacket(remote);
-                break;
-                case 0x81:
-                    testSubMessage(remote);
-                break;
-
-
-                default:
-                    Ack(remote);
-                break;
-
+                foreach (string clientKey in Clients.Keys)
+                {
+                    String entityHackString = "" + worldObject.metrId + "" + worldObject.mxoStaticId;
+                    UInt64 entityStaticId = UInt64.Parse(entityHackString);
+                    
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    ClientView objectView = client.viewMan.GetViewForEntityAndGo(entityStaticId, NumericalUtils.ByteArrayToUint16(worldObject.type, 1));
+                    if (objectView.viewCreated && worldObject.metrId == client.playerData.getDistrictId() && client.playerData.getOnWorld())
+                    {
+                        ServerPackets pak = new ServerPackets();
+                        pak.SendUpdateViewStatePacket(client, objectView.ViewID, packet.ReturnFinalPacket());
+                        pak.sendSystemChatMessage(client, debugMessage, "BROADCAST");
+                    }
+                }
             }
-
         }
 
-        public static byte[] StrToByteArray(string str)
+        public void SendViewUpdateToClientsWhoHasMobSpawned(PacketContent packet, Mob mob)
         {
-            System.Text.ASCIIEncoding encoder = new ASCIIEncoding();
-            return encoder.GetBytes(str);
+            lock (Clients)
+            {
+                foreach (string clientKey in Clients.Keys)
+                {
+                    WorldClient client = Clients[clientKey] as WorldClient;
+                    ClientView mobView = client.viewMan.GetViewForEntityAndGo(mob.getEntityId(), NumericalUtils.ByteArrayToUint16(mob.getGoId(), 1));
+                    if (mobView.viewCreated == true && mob.getDistrict() == client.playerData.getDistrictId() && client.playerData.getOnWorld())
+                    {
+                        ServerPackets pak = new ServerPackets();
+                        pak.SendNpcUpdateData(mobView.ViewID, client, packet.ReturnFinalPacket());
+                    }
+                }
+            }
         }
 
-        public static string ByteArrayToStr(byte[] barr)
-        {
-            ASCIIEncoding encoding = new ASCIIEncoding();
-            return encoding.GetString(barr, 0, barr.Length);
-        }
-  */
+
     }
 }

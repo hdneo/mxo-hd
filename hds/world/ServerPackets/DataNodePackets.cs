@@ -23,18 +23,18 @@ namespace hds
             // 108,CurrentState,EventID,4
             // 112,CurrentTimerState,EventID,4
             // 260,Orientation,LTQuaternion,16
-            WorldSocket.entityIdCounter++;
-            ClientView view = client.viewMan.GetViewForEntityAndGo(WorldSocket.entityIdCounter, 47080);
+            WorldServer.entityIdCounter++;
+            ClientView view = client.viewMan.GetViewForEntityAndGo(WorldServer.entityIdCounter, 47080);
 
             PacketContent pak = new PacketContent();
-            pak.addUint16(1, 1);
-            pak.addHexBytes("0ce8b7f5cdab0329");
-            pak.addByteArray(client.playerInstance.Position.getValue());
-            pak.addUintShort(1); // UseCount
-            pak.addUint32(4001,1); // 112,CurrentTimerState,EventID,4
-            pak.addUint16(view.ViewID, 1);
-            pak.addByte(0x00);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(1, 1);
+            pak.AddHexBytes("0ce8b7f5cdab0329");
+            pak.AddByteArray(client.playerInstance.Position.getValue());
+            pak.AddUShort(1); // UseCount
+            pak.AddUint32(4001,1); // 112,CurrentTimerState,EventID,4
+            pak.AddUint16(view.ViewID, 1);
+            pak.AddByte(0x00);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
         }
     }

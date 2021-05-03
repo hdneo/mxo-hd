@@ -51,7 +51,7 @@ namespace hds
 
         public void processObjectInteraction(StaticWorldObject staticWorldObject, GameObjectItem item)
         {
-            WorldSocket.gameServerEntities.Add(staticWorldObject);
+            WorldServer.gameServerEntities.Add(staticWorldObject);
             UInt16 typeId = NumericalUtils.ByteArrayToUint16(staticWorldObject.type, 1);
 
             NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData.assignSpawnIdCounter());

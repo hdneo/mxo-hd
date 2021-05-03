@@ -31,32 +31,24 @@ namespace hds
             return worlds.getSize() + 2;
         }
 
-        public void addWorld(string worldName, int worldId, int worldStatus, int worldStyle, int worldPopulation)
+        public void AddWorld(string worldName, UInt16 worldId, ushort worldStatus, ushort worldStyle, ushort worldPopulation)
         {
-            byte[] world = new byte[32];
-            world[0] = 0x00;
-            world[1] = (byte)worldId;
+            PacketContent pak = new PacketContent();
+            pak.AddUShort(0);
+            pak.AddUint16(worldId,1);
+            pak.AddStringWithFixedSized(worldName,19);
+            pak.AddUShort(worldStatus);
+            pak.AddUShort(worldStyle);
+            pak.AddByte(0xd9);
+            pak.AddByte(0x21);
+            pak.AddByte(0x07);
+            pak.AddByte(0x00);
+            pak.AddByte(0x01);
+            pak.AddByte(0x00);
+            
+            pak.AddUShort(worldPopulation);
 
-            for (int i = 0; i < worldName.Length; i++)
-            {
-                world[3 + i] = (byte)worldName[i];
-            }
-
-
-            world[23] = (byte)worldStatus;
-            world[24] = (byte)worldStyle;
-
-
-            world[25] = 0xd9;
-            world[26] = 0x21;
-            world[27] = 0x07;
-            world[28] = 0x00;
-            world[29] = 0x01;
-            world[30] = 0x00;
-
-            world[31] = (byte)worldPopulation;
-
-            worlds.append(world);
+            worlds.append(pak.ReturnFinalPacket());
             numWorlds++;
         }
     }

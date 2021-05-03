@@ -175,9 +175,9 @@ namespace hds
         public void processInitUDPSession(ref byte[] packetData)
         {
             PacketReader reader = new PacketReader(packetData);
-            reader.setOffsetOverrideValue(11);
+            reader.SetOffsetOverrideValue(11);
 
-            Store.currentClient.playerData.setCharID(reader.readUInt32(1));
+            Store.currentClient.playerData.setCharID(reader.ReadUInt32(1));
 
             Store.dbManager.WorldDbHandler.SetPlayerValues();
             Store.dbManager.WorldDbHandler.SetRsiValues();
@@ -191,7 +191,7 @@ namespace hds
             }
             
             Store.currentClient.FlushQueue();
-            Store.margin.sendUDPSessionReply(Store.currentClient.playerData.getCharID());
+            Store.margin.SendUDPSessionReply(Store.currentClient.playerData.getCharID());
         }
 
         public void processGetBackgroundRequest(ref byte[] packetData)
@@ -243,9 +243,9 @@ namespace hds
         public void ProcessPlayerGetDetails(ref byte[] rpcData)
         {
             PacketReader reader = new PacketReader(rpcData);
-            UInt32 unknownAlwaysZeroUint32 = reader.readUInt32(1);
-            UInt16 alwaysEightUint16 = reader.readUInt16(1);
-            string handle = reader.readSizedString();
+            UInt32 unknownAlwaysZeroUint32 = reader.ReadUInt32(1);
+            UInt16 alwaysEightUint16 = reader.ReadUInt16(1);
+            string handle = reader.ReadSizedString();
             
             // Load Details from Database about the Handle
             Hashtable charInfo = Store.dbManager.WorldDbHandler.GetCharInfoByHandle(handle);
@@ -279,10 +279,10 @@ namespace hds
         {
             // read the values from the packet
             PacketReader reader = new PacketReader(packet);
-            UInt32 staticObjectID = reader.readUInt32(1);
-            UInt16 unloadFlag = reader.readUInt16(1);
-            UInt16 loadFlag = reader.readUInt16(1);
-            UInt16 countAbilities = reader.readUInt16(1);
+            UInt32 staticObjectID = reader.ReadUInt32(1);
+            UInt16 unloadFlag = reader.ReadUInt16(1);
+            UInt16 loadFlag = reader.ReadUInt16(1);
+            UInt16 countAbilities = reader.ReadUInt16(1);
 
             int pointer = 11; // Start at index 11
             List<UInt16> abilitySlots = new List<UInt16>();
@@ -310,18 +310,18 @@ namespace hds
                 PacketContent pak = new PacketContent();
                 if (unloadFlag > 0)
                 {
-                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
-                    pak.addByteArray(abilityByteID);
+                    pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_UNLOAD, 0);
+                    pak.AddByteArray(abilityByteID);
                 }
                 else
                 {
-                    pak.addUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
-                    pak.addByteArray(abilityByteID);
-                    pak.addByteArray(abilityByteLevel);
-                    pak.addByteArray(slotByteID);
+                    pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_ABILITY_LOAD, 0);
+                    pak.AddByteArray(abilityByteID);
+                    pak.AddByteArray(abilityByteLevel);
+                    pak.AddByteArray(slotByteID);
                 }
                 abilitySlots.Add(slotID);
-                Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+                Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
             }
 
 

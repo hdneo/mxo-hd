@@ -14,45 +14,45 @@ namespace hds
         {
             
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_CHAT_WHO_RESPONSE,0);
-            pak.addUint16(5,1); // Alsways there
-            pak.addByte(0x00); // We are not sure why but as its just 3 bytes for the nums we need "space" bytes
-            pak.addUint16((UInt16)WorldSocket.Clients.Count,1);
-            pak.addByte(0x00); // Again there is space
-            foreach (string clientKey in WorldSocket.Clients.Keys)
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_CHAT_WHO_RESPONSE,0);
+            pak.AddUint16(5,1); // Alsways there
+            pak.AddByte(0x00); // We are not sure why but as its just 3 bytes for the nums we need "space" bytes
+            pak.AddUint16((UInt16)WorldServer.Clients.Count,1);
+            pak.AddByte(0x00); // Again there is space
+            foreach (string clientKey in WorldServer.Clients.Keys)
             {
-                WorldClient theClient = WorldSocket.Clients[clientKey] as WorldClient;
+                WorldClient theClient = WorldServer.Clients[clientKey] as WorldClient;
                 // ToDo: this is not complete implemented - the first is maybe an offset- needs more research firstex               
-                pak.addHexBytes("3c014801"); // This is just from logs
-                pak.addByte(0xef); // profession
-                pak.addHexBytes("010000");
-                pak.addByteArray(theClient.playerInstance.Level.getValue());
-                pak.addByte(0x01);
-                pak.addByte(0x00);
+                pak.AddHexBytes("3c014801"); // This is just from logs
+                pak.AddByte(0xef); // profession
+                pak.AddHexBytes("010000");
+                pak.AddByteArray(theClient.playerInstance.Level.getValue());
+                pak.AddByte(0x01);
+                pak.AddByte(0x00);
             }
 
-            foreach (string clientKey in WorldSocket.Clients.Keys)
+            foreach (string clientKey in WorldServer.Clients.Keys)
             {
-                WorldClient theClient = WorldSocket.Clients[clientKey] as WorldClient;
+                WorldClient theClient = WorldServer.Clients[clientKey] as WorldClient;
                 // ToDo: this is really dirty hacky 
                 string charname = StringUtils.charBytesToString_NZ(theClient.playerInstance.CharacterName.getValue());
-                pak.addSizedTerminatedString(charname);
+                pak.AddSizedTerminatedString(charname);
             }
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
 
         public void sendWhereami(WorldClient client, byte[] xPos, byte[] yPos, byte[] zPos)
         {         
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_CHAT_WHEREAMI_RESPONSE, 0);
-            pak.addByteArray(xPos);
-            pak.addByteArray(yPos);
-            pak.addByteArray(zPos);
-            pak.addByte(0x07);
-            pak.addByte(0x01);
-            pak.addByte(0x00);
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_CHAT_WHEREAMI_RESPONSE, 0);
+            pak.AddByteArray(xPos);
+            pak.AddByteArray(yPos);
+            pak.AddByteArray(zPos);
+            pak.AddByte(0x07);
+            pak.AddByte(0x01);
+            pak.AddByte(0x00);
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
     }

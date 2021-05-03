@@ -1,6 +1,5 @@
 
 using System;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 
 
@@ -91,8 +90,8 @@ namespace hds
 			}
 			
 			temp.append(paddingBytes);
-			tf.setIV(IV);
-			tf.setKey(TF_Key);
+			tf.SetIV(IV);
+			tf.SetKey(TF_Key);
 
 			// We init with 2 more than needed, so no memory reservation is done on dyn array
 			DynamicArray finalPlainData = new DynamicArray();
@@ -104,7 +103,7 @@ namespace hds
            
 			
 			byte[] encryptedData = new byte[finalPlainData.getSize()];
-			tf.encrypt(finalPlainData.getBytes(),encryptedData);
+			tf.Encrypt(finalPlainData.getBytes(),encryptedData);
 			
             
 			finalPlainData = null; // Cleaning the house (2)
@@ -136,11 +135,11 @@ namespace hds
             
 			ArrayUtils.copy (packet,17,packetToDecrypt,0,packet.Length-17);
 			
-			tf.setIV(IV);
-			tf.setKey(TF_Key);
+			tf.SetIV(IV);
+			tf.SetKey(TF_Key);
 			
 			byte[] decryptedBytes = new byte[packetToDecrypt.Length];
-			tf.decrypt(packetToDecrypt,decryptedBytes);
+			tf.Decrypt(packetToDecrypt,decryptedBytes);
 
             byte[] decryptedPacket;
             if (decryptedBytes.Length > 10)

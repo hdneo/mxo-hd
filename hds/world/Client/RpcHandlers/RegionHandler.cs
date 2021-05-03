@@ -20,11 +20,11 @@ namespace hds
             ArrayUtils.copyTo(objectIDBytes, 2, sectorIDBytes, 0, 2);
             
             PacketReader pakReader = new PacketReader(packet);
-            UInt16 sectorID = pakReader.readUInt16(1);
-            UInt16 objectID = pakReader.readUInt16(1);
-            float xPos = pakReader.readFloat(1);
-            float yPos = pakReader.readFloat(1);
-            float zPos = pakReader.readFloat(1);
+            UInt16 sectorID = pakReader.ReadUInt16(1);
+            UInt16 objectID = pakReader.ReadUInt16(1);
+            float xPos = pakReader.ReadFloat(1);
+            float yPos = pakReader.ReadFloat(1);
+            float zPos = pakReader.ReadFloat(1);
             
             DataLoader objectLoader = DataLoader.getInstance();
             StaticWorldObject objectValues = objectLoader.getObjectValues(NumericalUtils.ByteArrayToUint32(objectIDBytes,1));
@@ -49,33 +49,36 @@ namespace hds
                         select signPost;
                     if (signPosts.Count() > 0)
                     {
-                        NPC_Singpost signpostNpc = signPosts.First();
-                        signpost.DisableAllAttributes();
-                    
-                        signpost.Position.enable();
-                        signpost.SignpostNameString.enable();
-                        signpost.AnimationID0.enable();
-                        signpost.SignpostOrgID.enable();
-                        signpost.DescriptionID.enable();
-                        signpost.SignpostReqReputation.enable();
-                        signpost.SignpostReqLevel.enable();
-                        signpost.Orientation.enable();
+                        foreach (NPC_Singpost signpostNpc in signPosts)
+                        {
+                            
+                            signpost.DisableAllAttributes();
+                            signpost.Position.enable();
+                            signpost.SignpostNameString.enable();
+                            signpost.AnimationID0.enable();
+                            signpost.SignpostOrgID.enable();
+                            signpost.DescriptionID.enable();
+                            signpost.SignpostReqReputation.enable();
+                            signpost.SignpostReqLevel.enable();
+                            signpost.Orientation.enable();
 
-                        signpost.Position.setValue(NumericalUtils.doublesToLtVector3d(signpostNpc.xPos, signpostNpc.yPos, signpostNpc.zPos));
-                        signpost.SignpostNameString.setValue(signpostNpc.SingpostNameString);
-                        signpost.AnimationID0.setValue(signpostNpc.AnimationID0);
-                        signpost.SignpostOrgID.setValue(signpostNpc.SingpostOrgId);
-                        signpost.DescriptionID.setValue(signpostNpc.DescriptionRez_ID);
-                        signpost.SignpostReqReputation.setValue(signpostNpc.SingpostReqReputation);
-                        signpost.SignpostReqLevel.setValue(signpostNpc.SingpostReqLevel);
+                            signpost.Position.setValue(NumericalUtils.doublesToLtVector3d(signpostNpc.xPos, signpostNpc.yPos, signpostNpc.zPos));
+                            signpost.SignpostNameString.setValue(signpostNpc.SingpostNameString);
+                            signpost.AnimationID0.setValue(signpostNpc.AnimationID0);
+                            signpost.SignpostOrgID.setValue(signpostNpc.SingpostOrgId);
+                            signpost.DescriptionID.setValue(signpostNpc.DescriptionRez_ID);
+                            signpost.SignpostReqReputation.setValue(signpostNpc.SingpostReqReputation);
+                            signpost.SignpostReqLevel.setValue(signpostNpc.SingpostReqLevel);
                         
-                        signpost.Orientation.setValue(StringUtils.hexStringToBytes(objectValues.quat));
-                        //signpost.Orientation.setValue(NumericalUtils.floatsToQuaternion(signpostNpc.wQuad, signpostNpc.xQuad, signpostNpc.yQuad, signpostNpc.zQuad));
+                            signpost.Orientation.setValue(StringUtils.hexStringToBytes(objectValues.quat));
+                            //signpost.Orientation.setValue(NumericalUtils.floatsToQuaternion(signpostNpc.wQuad, signpostNpc.xQuad, signpostNpc.yQuad, signpostNpc.zQuad));
                     
-                        String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoStaticId;
-                        UInt64 entityId = UInt64.Parse(entityMxOHackString);
+                            String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoStaticId;
+                            UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
-                        pak.SendSpawnGameObject(Store.currentClient,signpost,entityId);
+                            pak.SendSpawnGameObject(Store.currentClient,signpost,entityId);    
+                        }
+                        
                     }
                    
                     break;

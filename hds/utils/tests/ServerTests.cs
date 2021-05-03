@@ -18,9 +18,9 @@ namespace hds
 			byte[] knownResult = {0xba,0x05,0xf5,0x6e,0x86,0x5f,0xb6,0xc9,0xb2,0x1d,0xe1,0x00,0xb6,0xec,0x46,0xe9};
 			byte[] result = new byte[16];
 			MxoTwofish tf = new MxoTwofish();
-			tf.setIV(iv);
-			tf.setKey(key);
-			tf.encrypt(plainText,result);
+			tf.SetIV(iv);
+			tf.SetKey(key);
+			tf.Encrypt(plainText,result);
 
             if (!ArrayUtils.equal(knownResult, result)){
 				Output.Write("Failed\n");

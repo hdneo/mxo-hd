@@ -39,7 +39,6 @@ namespace hds{
         public string Password {get;set;}
         public string Motd {get;set;}
         public string DbType {get;set;}
-        
 
     }
 

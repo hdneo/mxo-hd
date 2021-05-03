@@ -28,12 +28,12 @@ namespace hds
 
         public CharacterPack getCharPack()
         {
-            return this.cp;
+            return cp;
         }
 
         public WorldsPack getWorldPack()
         {
-            return this.wp;
+            return wp;
         }
 
         public void setUsername(string username)
@@ -89,7 +89,7 @@ namespace hds
 
         public void setTimeCreated(int param)
         {
-            this.timeCreated = param;
+            timeCreated = param;
         }
 
         public int getTimeCreated()

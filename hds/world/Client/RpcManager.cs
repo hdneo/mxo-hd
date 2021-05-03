@@ -109,10 +109,11 @@ namespace hds{
 					break;
 		        // Abilitys
 		        case (int) RPCRequestHeader.CLIENT_UPGRADE_ABILITY_LEVEL:
+			        new AbilityHandler().ProcessUpgradeAbility(ref rpcData);
 		            // ToDo: Research and implement^^
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_ABILITY_HANDLER:
-		            new AbilityHandler().processAbility(ref rpcData);
+		            new AbilityHandler().ProcessAbility(ref rpcData);
 		            break;
 		        case (int) RPCRequestHeader.CLIENT_CHANGE_CT:
 			        // ToDo: Implement Change of CT

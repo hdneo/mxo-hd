@@ -3,13 +3,12 @@
 /// Created by Neo
 /// Modified by Morpheus
 /// </summary>
+
 using System;
-using System.Net;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
-
+using hds.databases.Entities;
 using hds.shared;
 
 namespace hds{
@@ -22,8 +21,8 @@ namespace hds{
 		private bool waitingForWorld;
 		private UInt32 userID;
         private UInt32 newCharID;
-        private ushort numCharacterReplies = 0;
-        private bool isNewCreatedChar = false;
+        private ushort numCharacterReplies;
+        private bool isNewCreatedChar;
         public List<MarginAbilityItem> Abilities;
 		
 		private MarginEncryption marginEncr;
@@ -49,7 +48,7 @@ namespace hds{
 
         public UInt32 getCharID()
         {
-            return this.newCharID;
+            return newCharID;
         }
 		
 		public bool isWorking(){
@@ -57,17 +56,17 @@ namespace hds{
 		}
 		
 		public void passiveClose(){
-			this.working = false;
+			working = false;
 		}
 		
 		public void forceClose(){
-			this.tcpClient.Close();
-			this.clientStream.Close();
+			tcpClient.Close();
+			clientStream.Close();
 		}
 		
 		public bool isYourClientWaiting(UInt32 waitingID){
-			if (this.userID==waitingID){
-				this.waitingForWorld = false;
+			if (userID==waitingID){
+				waitingForWorld = false;
 				return true;
 			}
 			return false;
@@ -138,7 +137,7 @@ namespace hds{
 				encrypted=true;
 			}
 
-            if (encrypted == true)
+            if (encrypted)
             {
                 byte[] encryptedPacket = { };
                 if (packet[0] >= 0x80)
@@ -230,7 +229,7 @@ namespace hds{
 
 
 
-        private void sendMarginCharData(byte[] data, byte opcode, NetworkStream client, UInt16 shortAfterId, bool isLast)
+        private void SendMarginCharData(byte[] data, byte opcode, NetworkStream client, UInt16 shortAfterId, bool isLast)
         {
             // This Method will be used to send the real Data to the client
 
@@ -245,42 +244,40 @@ namespace hds{
             numCharacterReplies++;
             
             PacketContent pak = new PacketContent();
-            pak.addByte(0x10);
-            pak.addUint32(0,1);
-            pak.addUint32(newCharID, 1);
-            pak.addUint16(shortAfterId,1);
-            pak.addUintShort(numCharacterReplies);
+            pak.AddByte(0x10);
+            pak.AddUint32(0,1);
+            pak.AddUint32(newCharID, 1);
+            pak.AddUint16(shortAfterId,1);
+            pak.AddUShort(numCharacterReplies);
             if (isLast)
             {
-	            pak.addUintShort(1);
+	            pak.AddUShort(1);
             }
             else
             {
-	            pak.addUintShort(0);
+	            pak.AddUShort(0);
             }
-            pak.addUintShort(opcode);
+            pak.AddUShort(opcode);
             if (data.Length > 0)
             {
-	            pak.addByteArray(new byte[]{0x10, 0x00});
-	            pak.addUint16((UInt16)data.Length,1);
-	            pak.addByteArray(data);
+	            pak.AddByteArray(new byte[]{0x10, 0x00});
+	            pak.AddUint16((UInt16)data.Length,1);
+	            pak.AddByteArray(data);
             }
             else
             {
-	            pak.addByteArray(new byte[]{0x00, 0x00});
+	            pak.AddByteArray(new byte[]{0x00, 0x00});
             }
 
-            Output.WriteDebugLog("[MARGIN SERVER RESPONSE] for OPCODE " + opcode + " : " + StringUtils.bytesToString(pak.returnFinalPacket())); 
-            byte[] encryptedResponse = marginEncr.encrypt(pak.returnFinalPacket());
+            Output.WriteDebugLog("[MARGIN SERVER RESPONSE] for OPCODE " + opcode + " : " + StringUtils.bytesToString(pak.ReturnFinalPacket())); 
+            byte[] encryptedResponse = marginEncr.encrypt(pak.ReturnFinalPacket());
             sendTCPVariableLenPacket(encryptedResponse, client);
-            System.Threading.Thread.Sleep(50);
         }
 
 		private void sendMarginData(string data,NetworkStream client){
 			byte[] response = StringUtils.hexStringToBytes(data);
             byte[] encryptedResponse = marginEncr.encrypt(response);
             sendTCPVariableLenPacket(encryptedResponse, client);
-            System.Threading.Thread.Sleep(50);
 		}
 
         private void deleteCharName(byte[] packet, NetworkStream client)
@@ -309,57 +306,57 @@ namespace hds{
 
             // ToDo: Replace all with Packet Reader Instance
             PacketReader reader = new PacketReader(packet);
-	        reader.incrementOffsetByValue(3);
+	        reader.IncrementOffsetByValue(3);
 
             
 	        UInt16 body = 0;
 	        UInt16 gender = 0;
 
 	        
-	        UInt16 skintone = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(7);
-	        UInt16 bodyTypeId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(15);
-	        UInt16 hairId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(19);
-	        UInt16 haircolor = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(23);
-	        UInt16 tattoo = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(27);
-	        UInt16 headId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(31);
-	        UInt16 facialDetail = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(35);
+	        UInt16 skintone = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(7);
+	        UInt16 bodyTypeId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(15);
+	        UInt16 hairId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(19);
+	        UInt16 haircolor = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(23);
+	        UInt16 tattoo = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(27);
+	        UInt16 headId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(31);
+	        UInt16 facialDetail = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(35);
 	        // ToDo: it has a bug - figure out correct position
-	        UInt16 facialDetailColor = reader.readUInt16(1);
+	        UInt16 facialDetailColor = reader.ReadUInt16(1);
 	        // ToDo: Remove this when facialDetailColor is parsed properly
 	        facialDetailColor = 0;
-	        reader.setOffsetOverrideValue(67);
-	        UInt16 profession = reader.readUInt16(1);
+	        reader.SetOffsetOverrideValue(67);
+	        UInt16 profession = reader.ReadUInt16(1);
 	        
 	        
             // lets read the values
             // the IDs for the Appeareance is always uint16 goID
 	        // Extra Hint: there are no leggins in Char Creation Process
-	        reader.setOffsetOverrideValue(35);
-	        UInt16 hatId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(39);
-	        UInt16 eyewearId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(43);
-	        UInt16 shirtId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(47);
-	        UInt16 glovesId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(51);
-	        UInt16 outerwearId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(55);
-	        UInt16 pantsId = reader.readUInt16(1);
-	        reader.setOffsetOverrideValue(63);
-	        UInt16 footwearId = reader.readUInt16(1);
+	        reader.SetOffsetOverrideValue(35);
+	        UInt16 hatId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(39);
+	        UInt16 eyewearId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(43);
+	        UInt16 shirtId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(47);
+	        UInt16 glovesId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(51);
+	        UInt16 outerwearId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(55);
+	        UInt16 pantsId = reader.ReadUInt16(1);
+	        reader.SetOffsetOverrideValue(63);
+	        UInt16 footwearId = reader.ReadUInt16(1);
 
 
             // Get Values by "NewRSI" IDs
             NewRSIItem hairItem = itemLoader.getNewRSIItemByTypeAndID("HAIR", hairId);
-            NewRSIItem bodyItem = itemLoader.getNewRSIItemByTypeAndID("BODY", (ushort)bodyTypeId);
+            NewRSIItem bodyItem = itemLoader.getNewRSIItemByTypeAndID("BODY", bodyTypeId);
             NewRSIItem headItem = itemLoader.getNewRSIItemByTypeAndID("HEAD", headId);
 
             Store.dbManager.MarginDbHandler.updateRSIValue("body", bodyItem.internalId.ToString(), newCharID);
@@ -445,7 +442,7 @@ namespace hds{
             addStartAbilitys(newCharID);
 
             // we have all created - lets load the charData 
-            loadCharacter(packet, client, this.newCharID);
+            loadCharacter(packet, client, newCharID);
         }
 
 		
@@ -475,7 +472,7 @@ namespace hds{
 			handleSize[0] =packet[5];
 			handleSize[1] =packet[6];
 			
-			int size = (int) NumericalUtils.ByteArrayToUint16(handleSize,1);
+			int size = NumericalUtils.ByteArrayToUint16(handleSize,1);
 			
 			byte[] handleB = new byte[size-1];
 			ArrayUtils.copy(packet,7,handleB,0,size-1);
@@ -498,7 +495,7 @@ namespace hds{
 				
 				newCharID = dbResult;
 				nameRequestResponse += "0b0f0000000000";
-				nameRequestResponse += StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray((UInt32)dbResult,1));
+				nameRequestResponse += StringUtils.bytesToString_NS(NumericalUtils.uint32ToByteArray(dbResult,1));
 				nameRequestResponse += "0000000000";
 				nameRequestResponse += StringUtils.bytesToString_NS(handleSize);
 				nameRequestResponse += handleBStr+"00";
@@ -511,68 +508,66 @@ namespace hds{
 		}
 
         private byte[] loadBackgroundInfo(int charID){
-	        
-	        
-            MarginCharacter marginCharacter = Store.dbManager.MarginDbHandler.getCharInfo(charID);
+	        Character marginCharacter = Store.dbManager.MarginDbHandler.GetCharInfo(charID);
 
 
             PacketContent pak = new PacketContent();
             if (!isNewCreatedChar)
             {
-                pak.addByteArray(StringUtils.hexStringToBytes("01000000640000007B0000006500000000000000000000006C000000000000002B010000"));
+                pak.AddByteArray(StringUtils.hexStringToBytes("01000000640000007B0000006500000000000000000000006C000000000000002B010000"));
             }
-            pak.addStringWithFixedSized(marginCharacter.firstname,32);
-            pak.addStringWithFixedSized(marginCharacter.lastname,32);
-            pak.addStringWithFixedSized(marginCharacter.background,1024);
+            pak.AddStringWithFixedSized(marginCharacter.FirstName,32);
+            pak.AddStringWithFixedSized(marginCharacter.LastName,32);
+            pak.AddStringWithFixedSized(marginCharacter.Background,1024);
 
 
             // ToDo: Analyse it and (Rep zion => 82, Rep Machine 2, RepMero 81
             //pak.addHexBytes("000000000000000000178604E40008AF2F0175020000A39F714A81FF81FF81FF670067006700000003000301310000B402320000B403380000B4044E0000000200510000001600520000001900540000001300");
-            pak.addUint32(marginCharacter.exp,1);
-            pak.addUint32(marginCharacter.cash,1);
-            pak.addUintShort(0x01); // Flag - always 1
-            pak.addUint32(200,1); // CQ Points
+            pak.AddUint32((uint) marginCharacter.Exp,1);
+            pak.AddUint32((uint) marginCharacter.Cash,1);
+            pak.AddUShort(0x01); // Flag - always 1
+            pak.AddUint32(200,1); // CQ Points
             
-            pak.addByteArray(TimeUtils.getCurrentTime());
+            pak.AddByteArray(TimeUtils.getCurrentTime());
             //pak.addByteArray(StringUtils.hexStringToBytes("875D714A")); // Last Changed Timestamp - current its static - needs to be dynamic
 
             // Rputation Bytes (int16[7])
-            pak.addInt16(-116,1);
-            pak.addInt16(-117, 1);
-            pak.addInt16(-20, 1);
-            pak.addInt16(-59, 1);
-            pak.addInt16(-58, 1);
-            pak.addInt16(-57, 1);
-            pak.addInt16(2, 1);
-            pak.addByte(0x03);
+            pak.AddInt16(-116,1);
+            pak.AddInt16(-117, 1);
+            pak.AddInt16(-20, 1);
+            pak.AddInt16(-59, 1);
+            pak.AddInt16(-58, 1);
+            pak.AddInt16(-57, 1);
+            pak.AddInt16(2, 1);
+            pak.AddByte(0x03);
             
             // 01 = onWorld , 00 = LA . In World you have to take care to not spawn the Character in LA State
-            if (marginCharacter.districtId != 0)
+            if (marginCharacter.DistrictId != 0)
             {
-                pak.addByte(0x01);
+                pak.AddByte(0x01);
             }
             else
             {
-                pak.addByte(0x00);
+                pak.AddByte(0x00);
             }
 
-            pak.addHexBytes("0301310000b402320000b403380000b403510000000400520000000b00540000000100"); // The Last Part
+            pak.AddHexBytes("0301310000b402320000b403380000b403510000000400520000000b00540000000100"); // The Last Part
 
 	        #if DEBUG
-            if (isNewCreatedChar == true)
+            if (isNewCreatedChar)
             {
-                Output.WriteLine("Load Background Reply for Created Char:\n" + pak.returnFinalPacket());
+                Output.WriteLine("Load Background Reply for Created Char:\n" + pak.ReturnFinalPacket());
             }
 			#endif
 
-            return pak.returnFinalPacket();
+            return pak.ReturnFinalPacket();
             
         }
 
         public byte[] loadInventory(int charID)
         {
             List<MarginInventoryItem> Inventory = new List<MarginInventoryItem>();
-            Inventory = Store.dbManager.MarginDbHandler.loadInventory(charID);
+            Inventory = Store.dbManager.MarginDbHandler.LoadInventory(charID);
 
             DynamicArray din = new DynamicArray();
             foreach (MarginInventoryItem item in Inventory)
@@ -592,7 +587,7 @@ namespace hds{
         
         public void loadAbilities(int charId)
         {
-            this.Abilities = Store.dbManager.MarginDbHandler.loadAbilities(charId);
+            Abilities = Store.dbManager.MarginDbHandler.LoadAbilities(charId);
         }
 
 
@@ -622,7 +617,7 @@ namespace hds{
 
             foreach (MarginAbilityItem ability in Abilities)
             {
-                if (ability.getLoaded() == true)
+                if (ability.getLoaded())
                 {
                     Int32 finalAblityID = ability.getAbilityID() + ability.getLevel();
                     din.append(NumericalUtils.uint16ToByteArray(ability.getSlot(), 1)); // slot
@@ -641,18 +636,18 @@ namespace hds{
             if (theCharId == 0)
             {    
                 ArrayUtils.copy(packet, 3, charIDB, 0, 4); //Offset for charID is 3 in request
-                uint charId = (uint)NumericalUtils.ByteArrayToUint32(charIDB, 1);
+                uint charId = NumericalUtils.ByteArrayToUint32(charIDB, 1);
                 // Remove current instances for this character
-                if (Store.margin.isAnotherClientActive(charId) == true)
+                if (Store.margin.IsAnotherClientActive(charId))
                 {
                     CharacterAlreadyInUseReply(client);
                     return;
                 }
-                this.newCharID = charId;
+                newCharID = charId;
             }
 
 
-            charIDB = NumericalUtils.uint32ToByteArray(this.newCharID, 1);
+            charIDB = NumericalUtils.uint32ToByteArray(newCharID, 1);
             
 			//New harcoded sessionID is: ac 53 02 00
 			//Old is: 28 A9 02 00
@@ -692,23 +687,23 @@ namespace hds{
             // New Margin Method to send Data
 
             // Pre-Load Abilities so that we just need to filter the result later
-            loadAbilities((int)this.newCharID);
+            loadAbilities((int)newCharID);
             
-            sendMarginCharData(empty, 0x01, client, 0, false);
-            sendMarginCharData(loadBackgroundInfo((int)this.newCharID), 0x02, client,0,false);
-            sendMarginCharData(empty, 0x03, client,0, false);                            // BuddyList (but old one)
-            sendMarginCharData(empty, 0x04, client,0, false);                            // Unknown - no one has data there so ignore it
-            sendMarginCharData(loadInventory((int)this.newCharID), 0x05, client,0, false);            // Inventory
+            SendMarginCharData(empty, 0x01, client, 0, false);
+            SendMarginCharData(loadBackgroundInfo((int)newCharID), 0x02, client,0,false);
+            SendMarginCharData(empty, 0x03, client,0, false);                            // BuddyList (but old one)
+            SendMarginCharData(empty, 0x04, client,0, false);                            // Unknown - no one has data there so ignore it
+            SendMarginCharData(loadInventory((int)newCharID), 0x05, client,0, false);            // Inventory
             //sendMarginCharData(StringUtils.hexStringToBytes(itemData), 0x05, client);            // Inventory CR1
-            sendMarginCharData(loadEquippedAbilities(), 0x06, client,0, false);          // Loaded Abilitys
+            SendMarginCharData(loadEquippedAbilities(), 0x06, client,0, false);          // Loaded Abilitys
             //sendMarginCharData(empty, 0x06, client);                          // Loaded Abilitys CR1
-            sendMarginCharData(loadKnownAbilities(), 0x07, client,0, false);             // Known Abilities
-            sendMarginCharData(knownHardlines, 0x08, client,0, false);                   // Hardlines
-            sendMarginCharData(empty, 0x09, client,0, false);                            // Access Nodes?
+            SendMarginCharData(loadKnownAbilities(), 0x07, client,0, false);             // Known Abilities
+            SendMarginCharData(knownHardlines, 0x08, client,0, false);                   // Hardlines
+            SendMarginCharData(empty, 0x09, client,0, false);                            // Access Nodes?
             //sendMarginCharData(codeArchiveTest, 0x0a, client);                // Code Storage
-            sendMarginCharData(empty, 0x0a, client,0, false);                            // Code Storage CR1
-            sendMarginCharData(knownContacts, 0x0b, client,0, false);                    // Contacts
-            sendMarginCharData(empty, 0x0e, client,0, false);
+            SendMarginCharData(empty, 0x0a, client,0, false);                            // Code Storage CR1
+            SendMarginCharData(knownContacts, 0x0b, client,0, false);                    // Contacts
+            SendMarginCharData(empty, 0x0e, client,0, false);
 
             // MotD has a special handling
 			DbParams _dbParams;
@@ -726,16 +721,16 @@ namespace hds{
 				announcement.append(currentTime);
 				announcement.append(text);
 				
-				sendMarginCharData(announcement.getBytes(), 0x0d, client, 10000, true);
+				SendMarginCharData(announcement.getBytes(), 0x0d, client, 10000, true);
 			}
 			/* End of the MOTD */
 
         }
 		
 		public void waitForWorldReply(){
-			this.waitingForWorld = true;
+			waitingForWorld = true;
 			
-			while(this.waitingForWorld){
+			while(waitingForWorld){
 				Thread.Sleep(25);
 			}
 			
@@ -759,7 +754,7 @@ namespace hds{
             Console.WriteLine("Establish UDP Session Reply for CharID:" + newCharID);
             byte[] response = { 0x11, 0x00, 0x00, 0x00, 0x00, 0x01 };
             byte[] encryptedResponse = marginEncr.encrypt(response);
-            sendTCPVariableLenPacket(encryptedResponse, this.clientStream);
+            sendTCPVariableLenPacket(encryptedResponse, clientStream);
         }
 
         public void ConnectChallengeResponse(byte[] packet, NetworkStream client)
@@ -814,7 +809,7 @@ namespace hds{
             byte[] signedData = new byte[packet.Length - 135];
             ArrayUtils.copy(packet,135,signedData,0,packet.Length-135);
 			int userid = BitConverter.ToInt32(signedData, 1);
-			this.userID = (UInt32)userid;
+			userID = (UInt32)userid;
 
 			
             // Stripout Exponent and Modulus
@@ -880,7 +875,7 @@ namespace hds{
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ERROR ex: " + ex.ToString());
+                Console.WriteLine("ERROR ex: " + ex);
                 throw;
             }
             client.Flush();

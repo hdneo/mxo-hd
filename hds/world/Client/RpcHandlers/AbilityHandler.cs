@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using hds.shared;
 using hds.world.Skill;
@@ -14,11 +15,27 @@ namespace hds
         public Timer hyperjumpTimer;
         private List<JumpStep> Steps = new List<JumpStep>();
 
-        public void processAbility(ref byte[] packet)
+
+        public void ProcessUpgradeAbility(ref byte[] packet)
         {
             PacketReader reader = new PacketReader(packet);
-            UInt16 AbilityID = reader.readUInt16(1);
-            UInt16 currentTargetViewId = reader.readUInt16(1);
+            UInt16 abilityId = reader.ReadUInt16(1);
+            UInt16 unknownUint16 = reader.ReadUInt16(1);
+            uint levelToIncrease = reader.ReadUint8();
+
+            AbilityItem abilityItem = DataLoader.getInstance().getAbilityByID(abilityId);
+            ushort currentLevel = Store.dbManager.WorldDbHandler.UpgradeAbilityLevel(abilityItem.getGOID(), levelToIncrease);
+
+            ServerPackets packets = new ServerPackets();
+            packets.SendUpgradeAbilityLevel(abilityId, currentLevel);
+
+        }
+        
+        public void ProcessAbility(ref byte[] packet)
+        {
+            PacketReader reader = new PacketReader(packet);
+            UInt16 AbilityID = reader.ReadUInt16(1);
+            UInt16 currentTargetViewId = reader.ReadUInt16(1);
 
 
             // load the ability name from a list to see if we match the right ability
@@ -110,18 +127,15 @@ namespace hds
             double yDest = 0;
             double zDest = 0;
             PacketReader reader = new PacketReader(rpcData);
-            xDest = reader.readDouble(1);
-            yDest = reader.readDouble(1);
-            zDest = reader.readDouble(1);
-
-            UInt32 peakHeight = reader.readUInt32(1);
-
-            // ToDo: figure out what this 6 bytes are could be
-            // Skip 6 bytes as we currently didnt knew
-            byte[] unknownJumpBytes = reader.readBytes(6);
-            float maybeMaxHeight = reader.readFloat(1);
-            reader.incrementOffsetByValue(1);
-            UInt32 clientJumpIdUnknown = reader.readUInt32(1);
+            xDest = reader.ReadDouble(1);
+            yDest = reader.ReadDouble(1);
+            zDest = reader.ReadDouble(1);
+            
+            byte[] unknownJumpBytes = reader.ReadBytes(6);
+            UInt32 peakHeight = reader.ReadUInt32(1);
+            uint maybeFlag = reader.ReadUint8(); // is it everytime 01 ? maybe must check 
+            
+            UInt32 jumpId = reader.ReadUInt32(1); // JumpId
 
             // Players current X Z Y
             double x = 0;
@@ -140,13 +154,14 @@ namespace hds
             // ToDo: this is just the old way testing
             float distance = Maths.getDistance(xPos, yPos, zPos, (float) xDest, (float) yDest, (float) zDest);
             
-            UInt16 duration = (UInt16) (distance * 0.7f);
+            UInt16 duration = (UInt16) (distance * 1.25f);
 
             UInt32 startTime = TimeUtils.getUnixTimeUint32();
             UInt32 endTime = startTime + duration;
             
             ServerPackets packets = new ServerPackets();
-            packets.SendHyperJumpUpdate(xPos,yPos,zPos,(float)xDest,(float)yDest,(float)zDest,startTime,endTime);
+            packets.SendHyperJumpID(jumpId);
+            packets.SendHyperJumpWithOneStep((float)xDest,(float)yDest,(float)zDest, peakHeight, endTime);
         }
         
         
@@ -164,7 +179,7 @@ namespace hds
             UInt32 endTime = startTime + duration;
 
             ServerPackets packets = new ServerPackets();
-            packets.sendHyperJumpID(clientJumpIdUnknown);
+            packets.SendHyperJumpID(clientJumpIdUnknown);
             Store.currentClient.playerData.isJumping = true;
             Store.currentClient.playerData.incrementJumpID();
             UInt32 maybeTimeBasedValue = 40384248;
@@ -198,7 +213,7 @@ namespace hds
             {
                 Store.currentClient.playerData.isJumping = false;
                 // ToDo: Check if we need to send some Message for the Clientview
-            }
+            }    
         }
 
         public void processHyperJumpCancel(ref byte[] rpcData)
@@ -207,13 +222,13 @@ namespace hds
             double yDest = 0;
             double zDest = 0;
             PacketReader reader = new PacketReader(rpcData);
-            xDest = reader.readDouble(1);
-            yDest = reader.readDouble(1);
-            zDest = reader.readDouble(1);
+            xDest = reader.ReadDouble(1);
+            yDest = reader.ReadDouble(1);
+            zDest = reader.ReadDouble(1);
 
             // ToDo: figure out what this 6 bytes are could be
             // Skip 6 bytes as we currently didnt knew
-            UInt32 clientJumpIdUnknown = reader.readUInt32(1);
+            UInt32 clientJumpIdUnknown = reader.ReadUInt32(1);
 
             // Players current X Z Y
             double x = 0;
@@ -233,7 +248,7 @@ namespace hds
             UInt32 endTime = startTime + duration;
 
             ServerPackets packets = new ServerPackets();
-            packets.sendHyperJumpID(clientJumpIdUnknown);
+            packets.SendHyperJumpID(clientJumpIdUnknown);
             packets.SendHyperJumpUpdate(xPos, yPos, zPos, (float) xDest, (float) yDest, (float) zDest, startTime,
                 endTime);
         }

@@ -16,12 +16,12 @@ namespace hds
             {
                 PacketContent pak = new PacketContent();
 
-                pak.addUint16(1, 1);
-                pak.addByteArray(Store.world.objMan.GenerateCreationPacket(creationObjectData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
-                pak.addUint16(staticObjectView.ViewID, 1);
-                pak.addByte(0x00);
+                pak.AddUint16(1, 1);
+                pak.AddByteArray(Store.world.objMan.GenerateCreationPacket(creationObjectData, 0x0000, client.playerData.assignSpawnIdCounter()).getBytes());
+                pak.AddUint16(staticObjectView.ViewID, 1);
+                pak.AddByte(0x00);
  
-                client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+                client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
                 client.FlushQueue();
                 staticObjectView.viewCreated = true;
             }
@@ -30,50 +30,49 @@ namespace hds
 
         public void SendUpdateViewStatePacket(WorldClient client, UInt16 viewId, byte[] updateData)
         {
-            
             PacketContent pak = new PacketContent();
-            pak.addUint16(viewId,1);
-            pak.addByteArray(updateData);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(viewId,1);
+            pak.AddByteArray(updateData);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), true);
         }
 
         public void SendElevatorPanel(WorldClient client, StaticWorldObject objectValues)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_ELEVATOR_PANEL,0);
-            pak.addUint16((UInt16)NumericalUtils.RotateRight(objectValues.sectorID,4),1);
-            pak.addHexBytes("4400");
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_ELEVATOR_PANEL,0);
+            pak.AddUint16((UInt16)NumericalUtils.RotateRight(objectValues.sectorID,4),1);
+            pak.AddHexBytes("4400");
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendHardlineExit(WorldClient client)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_EXIT_HL, 0);
-            pak.addByte(0x95);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x00);
-            pak.addByte(0x01);
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_EXIT_HL, 0);
+            pak.AddByte(0x95);
+            pak.AddByte(0x00);
+            pak.AddByte(0x00);
+            pak.AddByte(0x00);
+            pak.AddByte(0x01);
 
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendInteractionSubway(WorldClient client, double x, double y, double z)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_SUBWAY_INTERACTION,0);
-            pak.addDouble(x,1);
-            pak.addDouble(y,1);
-            pak.addDouble(z,1);
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_SUBWAY_INTERACTION,0);
+            pak.AddDouble(x,1);
+            pak.AddDouble(y,1);
+            pak.AddDouble(z,1);
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
         public void SendSubwaymapWindow(WorldClient client)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_SUBWAY_MAP, 0);
-            pak.addUintShort(10);
-            Store.currentClient.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_SUBWAY_MAP, 0);
+            pak.AddUShort(10);
+            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
     }

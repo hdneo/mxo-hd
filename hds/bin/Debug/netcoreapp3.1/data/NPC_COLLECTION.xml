@@ -1,0 +1,183 @@
+<?xml version="1.0"?>
+<config>
+	<data NPC_NUMBER="176">
+
+		<npc1 type="MISSION_CONTACT" DISTRICT="1" ID="1e002024" handle="Yttri" RSI="250D0098" x_pos="607.0" y_pos="27.0" z_pos="-38.0" />
+		<npc2 type="MISSION_CONTACT" DISTRICT="1" ID="2d00501a" handle="Raini" RSI="560A0058" x_pos="581.0" y_pos="1.0" z_pos="-1723.0" />
+		<npc3 type="MISSION_CONTACT" DISTRICT="1" ID="4900c03e" handle="Silver" RSI="750A0058" x_pos="1006.0" y_pos="-17.0" z_pos="-513.0" />
+		<npc4 type="MISSION_CONTACT" DISTRICT="1" ID="1c003050" handle="Digger" RSI="2D0D0098" x_pos="332.0" y_pos="-3.0" z_pos="-1008.0" />
+		<npc5 type="MISSION_CONTACT" DISTRICT="1" ID="3c1d4011" handle="Ruth" RSI="720A0058" x_pos="1007.0" y_pos="-5.0" z_pos="-1411.0" />
+		<npc6 type="MISSION_CONTACT" DISTRICT="1" ID="820d302e" handle="Argon" RSI="350A0058" x_pos="587.0" y_pos="181.0" z_pos="-914.0" />
+		<npc7 type="MISSION_CONTACT" DISTRICT="1" ID="ca004009" handle="Anti M" RSI="340A0058" x_pos="165.0" y_pos="5.0" z_pos="-669.0" />
+		<npc8 type="MISSION_CONTACT" DISTRICT="1" ID="7700204e" handle="Sister Margaret" RSI="760A0058" x_pos="191.0" y_pos="5.0" z_pos="121.0" />
+		<npc9 type="MISSION_CONTACT" DISTRICT="1" ID="6b029036" handle="Beryl" RSI="360A0058" x_pos="1410.0" y_pos="33.0" z_pos="-1089.0" />
+		<npc10 type="MISSION_CONTACT" DISTRICT="1" ID="2400a048" handle="Molly B." RSI="520A0058" x_pos="745.0" y_pos="6.0" z_pos="-259.0" />
+		<npc11 type="MISSION_CONTACT" DISTRICT="1" ID="950a5046" handle="The Bag Lady" RSI="7A0A0058" x_pos="1096.0" y_pos="7.0" z_pos="-18.0" />
+		<npc12 type="MISSION_CONTACT" DISTRICT="1" ID="5e00b047" handle="The Chessman" RSI="7C0A0058" x_pos="760.0" y_pos="5.0" z_pos="271.0" />
+		<npc13 type="MISSION_CONTACT" DISTRICT="1" ID="2f035048" handle="Mercury" RSI="4F0A0058" x_pos="-50.0" y_pos="-13.0" z_pos="157.0" />
+		<npc14 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="169.998" y_pos="4.95" z_pos="14.9872" IS_DEFEATED="false" />
+		<npc15 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="171.543" y_pos="4.95" z_pos="14.7427" IS_DEFEATED="false" />
+		<npc16 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="172.936" y_pos="4.95" z_pos="14.0332" IS_DEFEATED="false" />
+		<npc17 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="174.042" y_pos="4.95" z_pos="12.928" IS_DEFEATED="false" />
+		<npc18 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="174.753" y_pos="4.95" z_pos="11.5353" IS_DEFEATED="false" />
+		<npc19 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="174.998" y_pos="4.95" z_pos="9.99114" IS_DEFEATED="false" />
+		<npc20 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="174.755" y_pos="4.95" z_pos="8.44662" IS_DEFEATED="false" />
+		<npc21 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="174.047" y_pos="4.95" z_pos="7.05275" IS_DEFEATED="false" />
+		<npc22 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="172.942" y_pos="4.95" z_pos="5.94582" IS_DEFEATED="false" />
+		<npc23 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="171.55" y_pos="4.95" z_pos="5.2341" IS_DEFEATED="false" />
+		<npc24 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="170.006" y_pos="4.95" z_pos="4.98717" IS_DEFEATED="false" />
+		<npc25 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="168.462" y_pos="4.95" z_pos="5.22918" IS_DEFEATED="false" />
+		<npc26 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="167.067" y_pos="4.95" z_pos="5.93647" IS_DEFEATED="false" />
+		<npc27 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="165.959" y_pos="4.95" z_pos="7.03987" IS_DEFEATED="false" />
+		<npc28 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="165.247" y_pos="4.95" z_pos="8.43148" IS_DEFEATED="false" />
+		<npc29 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="164.998" y_pos="4.95" z_pos="9.97522" IS_DEFEATED="false" />
+		<npc30 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="165.239" y_pos="4.95" z_pos="11.5201" IS_DEFEATED="false" />
+		<npc31 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="165.945" y_pos="4.95" z_pos="12.9151" IS_DEFEATED="false" />
+		<npc32 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B5010058" x_pos="167.048" y_pos="4.95" z_pos="14.0238" IS_DEFEATED="false" />
+		<npc33 type="HOSTILE" DISTRICT="1" handle="Blackwoods" level="5" hpM="500" hpC="500" RSI="B7010058" x_pos="168.439" y_pos="4.95" z_pos="14.7377" IS_DEFEATED="false" />
+		<npc34 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="952.017" y_pos="0.95" z_pos="262.963" IS_DEFEATED="false" />
+		<npc35 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="953.561" y_pos="0.95" z_pos="262.718" IS_DEFEATED="false" />
+		<npc36 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="954.954" y_pos="0.95" z_pos="262.009" IS_DEFEATED="false" />
+		<npc37 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="956.06" y_pos="0.95" z_pos="260.904" IS_DEFEATED="false" />
+		<npc38 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="956.771" y_pos="0.95" z_pos="259.511" IS_DEFEATED="false" />
+		<npc39 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="957.017" y_pos="0.95" z_pos="257.967" IS_DEFEATED="false" />
+		<npc40 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="956.773" y_pos="0.95" z_pos="256.422" IS_DEFEATED="false" />
+		<npc41 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="956.065" y_pos="0.95" z_pos="255.029" IS_DEFEATED="false" />
+		<npc42 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="954.961" y_pos="0.95" z_pos="253.922" IS_DEFEATED="false" />
+		<npc43 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="953.568" y_pos="0.95" z_pos="253.21" IS_DEFEATED="false" />
+		<npc44 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="952.025" y_pos="0.95" z_pos="252.963" IS_DEFEATED="false" />
+		<npc45 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="950.48" y_pos="0.95" z_pos="253.205" IS_DEFEATED="false" />
+		<npc46 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="949.085" y_pos="0.95" z_pos="253.912" IS_DEFEATED="false" />
+		<npc47 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="947.978" y_pos="0.95" z_pos="255.016" IS_DEFEATED="false" />
+		<npc48 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="947.265" y_pos="0.95" z_pos="256.407" IS_DEFEATED="false" />
+		<npc49 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="947.017" y_pos="0.95" z_pos="257.951" IS_DEFEATED="false" />
+		<npc50 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="947.257" y_pos="0.95" z_pos="259.496" IS_DEFEATED="false" />
+		<npc51 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="947.964" y_pos="0.95" z_pos="260.891" IS_DEFEATED="false" />
+		<npc52 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="3A030008" x_pos="949.066" y_pos="0.95" z_pos="262.0" IS_DEFEATED="false" />
+		<npc53 type="HOSTILE" DISTRICT="1" handle="Demon Army" level="10" hpM="1000" hpC="1000" RSI="32030008" x_pos="950.457" y_pos="0.95" z_pos="262.714" IS_DEFEATED="false" />
+		<npc54 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="960.088" y_pos="4.95" z_pos="-354.912" IS_DEFEATED="false" />
+		<npc55 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="961.632" y_pos="4.95" z_pos="-355.156" IS_DEFEATED="false" />
+		<npc56 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="963.026" y_pos="4.95" z_pos="-355.866" IS_DEFEATED="false" />
+		<npc57 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="964.132" y_pos="4.95" z_pos="-356.971" IS_DEFEATED="false" />
+		<npc58 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="964.842" y_pos="4.95" z_pos="-358.363" IS_DEFEATED="false" />
+		<npc59 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="965.088" y_pos="4.95" z_pos="-359.908" IS_DEFEATED="false" />
+		<npc60 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="964.845" y_pos="4.95" z_pos="-361.452" IS_DEFEATED="false" />
+		<npc61 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="964.136" y_pos="4.95" z_pos="-362.846" IS_DEFEATED="false" />
+		<npc62 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="963.032" y_pos="4.95" z_pos="-363.953" IS_DEFEATED="false" />
+		<npc63 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="961.64" y_pos="4.95" z_pos="-364.665" IS_DEFEATED="false" />
+		<npc64 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="960.096" y_pos="4.95" z_pos="-364.912" IS_DEFEATED="false" />
+		<npc65 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="958.551" y_pos="4.95" z_pos="-364.67" IS_DEFEATED="false" />
+		<npc66 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="957.157" y_pos="4.95" z_pos="-363.962" IS_DEFEATED="false" />
+		<npc67 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="956.049" y_pos="4.95" z_pos="-362.859" IS_DEFEATED="false" />
+		<npc68 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="955.336" y_pos="4.95" z_pos="-361.467" IS_DEFEATED="false" />
+		<npc69 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="955.088" y_pos="4.95" z_pos="-359.923" IS_DEFEATED="false" />
+		<npc70 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="955.329" y_pos="4.95" z_pos="-358.379" IS_DEFEATED="false" />
+		<npc71 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="956.035" y_pos="4.95" z_pos="-356.984" IS_DEFEATED="false" />
+		<npc72 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D0010058" x_pos="957.137" y_pos="4.95" z_pos="-355.875" IS_DEFEATED="false" />
+		<npc73 type="HOSTILE" DISTRICT="1" handle="Slashers" level="15" hpM="1500" hpC="1500" RSI="D4010058" x_pos="958.529" y_pos="4.95" z_pos="-355.161" IS_DEFEATED="false" />
+		<npc74 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="839.198" y_pos="0.85" z_pos="-1164.14" IS_DEFEATED="false" />
+		<npc75 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="CD010058" x_pos="840.742" y_pos="0.85" z_pos="-1164.38" IS_DEFEATED="false" />
+		<npc76 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="CD010058" x_pos="842.136" y_pos="0.85" z_pos="-1165.09" IS_DEFEATED="false" />
+		<npc77 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="843.242" y_pos="0.85" z_pos="-1166.2" IS_DEFEATED="false" />
+		<npc78 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="843.952" y_pos="0.85" z_pos="-1167.59" IS_DEFEATED="false" />
+		<npc79 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="844.198" y_pos="0.85" z_pos="-1169.14" IS_DEFEATED="false" />
+		<npc80 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="843.955" y_pos="0.85" z_pos="-1170.68" IS_DEFEATED="false" />
+		<npc81 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="843.246" y_pos="0.85" z_pos="-1172.07" IS_DEFEATED="false" />
+		<npc82 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="CD010058" x_pos="842.142" y_pos="0.85" z_pos="-1173.18" IS_DEFEATED="false" />
+		<npc83 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="840.75" y_pos="0.85" z_pos="-1173.89" IS_DEFEATED="false" />
+		<npc84 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="839.206" y_pos="0.85" z_pos="-1174.14" IS_DEFEATED="false" />
+		<npc85 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="837.661" y_pos="0.85" z_pos="-1173.9" IS_DEFEATED="false" />
+		<npc86 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="CD010058" x_pos="836.267" y_pos="0.85" z_pos="-1173.19" IS_DEFEATED="false" />
+		<npc87 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="835.159" y_pos="0.85" z_pos="-1172.09" IS_DEFEATED="false" />
+		<npc88 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="834.446" y_pos="0.85" z_pos="-1170.7" IS_DEFEATED="false" />
+		<npc89 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="834.198" y_pos="0.85" z_pos="-1169.15" IS_DEFEATED="false" />
+		<npc90 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="834.439" y_pos="0.85" z_pos="-1167.61" IS_DEFEATED="false" />
+		<npc91 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="CD010058" x_pos="835.145" y_pos="0.85" z_pos="-1166.21" IS_DEFEATED="false" />
+		<npc92 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C9010058" x_pos="836.247" y_pos="0.85" z_pos="-1165.1" IS_DEFEATED="false" />
+		<npc93 type="HOSTILE" DISTRICT="1" handle="Silver Bullets" level="20" hpM="2000" hpC="2000" RSI="C5010058" x_pos="837.639" y_pos="0.85" z_pos="-1164.39" IS_DEFEATED="false" />
+		<npc94 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1301.38" y_pos="-5.05" z_pos="-1071.44" IS_DEFEATED="false" />
+		<npc95 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BB010058" x_pos="1302.92" y_pos="-5.05" z_pos="-1071.69" IS_DEFEATED="false" />
+		<npc96 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1304.32" y_pos="-5.05" z_pos="-1072.4" IS_DEFEATED="false" />
+		<npc97 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BB010058" x_pos="1305.42" y_pos="-5.05" z_pos="-1073.5" IS_DEFEATED="false" />
+		<npc98 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1306.13" y_pos="-5.05" z_pos="-1074.9" IS_DEFEATED="false" />
+		<npc99 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1306.38" y_pos="-5.05" z_pos="-1076.44" IS_DEFEATED="false" />
+		<npc100 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1306.13" y_pos="-5.05" z_pos="-1077.99" IS_DEFEATED="false" />
+		<npc101 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1305.43" y_pos="-5.05" z_pos="-1079.38" IS_DEFEATED="false" />
+		<npc102 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1304.32" y_pos="-5.05" z_pos="-1080.49" IS_DEFEATED="false" />
+		<npc103 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1302.93" y_pos="-5.05" z_pos="-1081.2" IS_DEFEATED="false" />
+		<npc104 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1301.39" y_pos="-5.05" z_pos="-1081.44" IS_DEFEATED="false" />
+		<npc105 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BB010058" x_pos="1299.84" y_pos="-5.05" z_pos="-1081.2" IS_DEFEATED="false" />
+		<npc106 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1298.45" y_pos="-5.05" z_pos="-1080.5" IS_DEFEATED="false" />
+		<npc107 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1297.34" y_pos="-5.05" z_pos="-1079.39" IS_DEFEATED="false" />
+		<npc108 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1296.63" y_pos="-5.05" z_pos="-1078.0" IS_DEFEATED="false" />
+		<npc109 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1296.38" y_pos="-5.05" z_pos="-1076.46" IS_DEFEATED="false" />
+		<npc110 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1296.62" y_pos="-5.05" z_pos="-1074.91" IS_DEFEATED="false" />
+		<npc111 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BB010058" x_pos="1297.32" y_pos="-5.05" z_pos="-1073.52" IS_DEFEATED="false" />
+		<npc112 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="B8010058" x_pos="1298.43" y_pos="-5.05" z_pos="-1072.41" IS_DEFEATED="false" />
+		<npc113 type="HOSTILE" DISTRICT="1" handle="Bricks" level="25" hpM="2500" hpC="2500" RSI="BD010058" x_pos="1299.82" y_pos="-5.05" z_pos="-1071.69" IS_DEFEATED="false" />
+		<npc114 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="292.638" y_pos="0.95" z_pos="-116.777" IS_DEFEATED="false" />
+		<npc115 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="290.073" y_pos="0.95" z_pos="-122.013" IS_DEFEATED="false" />
+		<npc116 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="292.966" y_pos="0.95" z_pos="-118.11" IS_DEFEATED="false" />
+		<npc117 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="247.494" y_pos="0.95" z_pos="-144.22" IS_DEFEATED="false" />
+		<npc118 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="249.116" y_pos="0.95" z_pos="-136.613" IS_DEFEATED="false" />
+		<npc119 type="HOSTILE" DISTRICT="1" handle="Clone Ag. Smith" level="50" hpM="10000" hpC="10000" RSI="3600004E" x_pos="257.411" y_pos="0.95" z_pos="-137.828" IS_DEFEATED="false" />
+		<npc120 type="HOSTILE" DISTRICT="1" handle="Corrupted's Shadow" level="15" hpM="1500" hpC="1500" RSI="2C050004" x_pos="208.0" y_pos="5.0" z_pos="65.0" IS_DEFEATED="false" />
+		<npc121 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1107.75" y_pos="-5.05" z_pos="-590.0" IS_DEFEATED="false" rotation="63" mood="1107.75" />
+		<npc122 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1111.89" y_pos="-5.05" z_pos="-590.0" IS_DEFEATED="false" rotation="190" mood="1111.89" />
+		<npc123 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1107.88" y_pos="-5.05" z_pos="-580.0" IS_DEFEATED="false" rotation="63" mood="1107.88" />
+		<npc124 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1111.9" y_pos="-5.05" z_pos="-580.0" IS_DEFEATED="false" rotation="190" mood="1111.9" />
+		<npc125 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1112.1" y_pos="-5.05" z_pos="-570.0" IS_DEFEATED="false" rotation="190" mood="1112.1" />
+		<npc126 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1108.08" y_pos="-5.05" z_pos="-570.0" IS_DEFEATED="false" rotation="63" mood="1108.08" />
+		<npc127 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1107.86" y_pos="-5.05" z_pos="-560.0" IS_DEFEATED="false" rotation="63" mood="1107.86" />
+		<npc128 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1111.91" y_pos="-5.05" z_pos="-560.0" IS_DEFEATED="false" rotation="190" mood="1111.91" />
+		<npc129 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1112.02" y_pos="-5.05" z_pos="-550.0" IS_DEFEATED="false" rotation="190" mood="1112.02" />
+		<npc130 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1108.04" y_pos="-5.05" z_pos="-550.0" IS_DEFEATED="false" rotation="63" mood="1108.04" />
+		<npc131 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1107.96" y_pos="-5.05" z_pos="-540.0" IS_DEFEATED="false" rotation="63" mood="1107.96" />
+		<npc132 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1112.0" y_pos="-5.05" z_pos="-540.0" IS_DEFEATED="false" rotation="190" mood="1112.0" />
+		<npc133 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="E5030008" x_pos="1112.08" y_pos="-5.05" z_pos="-530.0" IS_DEFEATED="false" rotation="190" mood="1112.08" />
+		<npc134 type="FRIENDLY" DISTRICT="1" handle="E Pluribus Neo" level="255" RSI="F0030008" x_pos="1108.08" y_pos="-5.05" z_pos="-530.0" IS_DEFEATED="false" rotation="63" mood="1108.08" />
+		<npc135 type="NEO_RSI" DISTRICT="1" handle="00000000" level="0" RSI="00000000" x_pos="1111.6" y_pos="-5.05" z_pos="-467.15" IS_DEFEATED="false" rotation="190" mood="normal" />
+		<npc136 type="FRIENDLY" DISTRICT="1" handle="The Kid" level="255" RSI="FC0D0004" x_pos="1111.05" y_pos="-4.05" z_pos="-464.9" IS_DEFEATED="false" rotation="127" mood="1111.05" />
+		<npc137 type="FRIENDLY" DISTRICT="1" handle="Neo" level="255" RSI="F1030008" x_pos="269.896" y_pos="-0.05" z_pos="-128.581" IS_DEFEATED="false" rotation="127" mood="269.896" />
+		<npc138 type="FRIENDLY" DISTRICT="1" handle="Agent Smith" level="255" RSI="9B000090" x_pos="269.993" y_pos="-0.05" z_pos="-131.253" IS_DEFEATED="false" rotation="0" mood="269.993" />
+		<npc139 type="DERBY_COURT_EFFECT" DISTRICT="1" handle="00000000" level="0" RSI="00000000" x_pos="270.145" y_pos="-0.05" z_pos="-129.937" IS_DEFEATED="false" rotation="190" mood="normal" />
+		<npc140 type="FRIENDLY" DISTRICT="1" handle="Sati" level="1" RSI="6C02009C" x_pos="267.697" y_pos="0.95" z_pos="-156.665" IS_DEFEATED="false" rotation="10" mood="267.697" />
+		<npc141 type="FRIENDLY" DISTRICT="1" handle="Kitty" level="1" RSI="520b0028" x_pos="267.947" y_pos="0.3" z_pos="-152.369" IS_DEFEATED="false" rotation="163" mood="267.947" />
+		<npc142 type="FRIENDLY" DISTRICT="1" handle="Trinity" level="1" RSI="120e0004" x_pos="268.896" y_pos="-0.05" z_pos="-127.581" IS_DEFEATED="false" rotation="127" mood="268.896" />
+		<npc143 type="HOSTILE" DISTRICT="11" handle="Tengu" level="35" hpM="1285" hpC="1285" RSI="2C070090" x_pos="-100.487" y_pos="8.95" z_pos="150.858" IS_DEFEATED="false" />
+		<npc144 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-79.4799" y_pos="8.95" z_pos="169.678" IS_DEFEATED="false" />
+		<npc145 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-87.3717" y_pos="8.95" z_pos="169.168" IS_DEFEATED="false" />
+		<npc146 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-82.3686" y_pos="8.95" z_pos="160.133" IS_DEFEATED="false" />
+		<npc147 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-78.8128" y_pos="8.95" z_pos="142.017" IS_DEFEATED="false" />
+		<npc148 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-83.6524" y_pos="8.95" z_pos="131.186" IS_DEFEATED="false" />
+		<npc149 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-87.6717" y_pos="8.95" z_pos="130.695" IS_DEFEATED="false" />
+		<npc150 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-105.314" y_pos="8.95" z_pos="132.515" IS_DEFEATED="false" />
+		<npc151 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-115.654" y_pos="8.95" z_pos="135.203" IS_DEFEATED="false" />
+		<npc152 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-116.703" y_pos="8.95" z_pos="170.06" IS_DEFEATED="false" />
+		<npc153 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-122.684" y_pos="8.95" z_pos="171.645" IS_DEFEATED="false" />
+		<npc154 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-91.3613" y_pos="4.95" z_pos="184.192" IS_DEFEATED="false" />
+		<npc155 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-103.757" y_pos="4.95" z_pos="184.355" IS_DEFEATED="false" />
+		<npc156 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-133.829" y_pos="4.95" z_pos="158.21" IS_DEFEATED="false" />
+		<npc157 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-133.272" y_pos="4.95" z_pos="145.043" IS_DEFEATED="false" />
+		<npc158 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-106.746" y_pos="4.95" z_pos="116.097" IS_DEFEATED="false" />
+		<npc159 type="HOSTILE" DISTRICT="11" handle="Warrior Priestess" level="20" hpM="760" hpC="760" RSI="EB0500BC" x_pos="-93.8338" y_pos="4.95" z_pos="116.46" IS_DEFEATED="false" />
+		<npc160 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-67.6064" y_pos="4.95" z_pos="157.623" IS_DEFEATED="false" />
+		<npc161 type="HOSTILE" DISTRICT="11" handle="Warrior Initiate" level="15" hpM="585" hpC="585" RSI="E40500BC" x_pos="-67.4763" y_pos="4.95" z_pos="144.211" IS_DEFEATED="false" />
+		<npc162 type="DATANODE" DISTRICT="1" x_pos="241.04" y_pos="8.95" z_pos="66.916" />
+		<npc163 type="DATANODE" DISTRICT="1" x_pos="245.351" y_pos="8.95" z_pos="76.5688" />
+		<npc164 type="DATANODE" DISTRICT="1" x_pos="233.408" y_pos="8.95" z_pos="95.8388" />
+		<npc165 type="DATANODE" DISTRICT="1" x_pos="231.576" y_pos="8.95" z_pos="117.119" />
+		<npc166 type="DATANODE" DISTRICT="1" x_pos="212.623" y_pos="8.95" z_pos="80.624" />
+		<npc167 type="DATANODE" DISTRICT="1" x_pos="214.536" y_pos="8.95" z_pos="49.1548" />
+		<npc168 type="DATANODE" DISTRICT="1" x_pos="220.393" y_pos="8.95" z_pos="30.0487" />
+		<npc169 type="DATANODE" DISTRICT="1" x_pos="214.599" y_pos="8.95" z_pos="7.78897" />
+		<npc170 type="DATANODE" DISTRICT="1" x_pos="206.016" y_pos="8.95" z_pos="9.07661" />
+		<npc171 type="DATANODE" DISTRICT="1" x_pos="201.043" y_pos="8.95" z_pos="4.99523" />
+		<npc172 type="DATANODE" DISTRICT="1" x_pos="170.252" y_pos="8.95" z_pos="10.0426" />
+		<npc173 type="DATANODE" DISTRICT="1" x_pos="236.574" y_pos="8.95" z_pos="-31.2451" />
+		<npc174 type="DATANODE" DISTRICT="1" x_pos="263.113" y_pos="8.95" z_pos="-8.06672" />
+		<npc175 type="DATANODE" DISTRICT="1" x_pos="295.818" y_pos="8.95" z_pos="-31.954" />
+		<npc176 type="DATANODE" DISTRICT="1" x_pos="314.402" y_pos="8.95" z_pos="-12.4346" />
+
+	</data>
+</config>

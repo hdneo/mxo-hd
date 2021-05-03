@@ -32,7 +32,7 @@ namespace hds
             Remote = _Remote;
             socket = _socket;
             key = _key;
-            cypher = new WorldEncryptionEnigma();
+            cypher = new WorldEncryption();
 
             messageQueue = new MessageQueue();
 

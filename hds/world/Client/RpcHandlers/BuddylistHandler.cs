@@ -10,8 +10,8 @@ namespace hds
         public void ProcessAddFriend(ref byte[] packet)
         {
             PacketReader reader = new PacketReader(packet);
-            UInt16 listType = reader.readUInt16(1); // Possible List Type (Online, Ignore etc. need research)
-            string playerHandleWithPrefix = reader.readSizedZeroTerminatedString();
+            UInt16 listType = reader.ReadUInt16(1); // Possible List Type (Online, Ignore etc. need research)
+            string playerHandleWithPrefix = reader.ReadSizedZeroTerminatedString();
             string playerHandleClean =
                 playerHandleWithPrefix.Replace("SOE+MXO+" + Store.worldConfig.serverName + "+", "");
             Store.dbManager.WorldDbHandler.AddHandleToFriendList(playerHandleClean,
@@ -23,8 +23,8 @@ namespace hds
         public void ProcessRemoveFriend(ref byte[] packet)
         {
             PacketReader reader = new PacketReader(packet);
-            UInt16 listType = reader.readUInt16(1); // Possible List Type (Online, Ignore etc. need research)
-            string playerHandleWithPrefix = reader.readSizedZeroTerminatedString();
+            UInt16 listType = reader.ReadUInt16(1); // Possible List Type (Online, Ignore etc. need research)
+            string playerHandleWithPrefix = reader.ReadSizedZeroTerminatedString();
             string playerHandleClean =
                 playerHandleWithPrefix.Replace("SOE+MXO+" + Store.worldConfig.serverName + "+", "");
             

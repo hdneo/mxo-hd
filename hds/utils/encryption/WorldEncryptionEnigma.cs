@@ -34,7 +34,7 @@ namespace hds
 		public byte[] encrypt(byte[] plainData, int length, UInt16 pss, UInt16 cseq, UInt16 sseq ){
 
 			this.lastOperationResultSize = 	EnigmaLib.worldEncrypt(plainData,innerBuffer,length,pss,cseq,sseq);
-			byte[] data = new byte[this.lastOperationResultSize];
+			byte[] data = new byte[lastOperationResultSize];
 			ArrayUtils.copy(innerBuffer,0,data,0,this.lastOperationResultSize);
 			return data;
 		}

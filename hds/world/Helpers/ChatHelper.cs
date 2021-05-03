@@ -65,9 +65,9 @@ namespace hds
 
                     if (hasFieldsEnabled)
                     {
-                        UInt64 currentEntityId = WorldSocket.entityIdCounter;
-                        WorldSocket.entityIdCounter++;
-                        WorldSocket.gameServerEntities.Add(instance);
+                        UInt64 currentEntityId = WorldServer.entityIdCounter;
+                        WorldServer.entityIdCounter++;
+                        WorldServer.gameServerEntities.Add(instance);
                         packets.SendSpawnGameObject(Store.currentClient, instance, currentEntityId);
                     }
                 }
@@ -92,9 +92,9 @@ namespace hds
                         updateAttributes.Add(Store.currentClient.playerInstance.OrganizationID);
 
                         PacketContent myselfStateData = new PacketContent();
-                        myselfStateData.addByteArray(
-                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
-                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+                        myselfStateData.AddByteArray(
+                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
 
@@ -143,9 +143,9 @@ namespace hds
                     if (changedReputation)
                     {
                         PacketContent myselfStateData = new PacketContent();
-                        myselfStateData.addByteArray(
-                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes));
-                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.returnFinalPacket(), false);
+                        myselfStateData.AddByteArray(
+                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
 
@@ -299,8 +299,8 @@ namespace hds
                     byte[] yPos = NumericalUtils.floatToByteArray((float) y, 1);
                     byte[] zPos = NumericalUtils.floatToByteArray((float) z, 1);
 
-                    UInt64 currentEntityId = WorldSocket.entityIdCounter;
-                    WorldSocket.entityIdCounter++;
+                    UInt64 currentEntityId = WorldServer.entityIdCounter;
+                    WorldServer.entityIdCounter++;
                     uint rotation = 0;
 
                     Mob theMob = new Mob();
@@ -322,14 +322,14 @@ namespace hds
                     theMob.setRotation(rotation);
                     theMob.setIsDead(false);
                     theMob.setIsLootable(false);
-                    lock (WorldSocket.mobs)
+                    lock (WorldServer.mobs)
                     {
-                        WorldSocket.mobs.Add(theMob);
+                        WorldServer.mobs.Add(theMob);
                     }
 
-                    lock (WorldSocket.gameServerEntities)
+                    lock (WorldServer.gameServerEntities)
                     {
-                        WorldSocket.gameServerEntities.Add(theMob);
+                        WorldServer.gameServerEntities.Add(theMob);
                     }
 
                     // we use this for a test to see if we can spawn mobs and how we can handle them 

@@ -163,12 +163,12 @@ namespace hds{
 
             
             PacketContent packet = new PacketContent();
-            packet.addUintShort((UInt16)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            packet.addHexBytes("0700000000000000000024000000000000000000000000000000000000000000000000");
-            packet.addUint16(messageSize, 1);
-            packet.addByteArray(messageBytes);
+            packet.AddUShort((UInt16)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            packet.AddHexBytes("0700000000000000000024000000000000000000000000000000000000000000000000");
+            packet.AddUint16(messageSize, 1);
+            packet.AddByteArray(messageBytes);
 
-            return packet.returnFinalPacket();
+            return packet.ReturnFinalPacket();
         }
 
 		public static byte[] createSystemMessage(string message, WorldClient client){

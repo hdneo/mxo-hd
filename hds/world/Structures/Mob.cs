@@ -419,16 +419,16 @@ namespace hds
             // Format 04 80 80 80 80 c0 <uint16 health> c0 <uint32 fxid> 01(but unknown for what it is) <uint8 random>
             // Example Full: send 02 03 <viewID> 04 80 80 80 c0 02 00 c0 c1 01 00 28 01 01 00 00;
             var hitPacket = new PacketContent();
-            hitPacket.addByte(0x04);
-            hitPacket.addByte(0x80);
-            hitPacket.addByte(0x80);
-            hitPacket.addByte(0x80);
-            hitPacket.addByte(0xc0);
-            hitPacket.addUint16(healthC, 1);
-            hitPacket.addByte(0xc0);
-            hitPacket.addUint32(hitFxId, 1); // FX ID 
-            hitPacket.addByte(0x01);
-            hitPacket.addUintShort(hitCounter); // Animation Count or something - must be an another as before
+            hitPacket.AddByte(0x04);
+            hitPacket.AddByte(0x80);
+            hitPacket.AddByte(0x80);
+            hitPacket.AddByte(0x80);
+            hitPacket.AddByte(0xc0);
+            hitPacket.AddUint16(healthC, 1);
+            hitPacket.AddByte(0xc0);
+            hitPacket.AddUint32(hitFxId, 1); // FX ID 
+            hitPacket.AddByte(0x01);
+            hitPacket.AddUShort(hitCounter); // Animation Count or something - must be an another as before
             Store.world.SendViewUpdateToClientsWhoHasMobSpawned(hitPacket, this);
         }
 
@@ -437,11 +437,11 @@ namespace hds
             // Through Animation Packet here if you want to start / stop walking etc.
             // aka 0x0e
             var pak = new PacketContent();
-            pak.addByte(0x02);
-            pak.addByte(0x0e);
-            pak.addByte(animationByte);
-            pak.addByte((byte) rotation);
-            pak.addFloatLtVector3f((float) getXPos(), (float) getYPos(), (float) getZPos());
+            pak.AddByte(0x02);
+            pak.AddByte(0x0e);
+            pak.AddByte(animationByte);
+            pak.AddByte((byte) rotation);
+            pak.AddFloatLtVector3f((float) getXPos(), (float) getYPos(), (float) getZPos());
 
             Store.world.SendViewUpdateToClientsWhoHasMobSpawned(pak, this);
         }

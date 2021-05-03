@@ -39,17 +39,17 @@ namespace hds
             UInt16 offsetWeatherEvent = (UInt16)(path.Length + 17);
 
             PacketContent pak = new PacketContent();
-            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_LOAD_WORLD_CMD);
-            pak.addUintShort(0x0e); // dunno if header or not - just part of this
-            pak.addUintShort(0);
-            pak.addUint32(districtId, 1); // Atlas Byte
-            pak.addByteArray(TimeUtils.getCurrentSimTime());
-            pak.addByte(0x01); // SimeTime + 01 
-            pak.addUint16(offsetWeatherEvent, 1);
-            pak.addSizedTerminatedString(path);
-            pak.addSizedTerminatedString(enviromentOptions);
+            pak.AddUShort((ushort)RPCResponseHeaders.SERVER_LOAD_WORLD_CMD);
+            pak.AddUShort(0x0e); // dunno if header or not - just part of this
+            pak.AddUShort(0);
+            pak.AddUint32(districtId, 1); // Atlas Byte
+            pak.AddByteArray(TimeUtils.getCurrentSimTime());
+            pak.AddByte(0x01); // SimeTime + 01 
+            pak.AddUint16(offsetWeatherEvent, 1);
+            pak.AddSizedTerminatedString(path);
+            pak.AddSizedTerminatedString(enviromentOptions);
 
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
             
             
@@ -58,39 +58,39 @@ namespace hds
         public void SendServerSettingUInt(WorldClient client, string key, UInt32 value)
         {
             PacketContent pak = new PacketContent();
-            pak.addUintShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
+            pak.AddUShort((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT);
             int fullLen = key.Length + 2 + 4;
-            pak.addInt16((short)fullLen,1);
-            pak.addSizedString(key);
-            pak.addUint16(4,1);
-            pak.addUint32(value,1);
+            pak.AddInt16((short)fullLen,1);
+            pak.AddSizedString(key);
+            pak.AddUint16(4,1);
+            pak.AddUint32(value,1);
             
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
         
         public void SendServerSettingCheckMotdMessage(WorldClient client, string key)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
+            pak.AddUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
             int fullLen = key.Length + 2 + 4;
-            pak.addInt16((short)fullLen,1);
-            pak.addSizedString(key);
-            pak.addUint16(1,0);
-            pak.addUint16(1,0);
+            pak.AddInt16((short)fullLen,1);
+            pak.AddSizedString(key);
+            pak.AddUint16(1,0);
+            pak.AddUint16(1,0);
 
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
         
         public void SendServerSettingString(WorldClient client, string key, string value)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
+            pak.AddUint16((ushort)RPCResponseHeaders.SERVER_FEATURE_EVENT,0);
             int fullLen = key.Length + value.Length;
-            pak.addInt16((short)fullLen,1);
-            pak.addSizedString(key);
-            pak.addSizedString(value);
+            pak.AddInt16((short)fullLen,1);
+            pak.AddSizedString(key);
+            pak.AddSizedString(value);
             
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
 
@@ -125,11 +125,11 @@ namespace hds
         public void createFlashTraffic(WorldClient client, string url)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FLASH_TRAFFIC,0);
-            pak.addHexBytes("0000070005");
-            pak.addSizedString(url);
-            pak.addByte(0);
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_FLASH_TRAFFIC,0);
+            pak.AddHexBytes("0000070005");
+            pak.AddSizedString(url);
+            pak.AddByte(0);
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
     }

@@ -13,14 +13,14 @@ namespace hds
             
             UInt32 offsetMessage = (uint) handle.Length + 36 + 3;
             PacketContent pak = new PacketContent();
-            pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addUint16(scopeId,1);
-            pak.addUint32(charId, 1);
-            pak.addUint32(36, 1);
-            pak.addUint32(offsetMessage, 1);
-            pak.addHexBytes("000000000000000000000000000000000000000000"); // Unknown Zeros currently
-            pak.addSizedTerminatedString(handle);
-            pak.addSizedTerminatedString(message);
+            pak.AddByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.AddUint16(scopeId,1);
+            pak.AddUint32(charId, 1);
+            pak.AddUint32(36, 1);
+            pak.AddUint32(offsetMessage, 1);
+            pak.AddHexBytes("000000000000000000000000000000000000000000"); // Unknown Zeros currently
+            pak.AddSizedTerminatedString(handle);
+            pak.AddSizedTerminatedString(message);
 
             switch (scopeId)
             {
@@ -29,25 +29,25 @@ namespace hds
                     UInt32 crewId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(),
                             1);
-                    Store.world.SendRPCToCrewMembers(crewId, Store.currentClient, pak.returnFinalPacket(), false);
+                    Store.world.SendRPCToCrewMembers(crewId, Store.currentClient, pak.ReturnFinalPacket(), false);
                     break;
                 case 19:
                 case 20:
                     UInt32 factionId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(),
                             1);
-                    Store.world.SendRPCToFactionMembers(factionId, Store.currentClient, pak.returnFinalPacket(), false);
+                    Store.world.SendRPCToFactionMembers(factionId, Store.currentClient, pak.ReturnFinalPacket(), false);
                     break;
 
                 case 21:
                     UInt32 missionTeamId =
                         NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(),
                             1);
-                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.returnFinalPacket(), false);
+                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.ReturnFinalPacket(), false);
                     break;
 
                 default:
-                    Store.world.sendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.returnFinalPacket());
+                    Store.world.SendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.ReturnFinalPacket());
                     break;
             }
         }
@@ -59,17 +59,17 @@ namespace hds
                                                       .CharacterName.getValue());
             
             PacketContent pak = new PacketContent();
-            pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addByte(0x11);
-            pak.addByte(0x00);
-            pak.addUint32(0,1); // Always zero
-            pak.addUint32(36,1); // Offset Handle Name- maybe its only UInt16 - always 36
-            pak.addUint32((uint) (36 + senderHandleStringWithPrefix.Length + 3), 1);
-            pak.addHexBytes("000000000000000000000000000000000000000000"); 
-            pak.addSizedTerminatedString(senderHandleStringWithPrefix);
-            pak.addSizedTerminatedString(message);
+            pak.AddByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.AddByte(0x11);
+            pak.AddByte(0x00);
+            pak.AddUint32(0,1); // Always zero
+            pak.AddUint32(36,1); // Offset Handle Name- maybe its only UInt16 - always 36
+            pak.AddUint32((uint) (36 + senderHandleStringWithPrefix.Length + 3), 1);
+            pak.AddHexBytes("000000000000000000000000000000000000000000"); 
+            pak.AddSizedTerminatedString(senderHandleStringWithPrefix);
+            pak.AddSizedTerminatedString(message);
             
-            Store.world.SendRPCToOnePlayerByHandle(pak.returnFinalPacket(), receiverHandle);
+            Store.world.SendRPCToOnePlayerByHandle(pak.ReturnFinalPacket(), receiverHandle);
         }
 
         public void sendSystemChatMessage(WorldClient client, string message, string type)
@@ -102,12 +102,12 @@ namespace hds
                 StringUtils.hexStringToBytes("00000000000000000024000000000000000000000000000000000000000000000000");
 
             PacketContent pak = new PacketContent();
-            pak.addByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addByte(typeByte);
-            pak.addByteArray(hexContents);
-            pak.addSizedTerminatedString(message);
+            pak.AddByte((byte) RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.AddByte(typeByte);
+            pak.AddByteArray(hexContents);
+            pak.AddSizedTerminatedString(message);
 
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
             client.FlushQueue();
         }
     }

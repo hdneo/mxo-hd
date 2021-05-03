@@ -152,7 +152,7 @@ namespace hds
 			return _offset;
 		}
 		
-		public byte[] GetSelfUpdateAttributes(List<Attribute> attributesNeedsUpdate){
+		public byte[] GetSelfUpdateAttributes(List<Attribute> attributesNeedsUpdate, bool addAttributeLen){
 			
 			DynamicArray din = new DynamicArray();
 			bool lastGroupEmpty = true;
@@ -208,7 +208,11 @@ namespace hds
 			}
 			
 			//add the counter of attributes sent
-			din.insertBefore((byte)attribCounter);
+			if (addAttributeLen)
+			{
+				din.insertBefore((byte)attribCounter);	
+			}
+			
 			return din.getBytes();
 		}
 		

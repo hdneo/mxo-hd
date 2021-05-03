@@ -13,26 +13,26 @@ namespace hds
             this.packetData = packetData;
             if (packetData.Length > 0)
             {
-                this.lenght = packetData.Length;
+                lenght = packetData.Length;
             }
         }
 
-        public void incrementOffsetByValue(int value)
+        public void IncrementOffsetByValue(int value)
         {
             offset = offset + value;
         }
 
-        public void setOffsetOverrideValue(int value)
+        public void SetOffsetOverrideValue(int value)
         {
             offset = value;
         }
 
-        public int getOffset()
+        public int GetOffset()
         {
             return offset;
         }
 
-        public uint readUint8()
+        public uint ReadUint8()
         {
             uint value = 0;
             value = (uint) packetData[offset];
@@ -41,26 +41,23 @@ namespace hds
 
         }
 
-        public UInt16 readUInt16(int reversed)
+        public UInt16 ReadUInt16(int reversed)
         {
             UInt16 value = 0;
-            // ToDo: implement
-
-            value = NumericalUtils.ByteArrayToUint16(new byte[]{packetData[offset], packetData[offset+1]},reversed);
-
+            value = NumericalUtils.ByteArrayToUint16(new[]{packetData[offset], packetData[offset+1]},reversed);
             offset = offset + 2;
             return value;
         }
 
-        public UInt32 readUInt32(int reversed)
+        public UInt32 ReadUInt32(int reversed)
         {
             UInt32 value = 0;
-            value = NumericalUtils.ByteArrayToUint32(new byte[]{packetData[offset], packetData[offset+1], packetData[offset+2], packetData[offset+3]},reversed);
+            value = NumericalUtils.ByteArrayToUint32(new[]{packetData[offset], packetData[offset+1], packetData[offset+2], packetData[offset+3]},reversed);
             offset = offset + 4;
             return value;
         }
 
-        public float readFloat(int reversed)
+        public float ReadFloat(int reversed)
         {
             float value = 0;
             value = NumericalUtils.byteArrayToFloat(new byte[]{packetData[offset], packetData[offset+1], packetData[offset+2], packetData[offset+3]},reversed);
@@ -68,7 +65,7 @@ namespace hds
             return value;
         }
 
-        public double readDouble(int reversed)
+        public double ReadDouble(int reversed)
         {
             double value = 0;
             value = NumericalUtils.byteArrayToDouble(new byte[]{packetData[offset], packetData[offset+1], packetData[offset+2], packetData[offset+3], packetData[offset+4], packetData[offset+5], packetData[offset+6], packetData[offset+7]},reversed);
@@ -76,10 +73,10 @@ namespace hds
             return value;
         }
 
-        public string readSizedString()
+        public string ReadSizedString()
         {
             string value = "";
-            UInt16 sizeOfString = readUInt16(1);
+            UInt16 sizeOfString = ReadUInt16(1);
 
             byte[] stringBytes = new byte[sizeOfString];
 
@@ -89,10 +86,10 @@ namespace hds
             return value;
         }
 
-        public string readSizedZeroTerminatedString()
+        public string ReadSizedZeroTerminatedString()
         {
             string value = "";
-            UInt16 sizeOfString = readUInt16(1);
+            UInt16 sizeOfString = ReadUInt16(1);
 
             byte[] stringBytes = new byte[sizeOfString - 1];
 
@@ -102,13 +99,18 @@ namespace hds
             return value;
         }
 
-        public byte[] readBytes(int size)
+        public byte[] ReadBytes(int size)
         {
             // Just read amount of bytes
             byte[] newByteArray = new byte[size];
             ArrayUtils.copy(packetData,offset,newByteArray,0,size);
             offset = offset + size;
             return newByteArray;
+        }
+
+        public byte[] ReturnFullData()
+        {
+            return packetData;
         }
     }
 }

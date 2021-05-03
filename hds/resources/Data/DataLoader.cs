@@ -246,8 +246,8 @@ namespace hds
                 //Output.WriteLine("Show Colums for Line : " + linecount.ToString() + " GOID:  " + data[1].ToString() + " Name " + data[0].ToString());
                 if (linecount > 1)
                 {
-                    UInt64 currentEntityId = WorldSocket.entityIdCounter;
-                    WorldSocket.entityIdCounter++;
+                    UInt64 currentEntityId = WorldServer.entityIdCounter;
+                    WorldServer.entityIdCounter++;
                     uint rotation = 0;
                     if (data[10].Length > 0)
                     {
@@ -291,8 +291,8 @@ namespace hds
                         if (!error)
                         {
                             theMob.DoMobUpdate(theMob);
-                            WorldSocket.mobs.Add(theMob);
-                            WorldSocket.gameServerEntities.Add(theMob);
+                            WorldServer.mobs.Add(theMob);
+                            WorldServer.gameServerEntities.Add(theMob);
                         }
                     }
                 }
@@ -539,8 +539,8 @@ namespace hds
                 case 6568:
                     Subway subway = new Subway(worldObject);
                     Subways.Add(subway);
-                    WorldSocket.subways.Add(subway);
-                    WorldSocket.gameServerEntities.Add(subway);
+                    WorldServer.subways.Add(subway);
+                    WorldServer.gameServerEntities.Add(subway);
                     subway.StartCountdown();
                     break;
             }

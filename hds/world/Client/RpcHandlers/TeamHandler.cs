@@ -21,9 +21,9 @@ namespace hds
 
                 // Add the Team to our global Team List
                 MissionTeam team = new MissionTeam(missionTeamName, StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue()));
-                lock (WorldSocket.missionTeams)
+                lock (WorldServer.missionTeams)
                 {
-                    WorldSocket.missionTeams.Add(team);
+                    WorldServer.missionTeams.Add(team);
                 }
             }
         }
@@ -33,12 +33,12 @@ namespace hds
         {
             // read the important things
             PacketReader reader = new PacketReader(packet);
-            uint type = reader.readUint8();
-            UInt16 offsetInviterHandle = reader.readUInt16(1);
-            UInt32 unknownUint32 = reader.readUInt32(1);
+            uint type = reader.ReadUint8();
+            UInt16 offsetInviterHandle = reader.ReadUInt16(1);
+            UInt32 unknownUint32 = reader.ReadUInt32(1);
             
-            reader.setOffsetOverrideValue(offsetInviterHandle-1);
-            string inviterCharacterName = reader.readSizedZeroTerminatedString();
+            reader.SetOffsetOverrideValue(offsetInviterHandle-1);
+            string inviterCharacterName = reader.ReadSizedZeroTerminatedString();
 
             // if it is 0 - then he has accepted the request - otherwise decline and ..we dont care
 
@@ -48,9 +48,9 @@ namespace hds
                     // Team Invites
                     // ToDo: shouldnt it be 3 ? As Faction 1, Crew 2, Mission 3
                     case 0:
-                        lock (WorldSocket.missionTeams)
+                        lock (WorldServer.missionTeams)
                         {
-                            foreach (MissionTeam team in WorldSocket.missionTeams)
+                            foreach (MissionTeam team in WorldServer.missionTeams)
                             {
                                 if (team.characterMasterName.Equals(inviterCharacterName))
                                 {

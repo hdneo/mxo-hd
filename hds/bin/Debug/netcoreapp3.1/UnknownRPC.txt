@@ -1,0 +1,60 @@
+RPCMAIN : Unknown Header 1001 
+ Content:
+ 0000000001
+RPCMAIN : Unknown Header 1001 
+ Content:
+ 0000000001
+Mission Accept Data:03 00 01 
+RPCMAIN : Unknown Header 1001 
+ Content:
+ 0000000001
+CLOSE COMBAT REQUEST
+RPCMAIN : Unknown Header be00 
+ Content:
+ 
+RPCMAIN : Unknown Header 3f00 
+ Content:
+ 0b0010000000
+RPCMAIN : Unknown Header 3e00 
+ Content:
+ 6bee0300000000
+RPCMAIN : Unknown Header 4801 
+ Content:
+ 
+RPCMAIN : Unknown Header 0c00 
+ Content:
+ 01
+RPCMAIN : Unknown Header be00 
+ Content:
+ 
+RPCMAIN : Unknown Header 3f00 
+ Content:
+ 0b0010000000
+RPCMAIN : Unknown Header 3e00 
+ Content:
+ 6bee0300000000
+RPCMAIN : Unknown Header 4801 
+ Content:
+ 
+RPCMAIN : Unknown Header 0c00 
+ Content:
+ 01
+RPCMAIN : Unknown Header be00 
+ Content:
+ 
+RPCMAIN : Unknown Header 3f00 
+ Content:
+ 0b0010000000
+RPCMAIN : Unknown Header 3e00 
+ Content:
+ 6bee0300000000
+RPCMAIN : Unknown Header 4801 
+ Content:
+ 
+RPCMAIN : Unknown Header 0c00 
+ Content:
+ 01
+CLOSE COMBAT REQUEST
+RPCMAIN : Unknown Header 3400 
+ Content:
+ 15

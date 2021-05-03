@@ -8,76 +8,76 @@ namespace hds
     {
         private DynamicArray packet = new DynamicArray();
 
-        public void addHexBytes(String hexbytes)
+        public void AddHexBytes(String hexbytes)
         {
             packet.append(StringUtils.hexStringToBytes(hexbytes));
         }
 
-        public void addInt16(Int16 value, int reversed)
+        public void AddInt16(Int16 value, int reversed)
         {
             packet.append(NumericalUtils.int16ToByteArray(value, reversed));
         }
 
-        public void addInt32(Int32 value, int reversed)
+        public void AddInt32(Int32 value, int reversed)
         {
             packet.append(NumericalUtils.int32ToByteArray(value, reversed));
         }
-        public void addUint32(UInt32 value,int reversed)
+        public void AddUint32(UInt32 value,int reversed)
         {
             packet.append(NumericalUtils.uint32ToByteArray(value, reversed));
         }
 
-        public void addUint16(UInt16 value, int reversed)
+        public void AddUint16(UInt16 value, int reversed)
         {
             packet.append(NumericalUtils.uint16ToByteArray(value, reversed));
         }
 
-        public void addUintShort(UInt16 value)
+        public void AddUShort(UInt16 value)
         {
             packet.append(NumericalUtils.uint16ToByteArrayShort(value));
         }
 
-        public void addByteArray(byte[] array)
+        public void AddByteArray(byte[] array)
         {
             packet.append(array);
         }
 
-        public void addByte(byte value)
+        public void AddByte(byte value)
         {
             packet.append(value);
         }
 
-        public void addFloat(float value, int reversed)
+        public void AddFloat(float value, int reversed)
         {
             packet.append(NumericalUtils.floatToByteArray(value, reversed));
         }
 
-        public void addDouble(double value, int reversed)
+        public void AddDouble(double value, int reversed)
         {
             packet.append(NumericalUtils.doubleToByteArray(value, reversed));
         }
 
-        public void addFloatLtVector3f(float x, float y, float z)
+        public void AddFloatLtVector3f(float x, float y, float z)
         {
             packet.append(NumericalUtils.floatsToLtVector3f(x, y, z));
         }
 
-        public void addDoubleLtVector3d(double x, double y, double z)
+        public void AddDoubleLtVector3d(double x, double y, double z)
         {
             packet.append(NumericalUtils.doublesToLtVector3d(x, y, z));
         }
 
-        public byte[] returnFinalPacket()
+        public byte[] ReturnFinalPacket()
         {
             return packet.getBytes();
         }
 
-        public void addString(string value)
+        public void AddString(string value)
         {
             packet.append(StringUtils.stringToBytes(value));
         }
 
-        public void addSizedTerminatedString(string value)
+        public void AddSizedTerminatedString(string value)
         {
             int size = value.Length + 1;
             packet.append(NumericalUtils.uint16ToByteArray((UInt16)size, 1));
@@ -85,7 +85,7 @@ namespace hds
             packet.append(0x00);
         }
 
-        public void addStringWithFixedSized(string value,int size)
+        public void AddStringWithFixedSized(string value,int size)
         {
             packet.append(StringUtils.stringToBytes(value));
             int paddingSize = size - value.Length;
@@ -103,7 +103,7 @@ namespace hds
             }
         }
 
-        public void addSizedString(string value)
+        public void AddSizedString(string value)
         {
             packet.append(NumericalUtils.uint16ToByteArray((UInt16)value.Length, 1));
             packet.append(StringUtils.stringToBytes(value));

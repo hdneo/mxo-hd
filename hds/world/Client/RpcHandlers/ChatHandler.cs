@@ -15,7 +15,7 @@ namespace hds
         {
 
             PacketReader reader = new PacketReader(packetData);
-            UInt16 typeId = reader.readUInt16(1);
+            UInt16 typeId = reader.ReadUInt16(1);
 
             string typeString = "AREA";
 
@@ -71,12 +71,12 @@ namespace hds
         {
             PacketReader reader = new PacketReader(rpcData);
             // We read the offset but we dont need it really
-            UInt16 offsetName = reader.readUInt16(1);
-            UInt16 offsetMessage = reader.readUInt16(1);
-            uint unknownZeroShort = reader.readUint8();
-            uint chatCounter = reader.readUint8(); // ChatCounter (increment by 1 each message)
-            string receiverHandleServerString = reader.readSizedZeroTerminatedString();
-            string receiverMessage = reader.readSizedZeroTerminatedString();
+            UInt16 offsetName = reader.ReadUInt16(1);
+            UInt16 offsetMessage = reader.ReadUInt16(1);
+            uint unknownZeroShort = reader.ReadUint8();
+            uint chatCounter = reader.ReadUint8(); // ChatCounter (increment by 1 each message)
+            string receiverHandleServerString = reader.ReadSizedZeroTerminatedString();
+            string receiverMessage = reader.ReadSizedZeroTerminatedString();
 
             string cleanHandle = receiverHandleServerString.Replace("SOE+MXO+" + Store.worldConfig.serverName +"+", "");
             

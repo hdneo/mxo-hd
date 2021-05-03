@@ -18,12 +18,12 @@ namespace hds
                 ArrayList deadPlayers = new ArrayList();
 
                 // Clean 
-                lock (WorldSocket.Clients)
+                lock (WorldServer.Clients)
                 {
-                    foreach (string clientKey in WorldSocket.Clients.Keys)
+                    foreach (string clientKey in WorldServer.Clients.Keys)
                     {
                         // Collect dead players to arraylist
-                        WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                        WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
 
                         if (thisclient.Alive == false)
                         {
@@ -46,15 +46,15 @@ namespace hds
         private static void CheckForServerEntites()
         {
             // This can later replace ALL Methods 
-            lock (WorldSocket.gameServerEntities)
+            lock (WorldServer.gameServerEntities)
             {
-                foreach (var serverEntity in WorldSocket.gameServerEntities)
+                foreach (var serverEntity in WorldServer.gameServerEntities)
                 {
-                    lock (WorldSocket.Clients)
+                    lock (WorldServer.Clients)
                     {
-                        foreach (var clientKey in WorldSocket.Clients.Keys)
+                        foreach (var clientKey in WorldServer.Clients.Keys)
                         {
-                            WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                            WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
                             if (thisclient != null)
                             {
                                 // ToDo: Server Entity doesnt match a real rule currently so we need a class or something
@@ -68,17 +68,17 @@ namespace hds
 
         public static void CheckForStaticSubways()
         {
-            int subwayCount = WorldSocket.subways.Count;
+            int subwayCount = WorldServer.subways.Count;
             for (int i = 0; i < subwayCount; i++)
             {
-                Subway thisSubway = (Subway) WorldSocket.subways[i];
+                Subway thisSubway = (Subway) WorldServer.subways[i];
 
-                lock (WorldSocket.Clients)
+                lock (WorldServer.Clients)
                 {
-                    foreach (string clientKey in WorldSocket.Clients.Keys)
+                    foreach (string clientKey in WorldServer.Clients.Keys)
                     {
                         // Loop through all clients
-                        WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                        WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
 
                         if (thisclient.Alive)
                         {
@@ -135,9 +135,9 @@ namespace hds
         {
             Maths mathUtils = new Maths();
             // Used to spawn static ObjectViews in Range and handle them (Signpost, Collectors)
-            lock (WorldSocket.Clients)
+            lock (WorldServer.Clients)
             {
-                foreach (KeyValuePair<string, WorldClient> client in WorldSocket.Clients)
+                foreach (KeyValuePair<string, WorldClient> client in WorldServer.Clients)
                 {
                     WorldClient thisclient = client.Value;
                     // Loop through all clients
@@ -206,17 +206,17 @@ namespace hds
         private static void CheckPlayerMobViews()
         {
             // Spawn/Update for mobs
-            int npcCount = WorldSocket.mobs.Count;
+            int npcCount = WorldServer.mobs.Count;
             for (int i = 0; i < npcCount; i++)
             {
-                Mob thismob = (Mob) WorldSocket.mobs[i];
+                Mob thismob = (Mob) WorldServer.mobs[i];
 
-                lock (WorldSocket.Clients)
+                lock (WorldServer.Clients)
                 {
-                    foreach (string clientKey in WorldSocket.Clients.Keys)
+                    foreach (string clientKey in WorldServer.Clients.Keys)
                     {
                         // Loop through all clients
-                        WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                        WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
 
                         if (thisclient.Alive == true)
                         {
@@ -283,16 +283,16 @@ namespace hds
         private static void CheckPlayerViews()
         {
             // Check for Player Views
-            lock (WorldSocket.Clients)
+            lock (WorldServer.Clients)
             {
-                foreach (string clientKey in WorldSocket.Clients.Keys)
+                foreach (string clientKey in WorldServer.Clients.Keys)
                 {
                     // get Current client
-                    WorldClient currentClient = WorldSocket.Clients[clientKey] as WorldClient;
+                    WorldClient currentClient = WorldServer.Clients[clientKey] as WorldClient;
                     // Loop all Clients and check if we need to create a view for it
-                    foreach (string clientOtherKey in WorldSocket.Clients.Keys)
+                    foreach (string clientOtherKey in WorldServer.Clients.Keys)
                     {
-                        WorldClient otherClient = WorldSocket.Clients[clientOtherKey] as WorldClient;
+                        WorldClient otherClient = WorldServer.Clients[clientOtherKey] as WorldClient;
                         if (otherClient != currentClient)
                         {
                             ClientView clientView = currentClient.viewMan.GetViewForEntityAndGo(
@@ -353,17 +353,17 @@ namespace hds
         {
             foreach (string key in deadPlayers)
             {
-                WorldClient deadClient = WorldSocket.Clients[key] as WorldClient;
-                foreach (string client in WorldSocket.Clients.Keys)
+                WorldClient deadClient = WorldServer.Clients[key] as WorldClient;
+                foreach (string client in WorldServer.Clients.Keys)
                 {
-                    WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
+                    WorldClient otherclient = WorldServer.Clients[client] as WorldClient;
                     ClientView view = otherclient.viewMan.GetViewForEntityAndGo(deadClient.playerData.getEntityId(),
                         NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
 
                     Store.dbManager.WorldDbHandler.SetOnlineStatus(otherclient.playerData.getCharID(), 0);
                     ServerPackets pak = new ServerPackets();
                     pak.sendDeleteViewPacket(otherclient, view.ViewID);
-                    Store.margin.removeClientsByCharId(otherclient.playerData.getCharID());
+                    Store.margin.RemoveClientsByCharId(otherclient.playerData.getCharID());
                 }
 
                 string handle = StringUtils.charBytesToString_NZ(deadClient.playerInstance.CharacterName.getValue());
@@ -374,9 +374,9 @@ namespace hds
                 // ToDo: Announce friendlists from other users that you are going offline (just collect all players whohave this client in list and send the packet)
                 // ToDo: Finally save the current character Data to the Database^^
                 Output.WriteLine("Removed inactive Client with Key " + key);
-                lock (WorldSocket.Clients)
+                lock (WorldServer.Clients)
                 {
-                    WorldSocket.Clients.Remove(key);
+                    WorldServer.Clients.Remove(key);
                 }
             }
         }

@@ -119,8 +119,10 @@ Please Note: they are parsed using a tool we called "Cortana" in the past (befor
 We had some bugs parsing it so some doors position are not correctly currently.
 You can checkout the tool here https://github.com/hdneo/cortana-python.git
 
-Second install a MySQL Server somewhere and change the Settings in Debug/Config.xml. 
+Second install a MySQL Server somewhere.
 Import the SQL which is placed in the SQL Folder. 
+
+Copy Debug/Config.xml.dist to Debug/Config.xml and change the Settings to your server. 
 
 Start the Server and if everything is right it should take some minutes and end with "I am running :D".
 

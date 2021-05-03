@@ -1,5 +1,6 @@
 using System;
 using hds.auth;
+using hds.databases.Entities;
 using hds.shared;
 using hds.world.scripting;
 
@@ -17,9 +18,9 @@ namespace hds{
 			if (hc.doTests()){
 				Output.WriteLine("\nHealth checks OK. Proceeding.\n");
 				// Create
-                Store.auth = new AuthSocket();
-                Store.margin = new MarginSocket();
-                Store.world = new WorldSocket();
+                Store.auth = new AuthServer();
+                Store.margin = new MarginServer();
+                Store.world = new WorldServer();
                 Store.worldThreads = new WorldThreads();
 
                 Store.config = new ServerConfig("Config.xml");
@@ -34,6 +35,7 @@ namespace hds{
                 /* Initialize DB Stuff */
 
                 Store.dbManager = new databases.DatabaseManager();
+                Store.matrixDbContext = new MatrixDbContext(Store.config.dbParams);
 
                 if (Store.config.dbParams.DbType == "mysql"){
                     Store.dbManager.AuthDbHandler = new databases.MyAuthDBAccess();
@@ -60,8 +62,8 @@ namespace hds{
 
                 // Now everything should be loaded - START THE ENGINES!!!
                 Store.auth.startServer();
-                Store.margin.startServer();
-                Store.world.startServer();
+                Store.margin.StartServer();
+                Store.world.StartServer();
 
                 // Check if execution keeps going after starting
                 Output.WriteLine("Im'running :D");
@@ -74,10 +76,10 @@ namespace hds{
 					Store.auth.stopServer();
 					
 					Output.WriteLine("Closing Margin server and threads");
-                    Store.margin.stopServer();
+                    Store.margin.StopServer();
 					
 					Output.WriteLine("Closing World server and threads");
-                    Store.world.stopServer();
+                    Store.world.StopServer();
 					
 					Output.WriteLine("Server exited");
                 };

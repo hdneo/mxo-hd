@@ -15,13 +15,13 @@ namespace hds
         public void sendDeleteViewPacket(WorldClient client, UInt16 viewIdToDelete)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16(1, 1); // Master View
-            pak.addByte(0x01);
-            pak.addUint16(1,1); // Num Views to delete - current just this one (maybe later more)
-            pak.addUint16(viewIdToDelete, 1);
-            pak.addByte(0x00);
+            pak.AddUint16(1, 1); // Master View
+            pak.AddByte(0x01);
+            pak.AddUint16(1,1); // Num Views to delete - current just this one (maybe later more)
+            pak.AddUint16(viewIdToDelete, 1);
+            pak.AddByte(0x00);
 
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
 
         }
@@ -60,13 +60,13 @@ namespace hds
             {
                 byte[] emotePak = { 0x01, 0x28, 0x01, 0x40, 0x00, 0x25, emoteByte, 0x00, 0x00, 0x10 };
                 PacketContent pak = new PacketContent();
-                pak.addUint16(2, 1);
-                pak.addByteArray(emotePak);
-                pak.addFloatLtVector3f(xPos, yPos, zPos);
-                pak.addHexBytes("b9513222"); // We dont know what they are - maybe rotation ?
-                pak.addByte(0x00);
+                pak.AddUint16(2, 1);
+                pak.AddByteArray(emotePak);
+                pak.AddFloatLtVector3f(xPos, yPos, zPos);
+                pak.AddHexBytes("b9513222"); // We dont know what they are - maybe rotation ?
+                pak.AddByte(0x00);
                 //pak.addByteArray(client.playerInstance.Position.getValue());
-                client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+                client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
                 client.FlushQueue();
             }
             
@@ -78,69 +78,69 @@ namespace hds
             // ToDo: should be more dynamic ? How to announce to another players ?
             byte[] moodPak = { 0x02, 0x00, 0x01, 0x01, 0x00, moodByte, 0x00, 0x00 };
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addByte(0x02);
-            pak.addByteArray(moodPak);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(2, 1);
+            pak.AddByte(0x02);
+            pak.AddByteArray(moodPak);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
         }
 
         public void sendAppeareanceUpdate(WorldClient client, byte[] rsibytes)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16(2,1);
-            pak.addByteArray(new byte[] {  0x02, 0x80, 0x89 });
-            pak.addByteArray(rsibytes);
+            pak.AddUint16(2,1);
+            pak.AddByteArray(new byte[] {  0x02, 0x80, 0x89 });
+            pak.AddByteArray(rsibytes);
 
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
         }
 
         public void sendAttribute(WorldClient client, UInt16 attributeValue, byte type)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_ATTRIBUTE, 0);
-            pak.addByte(type);
-            pak.addUint16(attributeValue, 0);
-            pak.addHexBytes("000802");
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_ATTRIBUTE, 0);
+            pak.AddByte(type);
+            pak.AddUint16(attributeValue, 0);
+            pak.AddHexBytes("000802");
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void sendEXPCurrent(WorldClient client, UInt32 exp)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP, 0);
-            pak.addUint32(exp, 1);
-            pak.addHexBytes("00000000");
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP, 0);
+            pak.AddUint32(exp, 1);
+            pak.AddHexBytes("00000000");
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
             
             PacketContent pakAnimation = new PacketContent();
-            pakAnimation.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP_ANIM, 0);
-            pakAnimation.addUint32(exp, 1);
-            pakAnimation.addByte(0x01); // Gain Type
-            pakAnimation.addHexBytes("000000");
-            client.messageQueue.addRpcMessage(pakAnimation.returnFinalPacket());
+            pakAnimation.AddUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_EXP_ANIM, 0);
+            pakAnimation.AddUint32(exp, 1);
+            pakAnimation.AddByte(0x01); // Gain Type
+            pakAnimation.AddHexBytes("000000");
+            client.messageQueue.addRpcMessage(pakAnimation.ReturnFinalPacket());
         }
 
         public void SendInfoCurrent(WorldClient client, UInt32 info)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_INFO, 0);
-            pak.addUint32(info, 1);
-            pak.addHexBytes("00000000");
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_INFO, 0);
+            pak.AddUint32(info, 1);
+            pak.AddHexBytes("00000000");
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         // Updates the Inner Strenght Value
         public void sendISCurrent(WorldClient client, UInt16 innerStrengthValue )
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addByte(0x02);
-            pak.addByteArray(new byte[]{0x80,0x80,0x80});
-            pak.addByte(0x10);
-            pak.addUint16(innerStrengthValue,1);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(2, 1);
+            pak.AddByte(0x02);
+            pak.AddByteArray(new byte[]{0x80,0x80,0x80});
+            pak.AddByte(0x10);
+            pak.AddUint16(innerStrengthValue,1);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
 
         }
@@ -154,21 +154,21 @@ namespace hds
                 foreach (Hashtable friend in friends)
                 {
                     PacketContent pak = new PacketContent();
-                    pak.addUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS_ADD, 0);
-                    pak.addHexBytes("0800");
+                    pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_FRIENDLIST_STATUS_ADD, 0);
+                    pak.AddHexBytes("0800");
                     if ((Int16)friend["online"] ==1)
                     {
-                        pak.addByte(0x3b);
+                        pak.AddByte(0x3b);
                     }
                     else
                     {
-                        pak.addByte(0x3c);
+                        pak.AddByte(0x3c);
                     }
 
-                    pak.addHexBytes("0000");
-                    pak.addByte(0x8e); // Another unknown flag ...mxosource made it wrong lol
-                    pak.addSizedTerminatedString("SOE+MXO+" + Store.worldConfig.serverName+"+"+ friend["handle"]);
-                    client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+                    pak.AddHexBytes("0000");
+                    pak.AddByte(0x8e); // Another unknown flag ...mxosource made it wrong lol
+                    pak.AddSizedTerminatedString("SOE+MXO+" + Store.worldConfig.serverName+"+"+ friend["handle"]);
+                    client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
                 }
             }
         }
@@ -176,11 +176,11 @@ namespace hds
         public void sendPlayerMoveAnim(WorldClient client, byte animationId)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addByte(0x02);
-            pak.addByteArray(new byte[] { 0x01, 0x02 });
-            pak.addByte(animationId);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(2, 1);
+            pak.AddByte(0x02);
+            pak.AddByteArray(new byte[] { 0x01, 0x02 });
+            pak.AddByte(animationId);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
         }
 
@@ -205,19 +205,19 @@ namespace hds
             float zPos = (float)z;
 
             PacketContent pak = new PacketContent();
-            pak.addUint16(2, 1);
-            pak.addByteArray(new byte[]{0x01,0x28});
-            pak.addUintShort((ushort)rand.Next(0, 255));
-            pak.addByteArray(new byte[] { 0x40, 00 });
-            pak.addByte(0x29);
-            pak.addHexBytes(hexAnimation);
-            pak.addByteArray(new byte[] { 0x00, 0x01 });
-            pak.addFloat(xPos,1);
-            pak.addFloat(yPos,1);
-            pak.addFloat(zPos,1);
-            pak.addByteArray(new byte[] {0x20, 0x9f, 0x1e, 0x20});
-            pak.addUint16(0, 1);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(), false);
+            pak.AddUint16(2, 1);
+            pak.AddByteArray(new byte[]{0x01,0x28});
+            pak.AddUShort((ushort)rand.Next(0, 255));
+            pak.AddByteArray(new byte[] { 0x40, 00 });
+            pak.AddByte(0x29);
+            pak.AddHexBytes(hexAnimation);
+            pak.AddByteArray(new byte[] { 0x00, 0x01 });
+            pak.AddFloat(xPos,1);
+            pak.AddFloat(yPos,1);
+            pak.AddFloat(zPos,1);
+            pak.AddByteArray(new byte[] {0x20, 0x9f, 0x1e, 0x20});
+            pak.AddUint16(0, 1);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
             client.FlushQueue();
         }
 
@@ -246,10 +246,10 @@ namespace hds
         {
             PacketContent pak = new PacketContent();
             byte[] spawnPaket = new BootingHelperRsi().generatePlayerSpawnPacket(otherClient, receiverClient.playerData.assignSpawnIdCounter());
-            pak.addByteArray(spawnPaket);
-            pak.addUint16(viewId,1);
-            pak.addByte(0x00);
-            receiverClient.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+            pak.AddByteArray(spawnPaket);
+            pak.AddUint16(viewId,1);
+            pak.AddByte(0x00);
+            receiverClient.messageQueue.addObjectMessage(pak.ReturnFinalPacket(),false);
             receiverClient.FlushQueue();
         }
 
@@ -257,25 +257,25 @@ namespace hds
         {
 
             PacketContent pak = new PacketContent();
-            pak.addByte((byte)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
-            pak.addHexBytes("0700000000000000000000006400002E00240000000000000000000000000000000000");
-            pak.addSizedTerminatedString(handle);
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddByte((byte)RPCResponseHeaders.SERVER_CHAT_MESSAGE_RESPONSE);
+            pak.AddHexBytes("0700000000000000000000006400002E00240000000000000000000000000000000000");
+            pak.AddSizedTerminatedString(handle);
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
 
         public void sendGetBackgroundMessage(WorldClient client)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_GET_BACKGROUND,0);
-            pak.addByte(0x05);
-            pak.addUint16(0,1);
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_PLAYER_GET_BACKGROUND,0);
+            pak.AddByte(0x05);
+            pak.AddUint16(0,1);
 
             // Get Data from DB and save
             Hashtable characterData = Store.dbManager.WorldDbHandler.GetCharInfo(client.playerData.getCharID());
             String backgroundTextt = characterData["background"].ToString();
-            pak.addSizedTerminatedString(backgroundTextt);
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddSizedTerminatedString(backgroundTextt);
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
 
@@ -306,50 +306,50 @@ namespace hds
             }
 
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_GET_DETAILS, 0);
-            pak.addUint32((UInt32)charData["charId"],1);
-            pak.addUint16(handleOffset,1); // Offset to Handle which should ALWAYS be 29
-            pak.addUint32(0,1); // Unknown UInt32 Zero
-            pak.addUint16(firstNameOffset,1 );
-            pak.addUint16(lastNameOffset,1 );
-            pak.addUint32(300,1); // Character Trait ?
-            pak.addUintShort((ushort)charData["alignment"]);
-            pak.addUint16(crewNameOffset,1);
-            pak.addUint16(factionNameOffset,1);
-            pak.addUint32((UInt32)charData["conquest_points"],1);
+            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_GET_DETAILS, 0);
+            pak.AddUint32((UInt32)charData["charId"],1);
+            pak.AddUint16(handleOffset,1); // Offset to Handle which should ALWAYS be 29
+            pak.AddUint32(0,1); // Unknown UInt32 Zero
+            pak.AddUint16(firstNameOffset,1 );
+            pak.AddUint16(lastNameOffset,1 );
+            pak.AddUint32(300,1); // Character Trait ?
+            pak.AddUShort((ushort)charData["alignment"]);
+            pak.AddUint16(crewNameOffset,1);
+            pak.AddUint16(factionNameOffset,1);
+            pak.AddUint32((UInt32)charData["conquest_points"],1);
 
-            pak.addSizedTerminatedString(charData["handle"].ToString());
-            pak.addSizedTerminatedString(charData["firstname"].ToString());
-            pak.addSizedTerminatedString(charData["lastname"].ToString());
+            pak.AddSizedTerminatedString(charData["handle"].ToString());
+            pak.AddSizedTerminatedString(charData["firstname"].ToString());
+            pak.AddSizedTerminatedString(charData["lastname"].ToString());
             if (crewNameOffset > 0)
             {
-                pak.addSizedTerminatedString(charData["crew_name"].ToString());
+                pak.AddSizedTerminatedString(charData["crew_name"].ToString());
             }
             
             if (factionNameOffset > 0)
             {
-                pak.addSizedTerminatedString(charData["faction_name"].ToString());
+                pak.AddSizedTerminatedString(charData["faction_name"].ToString());
             }
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendPlayerBackground(WorldClient client, Hashtable charData)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_HANDLE_BACKGROUND,0 );
-            pak.addUint16(5,1);
-            pak.addUintShort(1);
+            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_PLAYER_HANDLE_BACKGROUND,0 );
+            pak.AddUint16(5,1);
+            pak.AddUShort(1);
             if (charData["background"].ToString().Length > 0)
             {
-                pak.addSizedTerminatedString(charData["background"].ToString());
+                pak.AddSizedTerminatedString(charData["background"].ToString());
             }
             else
             {
-                pak.addUint16(1,0);
-                pak.addUintShort(0);
+                pak.AddUint16(1,0);
+                pak.AddUShort(0);
             }
             
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         // ToDo: Move it to player Packets and make a ?moa command for it
@@ -357,12 +357,12 @@ namespace hds
         {
             // ToDo: proove to remove
             PacketContent pak = new PacketContent();
-            pak.addUint16(2,1);
-            pak.addHexBytes("0281008080808004");
-            pak.addByteArray(rsi);
-            pak.addByte(0x41);
-            pak.addByte(0x00);
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+            pak.AddUint16(2,1);
+            pak.AddHexBytes("0281008080808004");
+            pak.AddByteArray(rsi);
+            pak.AddByte(0x41);
+            pak.AddByte(0x00);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(),false);
 
         }
 
@@ -377,21 +377,21 @@ namespace hds
             float yPos = (float)y;
             float zPos = (float)z;
             
-            pak.addUint16(2,1); // ToDo: we should change this for other views ?
-            pak.addHexBytes("032802C000740010");
-            pak.addFloatLtVector3f(xPos,yPos,zPos);
-            pak.addHexBytes("E93C991E8080808080801001000000"); // ToDo: analyze it more ?
+            pak.AddUint16(2,1); // ToDo: we should change this for other views ?
+            pak.AddHexBytes("032802C000740010");
+            pak.AddFloatLtVector3f(xPos,yPos,zPos);
+            pak.AddHexBytes("E93C991E8080808080801001000000"); // ToDo: analyze it more ?
             client.playerData.isJackoutInProgress = true;
-            client.messageQueue.addObjectMessage(pak.returnFinalPacket(),false);
+            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(),false);
         }
         
 
         public void sendExitGame(WorldClient client)
         {
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_JACKOUT_FINISH,0);
-            pak.addHexBytes("000000000000");
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_JACKOUT_FINISH,0);
+            pak.AddHexBytes("000000000000");
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
 

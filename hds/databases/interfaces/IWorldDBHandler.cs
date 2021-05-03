@@ -47,7 +47,8 @@ namespace hds.databases.interfaces{
         void SaveInfo(WorldClient client, long exp);
 
         void UpdateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
-        
+
+        ushort UpgradeAbilityLevel(Int32 abilityId, uint level);
         //NEW
         void UpdateInventorySlot(UInt16 sourceSlot, UInt16 destSlot, UInt32 charId);
         UInt16 GetFirstNewSlot();

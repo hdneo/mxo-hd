@@ -22,7 +22,7 @@ namespace hds
 
         public void setTotalChars(int total)
         {
-            this.totalChars = total;
+            totalChars = total;
         }
 
         public byte[] getByteContents()

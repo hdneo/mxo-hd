@@ -33,12 +33,12 @@ namespace hds
             byte[] itemSize = NumericalUtils.uint16ToByteArray((UInt16)listItems.getBytes().Length, 1);
 
             PacketContent pak = new PacketContent();
-            pak.addUint16((UInt16)RPCResponseHeaders.SERVER_LOAD_MARKERPLACE, 0);        
-            pak.addUintShort(9); // list offset
-            pak.addByteArray(headerSeperator);
-            pak.addUint16((UInt16)listItems.getBytes().Length,1);
-            pak.addByteArray(listItems.getBytes());
-            client.messageQueue.addRpcMessage(pak.returnFinalPacket());
+            pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_LOAD_MARKERPLACE, 0);        
+            pak.AddUShort(9); // list offset
+            pak.AddByteArray(headerSeperator);
+            pak.AddUint16((UInt16)listItems.getBytes().Length,1);
+            pak.AddByteArray(listItems.getBytes());
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
 
         }

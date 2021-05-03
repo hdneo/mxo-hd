@@ -84,21 +84,21 @@ namespace hds
 			
 			PacketReader reader = new PacketReader(packet);
 			
-			while (reader.getOffset() < packet.Length)
+			while (reader.GetOffset() < packet.Length)
 			{
-				int offsetCount = reader.getOffset();
+				int offsetCount = reader.GetOffset();
 				int lengofPak = packet.Length;
 				string lineHex = "";
 				string lineHuman = "";
-				if (packet.Length - reader.getOffset() >= 32)
+				if (packet.Length - reader.GetOffset() >= 32)
 				{
-					byte[] lineData = reader.readBytes(32);
+					byte[] lineData = reader.ReadBytes(32);
 					lineHex = StringUtils.bytesToString(lineData);
 					lineHuman = StringUtils.charBytesToString_NZ(lineData);
 				}
 				else
 				{
-					byte[] lineData = reader.readBytes(packet.Length - reader.getOffset());
+					byte[] lineData = reader.ReadBytes(packet.Length - reader.GetOffset());
 					lineHex = StringUtils.bytesToString(lineData);
 					lineHuman = StringUtils.charBytesToString_NZ(lineData);
 				}

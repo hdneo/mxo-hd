@@ -129,10 +129,10 @@ namespace hds.world.Structures
         public void UpdateSubwayState()
         {
             var pak = new PacketContent();
-            pak.addByte(0x01);
-            pak.addByte(0x02);
-            pak.addByte(stateByte);
-            pak.addByteArray(new byte[] {0x0b, 0x00, 0x00, 0x00, 0x00});
+            pak.AddByte(0x01);
+            pak.AddByte(0x02);
+            pak.AddByte(stateByte);
+            pak.AddByteArray(new byte[] {0x0b, 0x00, 0x00, 0x00, 0x00});
             // 02 03 03 00 01 02 be 0b 00 00 00 00
             String message = "Subway ID " + worldObject.metrId + " STATE NOW " + currentState.ToString();
             Store.world.SendViewUpdateToClientWhoHasStaticObjectSpawned(pak, worldObject, message);

@@ -1,0 +1,18 @@
+<HardlineDreams>
+	<DBConfig>
+		
+		<serverHost>vector.mxoemu.com</serverHost>
+		<serverPort>3036</serverPort>
+		<databaseName>reality_hd</databaseName>
+		<databaseUser>reality</databaseUser>
+		<databasePassword>hds2017</databasePassword>
+		<motd>Join Discord on https://discord.gg/QPWvGJ!</motd>
+		<dbType>mysql</dbType>
+	</DBConfig>
+
+	<ServerConfig>
+		<adminConsoleEnabled>On</adminConsoleEnabled>
+        <ServerType>cr2</ServerType>
+	</ServerConfig>
+	
+</HardlineDreams>

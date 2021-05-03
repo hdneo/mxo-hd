@@ -12,7 +12,7 @@ namespace hds
             {
                 // ToDo: This should update "timers" like Buffs, Skill Execution or something
                 Thread.Sleep(2000);
-                lock (WorldSocket.Clients)
+                lock (WorldServer.Clients)
                 {
                     CheckAndResendClients();
                     SavePlayers();
@@ -22,18 +22,18 @@ namespace hds
         
         private static void CheckAndResendClients()
         {
-            foreach (string client in WorldSocket.Clients.Keys)
+            foreach (string client in WorldServer.Clients.Keys)
             {
-                WorldClient otherclient = WorldSocket.Clients[client] as WorldClient;
+                WorldClient otherclient = WorldServer.Clients[client] as WorldClient;
                 otherclient.CheckAndResend();
             }
         }
 
         private static void SavePlayers()
         {
-            foreach (string clientKey in WorldSocket.Clients.Keys)
+            foreach (string clientKey in WorldServer.Clients.Keys)
             {
-                WorldClient thisclient = WorldSocket.Clients[clientKey] as WorldClient;
+                WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
                 if (thisclient != null && thisclient.playerData.lastSaveTime == 0)
                 {
                     thisclient.playerData.lastSaveTime = TimeUtils.getUnixTimeUint32();
