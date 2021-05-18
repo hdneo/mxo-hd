@@ -63,6 +63,11 @@ namespace hds
 
             FieldInfo objectField = typeof(GameObjectDefinitions).GetField("Object" + typeId);
 
+            if (objectField == null)
+            {
+                return;
+            }
+            
             if (objectField.FieldType == typeof(AttributeClass363))
             {
                 AttributeClass363 door363 = new AttributeClass363("DOOR363", typeId);

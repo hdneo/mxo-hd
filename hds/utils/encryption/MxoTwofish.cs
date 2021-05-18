@@ -14,6 +14,7 @@ namespace hds
         {
             tf = new Twofish();
             tf.Mode = CipherMode.CBC;
+            tf.Padding = PaddingMode.PKCS7;
             tf.KeySize = 128;
             tf.BlockSize = 128;
         }
