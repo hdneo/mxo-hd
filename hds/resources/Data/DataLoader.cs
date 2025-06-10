@@ -50,9 +50,11 @@ namespace hds
             loadVendorItems("data\\vendor_items.csv");
             loadNPCSignPosts("data\\npcsign_parsed.csv");
             // Disabled for Debugging
-            loadWorldObjectsDb("data\\staticObjects_slums.csv");
+            loadWorldObjectsDb("data\\staticObjects_slums_1.csv");
+            loadWorldObjectsDb("data\\staticObjects_slums_2.csv");
             loadWorldObjectsDb("data\\staticObjects_it.csv");
-            loadWorldObjectsDb("data\\staticObjects_dt.csv");
+            loadWorldObjectsDb("data\\staticObjects_dt_1.csv");
+            loadWorldObjectsDb("data\\staticObjects_dt_2.csv");
         }
 
         public void LoadMissions()
