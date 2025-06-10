@@ -62,6 +62,10 @@ namespace hds
 			SetupPlayerData();
 
 		}
+	    
+	    public bool DistrictIsLA(){
+		    return (this.districtId == (int)MxOLocations.LA);
+	    }
 
         public byte assignSpawnIdCounter()
         {

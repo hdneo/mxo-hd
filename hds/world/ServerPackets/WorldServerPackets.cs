@@ -49,10 +49,14 @@ namespace hds
             pak.AddSizedTerminatedString(path);
             pak.AddSizedTerminatedString(enviromentOptions);
 
+            if (client.playerData.DistrictIsLA())
+            {
+                PacketContent laPak = new PacketContent();
+                laPak.AddUint16(0x8109, 0);
+                client.messageQueue.addRpcMessage(laPak.ReturnFinalPacket());
+            }
             client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
-            
-            
         }
 
         public void SendServerSettingUInt(WorldClient client, string key, UInt32 value)

@@ -1,12 +1,6 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Collections;
 using System.Reflection;
-using System.Security;
-using System.Text;
 using hds.shared;
-using hds.world.Structures;
 
 namespace hds
 {
@@ -227,6 +221,8 @@ namespace hds
                     UInt16 enviromentTypeID = NumericalUtils.ByteArrayToUint16(objectValues.type, 1);
                     switch (enviromentTypeID)
                     {
+                        case 6581: 
+                            // its a bench
                         case 6952:
                             // ToDo: implement Elevator Panel
                             pak.SendElevatorPanel(Store.currentClient, objectValues);

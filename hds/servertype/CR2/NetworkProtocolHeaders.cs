@@ -112,6 +112,11 @@ namespace hds
         SERVER_PLAYER_ATTRIBUTE = 0x80b2, 
         SERVER_PLAYER_UPGRADE_ABILITY = 0x80b8,
         SERVER_MANAGE_BONUS = 0xbc,
+        
+        // Coder Stuff
+        SERVER_CODER_ATTRIBUTE_UNKNOWN = 0x80bd,
+        SERVER_CODER_UNKNOWN = 0x8178,
+        
         SERVER_EXIT_HL = 0x80fb,
         SERVER_JACKOUT_FINISH = 0x80fd,
         SERVER_PLAYER_EXP   = 0x80e5,

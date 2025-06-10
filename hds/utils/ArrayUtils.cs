@@ -39,7 +39,7 @@ namespace hds
 		// Copies N bytes from source offset to destination array offset
 		static public void copy(byte[] sourceArray, int offsetB,byte[] destinationArray,int offsetA, int nBytes){
 			for (int i = 0;i<nBytes;i++){
-				if(offsetA+i < destinationArray.Length)
+				if(offsetA+i < destinationArray.Length && offsetB+i < sourceArray.Length)
 					destinationArray[offsetA+i] = sourceArray[offsetB+i];
 				else
 					break; // We keep limits safe if > length

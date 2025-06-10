@@ -69,6 +69,12 @@ namespace hds
                 pak.SendHyperSpeed();
             }
 
+            if (currentAbility.getAbilityID() == 970)
+            {
+                // Spawn Code Write Window
+                pak.SendCodeWriterWindow();
+            }
+
             pak.sendISCurrent(Store.currentClient, 50);
         }
 

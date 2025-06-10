@@ -155,6 +155,29 @@ namespace hds
             Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
+        public void SendCodeWriterWindow()
+        {
+            // Fist i dont know what it is
+            PacketContent coderFirstPak = new PacketContent();
+            coderFirstPak.AddUint16((UInt16) RPCResponseHeaders.SERVER_CODER_ATTRIBUTE_UNKNOWN, 0);
+            coderFirstPak.AddHexBytes("05ca03000000000001");
+            
+            // Maybe we need to send attribute 
+            PacketContent bonusRpc = new PacketContent();
+            bonusRpc.AddHexBytes("80bc");
+            bonusRpc.AddHexBytes("1d00b80a00ca030000c803000000000000000000");
+            
+            // should be the window only
+            PacketContent coderWindowPak = new PacketContent();
+            coderWindowPak.AddUint16((UInt16) RPCResponseHeaders.SERVER_CODER_UNKNOWN, 0);
+            coderWindowPak.AddHexBytes("00009e079e070301322000");
+            
+            Store.currentClient.messageQueue.addRpcMessage(coderFirstPak.ReturnFinalPacket());
+            Store.currentClient.messageQueue.addRpcMessage(bonusRpc.ReturnFinalPacket());
+            Store.currentClient.messageQueue.addRpcMessage(coderWindowPak.ReturnFinalPacket());
+            Store.currentClient.FlushQueue();
+        }
+
         public void SendHyperJumpStepUpdate(LtVector3f currentPos, double xDestPos, double yDestPos, double zDestPos,
             float jumpHeight, uint endtime, ushort stepJumpId, uint maybeTimeBasedValue, bool isLastStep = false)
         {

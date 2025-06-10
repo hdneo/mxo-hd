@@ -237,6 +237,11 @@ namespace hds
             
             //client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("81A500000700052300687474703A2F2F6D786F656D752E696E666F2F666F72756D2F696E6465782E70687000")); // Has forum url - but is not flash traffic - or ? 
             client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc55005100000b0000003702330000000000000000")); // this adds super jump points dude
+            // Code Write bonuses
+            client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b225000f001900"));
+            client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80b2ca0300000802"));
+            client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc4503ca030025000000ca03000000000000000000"));
+            client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("80bc45004d0000250000008902300000000000000000"));
             //client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes("2E070000000000000000002400000000000000000000000000000000000000000000000011005768617427732075702062726F736B6900"));
             
             createFlashTraffic(client, "http://mxo.hardlinedreams.com");

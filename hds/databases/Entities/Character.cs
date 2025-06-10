@@ -38,7 +38,7 @@ namespace hds.databases.Entities
         public int RepGm { get; set; }
         public int RepZion { get; set; }
         public string District { get; set; }
-        public byte DistrictId { get; set; }
+        public UInt32 DistrictId { get; set; }
         public uint FactionId { get; set; }
         public uint CrewId { get; set; }
         public int IsDeleted { get; set; }

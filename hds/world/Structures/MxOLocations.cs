@@ -22,7 +22,7 @@ namespace hds
         MEDIUM03 = 0x10,
         SMALL03 = 0x11,
         CAVES = 0x12,
-        LA = 0x13
+        LA = 0x0385
 
     }
 }

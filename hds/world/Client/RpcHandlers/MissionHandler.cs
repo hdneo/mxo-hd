@@ -23,12 +23,17 @@ namespace hds
             new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
             
             pak.sendMissionAccept(Store.currentClient, contactId, missionId);
-            pak.SendSetMissionObjective(1, 1, "This is the test Mission, mate", Store.currentClient);
-            pak.SendSetMissionObjective(2, 0, "Success", Store.currentClient);
-            pak.SendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
-            pak.SendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
-            pak.SendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
-            pak.SendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
+            
+            pak.SendSetMissionObjective(1, 0, "Follow the white Rabbit!", Store.currentClient);
+            pak.SendSetMissionObjective(2, 0, "Wake UP!", Store.currentClient);
+            pak.SendSetMissionObjective(3, 0, "Watch Matrix Resurrections", Store.currentClient);
+            Store.currentClient.FlushQueue();
+            
+            // pak.SendSetMissionObjective(2, 0, "Success", Store.currentClient);
+            // pak.SendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
+            // pak.SendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
+            // pak.SendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
+            // pak.SendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
         }
 
         public void processMissionList(ref byte[] packet)
