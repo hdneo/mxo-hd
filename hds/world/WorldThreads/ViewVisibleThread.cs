@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using hds.shared;
 using hds.world.Structures;
 
@@ -10,37 +9,23 @@ namespace hds
 {
     public partial class WorldThreads
     {
-        public void ViewVisibleThread()
+        public void ViewVisibleTick()
         {
-            Output.WriteLine("[WORLD SERVER]View Visible Thread started");
-            while (true)
+            ArrayList deadPlayers = new ArrayList();
+            foreach (string clientKey in WorldServer.Clients.Keys)
             {
-                ArrayList deadPlayers = new ArrayList();
-
-                // Clean 
-                lock (WorldServer.Clients)
+                WorldClient thisclient = WorldServer.Clients[clientKey];
+                if (thisclient.Alive == false)
                 {
-                    foreach (string clientKey in WorldServer.Clients.Keys)
-                    {
-                        // Collect dead players to arraylist
-                        WorldClient thisclient = WorldServer.Clients[clientKey] as WorldClient;
-
-                        if (thisclient.Alive == false)
-                        {
-                            // Add dead Player to the List - we need later to clear them
-                            deadPlayers.Add(clientKey);
-                        }
-                    }
-
-                    CleanDeadPlayers(deadPlayers);
+                    deadPlayers.Add(clientKey);
                 }
-
-                CheckPlayerViews();
-                CheckPlayerMobViews();
-                CheckForStaticSubways();
-                CheckForStaticObjectsViewsInRange();
-                Thread.Sleep(500);
             }
+            CleanDeadPlayers(deadPlayers);
+
+            CheckPlayerViews();
+            CheckPlayerMobViews();
+            CheckForStaticSubways();
+            CheckForStaticObjectsViewsInRange();
         }
 
         private static void CheckForServerEntites()
@@ -101,7 +86,7 @@ namespace hds
                                     "" + thisSubway.worldObject.metrId + "" + thisSubway.worldObject.mxoStaticId;
                                 UInt64 entityStaticId = UInt64.Parse(entityHackString);
 
-                                ClientView view = Store.currentClient.viewMan.GetViewForEntityAndGo(entityStaticId,
+                                ClientView view = thisclient.viewMan.GetViewForEntityAndGo(entityStaticId,
                                     NumericalUtils.ByteArrayToUint16(thisSubway.worldObject.type, 1));
                                 
                                 if (!view.viewCreated &&
@@ -177,7 +162,7 @@ namespace hds
                                                 "" + staticWorldObject.metrId + "" + staticWorldObject.mxoStaticId;
                                             UInt64 entityStaticId = UInt64.Parse(entityHackString);
 
-                                            ClientView view = Store.currentClient.viewMan.GetViewForEntityAndGo(entityStaticId,
+                                            ClientView view = thisclient.viewMan.GetViewForEntityAndGo(entityStaticId,
                                                 NumericalUtils.ByteArrayToUint16(staticWorldObject.type, 1));
                                 
                                             if (!view.viewCreated && thisclient.playerData.getOnWorld())
@@ -253,8 +238,10 @@ namespace hds
                                     mobPak.SpawnMobView(thisclient, thismob, mobView);
                                     mobView.spawnId = thisclient.playerData.spawnViewUpdateCounter;
                                     mobView.viewCreated = true;
-                                    thismob.isUpdateable = true;
-                                    thismob.DoMobUpdate(thismob);
+                                    // a walking mob must show the walk animation to the new viewer too
+                                    var movement = thismob.GetCurrentMovementUpdate();
+                                    if (movement != null) mobPak.SendNpcUpdateData(mobView.ViewID, thisclient, movement);
+                                    thismob.StartWandering();
                                 }
 
                                 // Delete Mob's View from Client if we are outside
@@ -271,7 +258,6 @@ namespace hds
                                         "MODAL");
 #endif
                                     thisclient.viewMan.removeViewByViewId(mobView.ViewID);
-                                    thismob.isUpdateable = false;
                                 }
                             }
                         }
@@ -311,7 +297,7 @@ namespace hds
 
                             NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(),
                                 ref currentPlayerX, ref currentPlayerY, ref currentPlayerZ);
-                            NumericalUtils.LtVector3dToDoubles(currentClient.playerInstance.Position.getValue(),
+                            NumericalUtils.LtVector3dToDoubles(otherClient.playerInstance.Position.getValue(),
                                 ref otherPlayerX, ref otherPlayerY, ref otherPlayerZ);
                             Maths mathUtils = new Maths();
                             bool playerIsInCircle = mathUtils.IsInCircle((float) currentPlayerX, (float) currentPlayerZ,
@@ -353,31 +339,33 @@ namespace hds
         {
             foreach (string key in deadPlayers)
             {
-                WorldClient deadClient = WorldServer.Clients[key] as WorldClient;
-                foreach (string client in WorldServer.Clients.Keys)
-                {
-                    WorldClient otherclient = WorldServer.Clients[client] as WorldClient;
-                    ClientView view = otherclient.viewMan.GetViewForEntityAndGo(deadClient.playerData.getEntityId(),
-                        NumericalUtils.ByteArrayToUint16(deadClient.playerInstance.GetGoid(), 1));
+                WorldClient deadClient = WorldServer.Clients[key];
+                UInt64 deadEntity = deadClient.playerData.getEntityId();
+                Store.CloseCombat?.OnClientRemoved(deadClient);
 
-                    Store.dbManager.WorldDbHandler.SetOnlineStatus(otherclient.playerData.getCharID(), 0);
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendDeleteViewPacket(otherclient, view.ViewID);
-                    Store.margin.RemoveClientsByCharId(otherclient.playerData.getCharID());
+                // Remove the character from everybody who can see it
+                foreach (WorldClient otherclient in WorldServer.Clients.Values)
+                {
+                    if (otherclient == deadClient) continue;
+                    ClientView view = otherclient.viewMan.FindViewForEntity(deadEntity);
+                    if (view == null) continue;
+                    if (view.viewCreated)
+                    {
+                        new ServerPackets(otherclient).sendDeleteViewPacket(otherclient, view.ViewID);
+                    }
+                    otherclient.viewMan.removeViewByViewId(view.ViewID);
                 }
+
+                Store.dbManager.WorldDbHandler.SetOnlineStatus(deadClient.playerData.getCharID(), 0);
+                Store.margin.RemoveClientsByCharId(deadClient.playerData.getCharID());
 
                 string handle = StringUtils.charBytesToString_NZ(deadClient.playerInstance.CharacterName.getValue());
-                new BuddylistHandler().ProcessAnnounceFriendsOffline(deadClient.playerData.getCharID(), handle);
-                // Views are now deleted to other players
+                new BuddylistHandler(deadClient).ProcessAnnounceFriendsOffline(deadClient.playerData.getCharID(), handle);
                 // ToDo: Cleanup Missions (kill all running missions the player have)
                 // ToDo: Cleanup Teams (if your mission team has more than one player, you need to announce an update for the mission team to your mates)
-                // ToDo: Announce friendlists from other users that you are going offline (just collect all players whohave this client in list and send the packet)
                 // ToDo: Finally save the current character Data to the Database^^
                 Output.WriteLine("Removed inactive Client with Key " + key);
-                lock (WorldServer.Clients)
-                {
-                    WorldServer.Clients.Remove(key);
-                }
+                WorldServer.Clients.Remove(key);
             }
         }
     }

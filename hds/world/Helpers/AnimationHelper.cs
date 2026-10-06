@@ -8,11 +8,14 @@ using hds.shared;
 namespace hds
 {
     class AnimationHelper
-    {        
-        public AnimationHelper()
+    {
+        private readonly WorldClient client;
+
+        public AnimationHelper(WorldClient client)
         {
-            
+            this.client = client;
         }
+        
 
         public void processPlayFX(UInt32 fxID)
         {
@@ -37,7 +40,7 @@ namespace hds
             din.append(0x30);
             din.append(animationId);
             din.append(updateCount);
-            Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
+            client.messageQueue.addObjectMessage(din.getBytes(), false);
         
         }
 

@@ -46,9 +46,10 @@ namespace hds.databases.interfaces{
         void SaveExperience(WorldClient client, long exp);
         void SaveInfo(WorldClient client, long exp);
 
-        void UpdateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded);
+        void UpdateAbilityLoadOut(UInt32 charId, IEnumerable<UInt16> abilitySlots, bool loaded);
+        List<hds.Game.Abilities.OwnedAbility> GetCharacterAbilities(UInt32 charId);
 
-        ushort UpgradeAbilityLevel(Int32 abilityId, uint level);
+        ushort UpgradeAbilityLevel(UInt32 charId, Int32 abilityGoId, uint levelsToAdd);
         //NEW
         void UpdateInventorySlot(UInt16 sourceSlot, UInt16 destSlot, UInt32 charId);
         UInt16 GetFirstNewSlot();

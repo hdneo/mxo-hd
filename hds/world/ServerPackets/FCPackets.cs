@@ -17,7 +17,7 @@ namespace hds
             pak.AddUint32(factionID, 1);
             // Add 42 Bytes long faction name 
             pak.AddStringWithFixedSized(factionName, 42);
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            Client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
         
         public void sendCrewAndFactionEnableWindow(WorldClient client)
@@ -106,7 +106,7 @@ namespace hds
         {
             PacketContent pak = new PacketContent();
             pak.AddUShort((ushort) RPCResponseHeaders.SERVER_FACTION_PLAYER_INFO);
-            pak.AddUint32(Store.currentClient.playerData.getCharID(), 1);
+            pak.AddUint32(Client.playerData.getCharID(), 1);
             pak.AddUint32(faction.factionId, 1);
             pak.AddHexBytes("010000010F00"); // Currently unknown
             pak.AddUint16(52, 1); // 52 size for the "next" part but its constant at this time (as string has no size)
@@ -141,7 +141,7 @@ namespace hds
         {
             PacketContent pak = new PacketContent();
             pak.AddUShort((ushort) RPCResponseHeaders.SERVER_FACTION_PLAYER_INFO);
-            pak.AddUint32(Store.currentClient.playerData.getCharID(), 1);
+            pak.AddUint32(Client.playerData.getCharID(), 1);
             pak.AddUint32(faction.factionId, 1);
             pak.AddHexBytes("020001020F00"); // Currently unknown but the 02 should tell "hey this are the crew data"
                                     //020000020F00  
@@ -176,7 +176,7 @@ namespace hds
             pak.AddUShort((ushort) RPCResponseHeaders.SERVER_FACTION_UPDATE_MONEY);
             pak.AddUShort(type);
             pak.AddUint32(moneyAmount,1);
-            pak.AddUint32(Store.currentClient.playerData.getCharID(),1);
+            pak.AddUint32(Client.playerData.getCharID(),1);
             pak.AddUShort(IsMoneyGiving);
 
             switch (type)
@@ -194,7 +194,7 @@ namespace hds
         {
             // ToDo: fix the name display issue ?
             string charname =
-                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+                StringUtils.charBytesToString_NZ(Client.playerInstance.CharacterName.getValue());
             UInt16 crewOffset = (UInt16) (charname.Length + 7 + 3);
             PacketContent pak = new PacketContent();
             pak.AddUint16((ushort) RPCResponseHeaders.SERVER_CREW_INVITE,0);
@@ -202,7 +202,7 @@ namespace hds
             pak.AddUint16(crewOffset, 1);
             pak.AddByte(0x01); // ToDo: Grab Org from Crew and place it here (this tells which reputation you get then)  
             pak.AddSizedTerminatedString(
-                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+                StringUtils.charBytesToString_NZ(Client.playerInstance.CharacterName.getValue()));
             pak.AddSizedTerminatedString(crewName);
             Store.world.SendRPCToOnePlayerByHandle(pak.ReturnFinalPacket(), playerHandle);
         }
@@ -225,44 +225,44 @@ namespace hds
                 case 1:
                     // Faction (crew joined the faction)
 
-                    Store.world.SendRPCToFactionMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), true);
+                    Store.world.SendRPCToFactionMembers(groupId, Client, pak.ReturnFinalPacket(), true);
                     break;
                 
                 case 2:
                     // Crew (player joined crew)
                     
                     List<Attribute> updateFCAttributes = new List<Attribute>();
-                    updateFCAttributes.Add(Store.currentClient.playerInstance.FactionID);
-                    updateFCAttributes.Add(Store.currentClient.playerInstance.CrewID);
+                    updateFCAttributes.Add(Client.playerInstance.FactionID);
+                    updateFCAttributes.Add(Client.playerInstance.CrewID);
                     
-                    viewResetStateData.AddByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateFCAttributes));
-                    myselfStateData.AddByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateFCAttributes, true));
+                    viewResetStateData.AddByteArray(Client.playerInstance.GetUpdateAttributes(updateFCAttributes));
+                    myselfStateData.AddByteArray(Client.playerInstance.GetSelfUpdateAttributes(updateFCAttributes, true));
                     
-                    Store.world.SendRPCToCrewMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToCrewMembers(groupId, Client, pak.ReturnFinalPacket(), false);
                     
                     break;
                     
                 case 3:
                     // Mission (player joines mission team)
-                    Store.currentClient.playerInstance.MissionTeamID.setValue(groupId);
+                    Client.playerInstance.MissionTeamID.setValue(groupId);
                     
                     List<Attribute> updateMissionAttributes = new List<Attribute>();
-                    updateMissionAttributes.Add(Store.currentClient.playerInstance.MissionTeamID);
+                    updateMissionAttributes.Add(Client.playerInstance.MissionTeamID);
                     
-                    viewResetStateData.AddByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateMissionAttributes));
-                    myselfStateData.AddByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateMissionAttributes, true));
+                    viewResetStateData.AddByteArray(Client.playerInstance.GetUpdateAttributes(updateMissionAttributes));
+                    myselfStateData.AddByteArray(Client.playerInstance.GetSelfUpdateAttributes(updateMissionAttributes, true));
                     
-                    Store.world.SendRPCToMissionTeamMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToMissionTeamMembers(groupId, Client, pak.ReturnFinalPacket(), false);
                     break;
             }
 
             if (viewResetStateData.ReturnFinalPacket().Length > 0)
             {
                 // Send the ViewStateData
-                Store.world.SendViewPacketToAllPlayers(viewResetStateData.ReturnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+                Store.world.SendViewPacketToAllPlayers(viewResetStateData.ReturnFinalPacket(), Client.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Client.playerInstance.GetGoid(), 1), Client.playerData.getEntityId());
             
                 // Send StateData to myself
-                Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(),false);    
+                Client.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(),false);    
             }
             
         }
@@ -283,49 +283,49 @@ namespace hds
                 case 1:
                     // This removes the faction flag (but as it is from the crew packet it may set faction and crew to zero)
                     // This is just a simple ViewStateUpdate on GRoup 5 (4 times 80 skipped) and set CrewId to 0
-                    Store.currentClient.playerInstance.FactionID.setValue(0);
+                    Client.playerInstance.FactionID.setValue(0);
                     
                     List<Attribute> updateAttributes = new List<Attribute>();
-                    updateAttributes.Add(Store.currentClient.playerInstance.FactionID);
+                    updateAttributes.Add(Client.playerInstance.FactionID);
 
-                    viewResetStateData.AddByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateAttributes));
-                    myselfStateData.AddByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
-                    Store.world.SendRPCToFactionMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    viewResetStateData.AddByteArray(Client.playerInstance.GetUpdateAttributes(updateAttributes));
+                    myselfStateData.AddByteArray(Client.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                    Store.world.SendRPCToFactionMembers(groupId, Client, pak.ReturnFinalPacket(), false);
                     break;
                 
                 case 2:
                     // This removes the faction flag (but as it is from the crew packet it may set faction and crew to zero)
                     // This is just a simple ViewStateUpdate on GRoup 5 (4 times 80 skipped) and set CrewId to 0
-                    Store.currentClient.playerInstance.FactionID.setValue(0);
-                    Store.currentClient.playerInstance.CrewID.setValue(0);
+                    Client.playerInstance.FactionID.setValue(0);
+                    Client.playerInstance.CrewID.setValue(0);
                     
                     List<Attribute> updateFCAttributes = new List<Attribute>();
-                    updateFCAttributes.Add(Store.currentClient.playerInstance.FactionID);
-                    updateFCAttributes.Add(Store.currentClient.playerInstance.CrewID);
+                    updateFCAttributes.Add(Client.playerInstance.FactionID);
+                    updateFCAttributes.Add(Client.playerInstance.CrewID);
                     
-                    viewResetStateData.AddByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateFCAttributes));
-                    myselfStateData.AddByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateFCAttributes, true));
+                    viewResetStateData.AddByteArray(Client.playerInstance.GetUpdateAttributes(updateFCAttributes));
+                    myselfStateData.AddByteArray(Client.playerInstance.GetSelfUpdateAttributes(updateFCAttributes, true));
                     
-                    Store.world.SendRPCToCrewMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToCrewMembers(groupId, Client, pak.ReturnFinalPacket(), false);
                     break;
                     
                 case 3:
                     // ToDo: we MAYBE not send it to ourself (needs testing)
-                    Store.currentClient.playerInstance.MissionTeamID.setValue(0);
+                    Client.playerInstance.MissionTeamID.setValue(0);
                     
                     List<Attribute> updateMissionAttributes = new List<Attribute>();
-                    updateMissionAttributes.Add(Store.currentClient.playerInstance.MissionTeamID);
+                    updateMissionAttributes.Add(Client.playerInstance.MissionTeamID);
                     
-                    viewResetStateData.AddByteArray(Store.currentClient.playerInstance.GetUpdateAttributes(updateMissionAttributes));
-                    myselfStateData.AddByteArray(Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateMissionAttributes, true));
+                    viewResetStateData.AddByteArray(Client.playerInstance.GetUpdateAttributes(updateMissionAttributes));
+                    myselfStateData.AddByteArray(Client.playerInstance.GetSelfUpdateAttributes(updateMissionAttributes, true));
                     
-                    Store.world.SendRPCToMissionTeamMembers(groupId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToMissionTeamMembers(groupId, Client, pak.ReturnFinalPacket(), false);
                     break;
             }
 
-            Store.world.SendViewPacketToAllPlayers(viewResetStateData.ReturnFinalPacket(), Store.currentClient.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.GetGoid(), 1), Store.currentClient.playerData.getEntityId());
+            Store.world.SendViewPacketToAllPlayers(viewResetStateData.ReturnFinalPacket(), Client.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(Client.playerInstance.GetGoid(), 1), Client.playerData.getEntityId());
 
-            Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(),false);
+            Client.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(),false);
             
         }
     }

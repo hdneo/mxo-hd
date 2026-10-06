@@ -10,14 +10,21 @@ namespace hds
      */
     class PlayerHelper
     {
+        private readonly WorldClient client;
+
+        public PlayerHelper(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public void processIncreaseCash(UInt16 amount, UInt16 type)
         {
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = {0x80, 0xe4};
-            long newCash = Store.currentClient.playerData.getInfo() + (long) amount;
-            Store.currentClient.playerData.setInfo(newCash);
+            long newCash = client.playerData.getInfo() + (long) amount;
+            client.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.SavePlayer(Store.currentClient);
+            Store.dbManager.WorldDbHandler.SavePlayer(client);
 
             DynamicArray din = new DynamicArray();
 
@@ -26,7 +33,7 @@ namespace hds
             din.append(NumericalUtils.uint16ToByteArray(type, 1));
             din.append(0x00);
             din.append(0x00);
-            Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+            client.messageQueue.addRpcMessage(din.getBytes());
         }
 
 
@@ -34,10 +41,10 @@ namespace hds
         {
             // send 02 04 01 00 16 01 0a 80 e4 ff 00 00 00 02 00 00 00;
             byte[] header = {0x80, 0xe4};
-            long newCash = Store.currentClient.playerData.getInfo() - (long) amount;
-            Store.currentClient.playerData.setInfo(newCash);
+            long newCash = client.playerData.getInfo() - (long) amount;
+            client.playerData.setInfo(newCash);
 
-            Store.dbManager.WorldDbHandler.SavePlayer(Store.currentClient);
+            Store.dbManager.WorldDbHandler.SavePlayer(client);
 
             DynamicArray din = new DynamicArray();
             din.append(header);
@@ -45,7 +52,7 @@ namespace hds
             din.append(NumericalUtils.uint16ToByteArray(type, 1));
             din.append(0x00);
             din.append(0x00);
-            Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+            client.messageQueue.addRpcMessage(din.getBytes());
         }
 
         public void processSelfUpdateHealth(UInt16 viewId, UInt16 healthC)
@@ -84,7 +91,7 @@ namespace hds
             din.append(0x00);
             din.append(0x00);
 
-            Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
+            client.messageQueue.addObjectMessage(din.getBytes(), false);
         }
 
         /// <summary>
@@ -123,9 +130,9 @@ namespace hds
 
             if (pos >= 0)
             {
-                int[] current = Store.currentClient.playerData.getRsiValues();
+                int[] current = client.playerData.getRsiValues();
                 current[pos] = value;
-                Store.currentClient.playerData.setRsiValues(current);
+                client.playerData.setRsiValues(current);
                 byte[] rsiData = PacketsUtils.getRSIBytes(current);
 
                 DynamicArray din = new DynamicArray();

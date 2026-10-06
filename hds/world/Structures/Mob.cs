@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using hds.Core;
+using hds.Core.Wire;
+using hds.Protocol.View;
 using hds.shared;
 
 namespace hds
@@ -24,41 +26,53 @@ namespace hds
         public double xBase;
         public double yBase;
         public double zBase;
-        private LtVector3f destination;
         private string name;
         private uint weapon;
-        private int state; // 0= nothing, 1=rotating (just an example - must check this near from the npc class)
+        private int state;
         private bool is_dead;
         private bool is_lootable;
         private bool is_spawned = true;
-        public bool isUpdateable = false;
 
-        public enum statusList
-        {
-            WALKING = 0x00,
-            WALKING_BACK = 0x01,
-            STANDING = 0x02,
-            STANDING_BACK = 0x03,
-            STANDING_COMBAT = 0x04,
-            COMBAT = 0x05
-        }
-
-        public int currentState = 0x02;
-        public List<PacketContent> updateData;
-        public Timer mobUpdateTimer;
-
-
+        /// <summary>
+        /// Movement::Action values of the char movement component as the original server used them for NPCs
+        /// (packet logs: stand; walk while the position moves ~185 units/s; run ~450 units/s; turning in place
+        /// while the yaw increases (4) or decreases (5)).
+        /// </summary>
         public enum Animations
         {
             STAND = 0x00,
             WALK = 0x01,
-            WALK_BACKWARDS = 0x02
+            RUN = 0x03,
+            TURN_LEFT = 0x04,
+            TURN_RIGHT = 0x05
         }
 
+        private enum MoveState
+        {
+            Standing,
+            Walking,
+            Combat
+        }
+
+        /// <summary>World units per second of a walking NPC (measured in the packet logs: 175-195).</summary>
+        public const double WalkSpeed = 185.0;
+
+        /// <summary>The original server sent a walking NPC's position about 4 times a second.</summary>
+        public static readonly TimeSpan WalkUpdateInterval = TimeSpan.FromMilliseconds(250);
+
+        /// <summary>Mobs wander around their spawn point.</summary>
+        public const double WanderRadius = 500.0;
+
+        private MoveState moveState = MoveState.Standing;
+        private ScheduledTask moveTimer;
+        private bool wandering;
+        private double walkStartX, walkStartZ, walkEndX, walkEndZ;
+        private long walkStartMs;
+        private double walkDurationMs;
+        private static readonly Random random = new Random();
 
         public Mob()
         {
-            updateData = new List<PacketContent>();
         }
 
         public void setGoId(byte[] objectID)
@@ -144,6 +158,7 @@ namespace hds
         public void setIsDead(bool dead)
         {
             is_dead = dead;
+            if (dead) HaltMovement();
         }
 
         public void setIsLootable(bool lootable)
@@ -303,113 +318,160 @@ namespace hds
             return themob;
         }
 
-        public int generatePathTable()
+        #region movement
+
+        /// <summary>Yaw byte (0..255 = 0..360 degrees) of a direction: atan2(dx, dz), verified with the logs.</summary>
+        public static byte YawTowards(double dx, double dz)
         {
-            // We firs test this with just one moove from point x to y
-            // To calc this we need to know the time the object needs to reach this point,
-            // the new point and the rotation to calc pretty to sync client and server position is right
-            // to get a smooth walking :)
-            var math = new Maths();
-
-            // First choose a new pos in the range
-            var newPos = math.RandomPointOnCircle((float) xBase, (float) yBase, (float) zBase, 5.0f * 100);
-            #if DEBUG
-            Output.WriteDebugLog("Mob Goes from X: " + getXPos() + " , Z: " + getZPos() + " to X: " + newPos.x +
-                                 ", Z: " + newPos.z);
-            #endif
-
-
-            var xNew = (double) newPos.x;
-            var zNew = (double) newPos.z;
-
-            destination = newPos;
-            // Try to calculate rotation
-
-            // Oh this seems to match ...needs more testing later when we fixed random pos
-            var yaw = Math.Atan((xNew - getXPos()) / (zNew - getZPos())) * 128 / Math.PI;
-            var calcRotation = Math.Atan2(Math.Cos(xNew), Math.Sin(zNew) * Math.Sin(zNew)) * 128 / Math.PI;
-            var testRot = Math.Atan2(xNew, zNew) * 180 / Math.PI;
-            var testRot2 = Math.Atan2(xNew, zNew) * 128 / Math.PI;
-
-            #if DEBUG
-            Output.WriteDebugLog("Test Rot with 360 : " + testRot + "| 255 : " + testRot2 + " AND THE YAW: " + yaw +
-                                 " (Cast to uint16 : " + Convert.ToInt16(yaw) + " )");
-            #endif
-
-
-            var yawVal = (int) Convert.ToInt16(yaw);
-
-            if (zNew < getZPos() || xNew < getXPos())
-            {
-                #if DEBUG
-                Output.WriteDebugLog("Need to adjust YAW + 128 from :" + yawVal + " to: " + (yawVal + 128));
-                #endif
-                yawVal = yawVal + 128;
-            }
-            else
-            {
-                #if DEBUG
-                Output.WriteDebugLog("Need to adjust YAW - 128 from :" + yawVal + " to: " + (yawVal - 128));
-                #endif
-                yawVal = yawVal - 128;
-            }
-            
-            #if DEBUG
-            Output.WriteDebugLog("YAW VAL :" + yawVal);
-            #endif
-
-            rotation = (ushort) yawVal;
-            #if DEBUG
-            Output.WriteDebugLog("Calc Rotation : " + calcRotation + " and to UINT : " + (uint) calcRotation);
-            #endif
-
-            // Calculate the distance for seconds to move
-            var requiredSeconds = (int) (math.distance2Coords((float) xPos, (float) xNew, (float) zPos, (float) zNew) /
-                                         0.176 / 500 * 0.9586);
-            return requiredSeconds;
+            var yaw = Math.Round(Math.Atan2(dx, dz) * 128.0 / Math.PI);
+            return (byte) ((int) yaw & 0xFF);
         }
 
-        public void DoMobUpdate(object e)
+        /// <summary>Starts the random walks around the spawn point (idempotent, called when a client sees the mob).</summary>
+        public void StartWandering()
         {
-            if (isUpdateable)
-            {
-                var nextMoveTime = 5;
-                var rand = new Random();
-                switch (currentState)
-                {
-                    case (int) statusList.WALKING_BACK:
-                    case (int) statusList.WALKING:
-                        // stop npc
-                        currentState = (int) statusList.STANDING;
-                        setXPos(destination.x);
-                        setZPos(destination.z);
-                        updateAnimation((byte) Animations.STAND);
-                        nextMoveTime = rand.Next(5, 15);
-                        break;
-                    case (int) statusList.STANDING_BACK:
-                    case (int) statusList.STANDING:
-                        // Starts walking
-                        currentState = (int) statusList.WALKING;
-                        // ToDo: start walking NPC and recalculate
-                        nextMoveTime = generatePathTable();
-                        updateAnimation((byte) Animations.WALK);
-                        // Generate walking packet message (raw)
-                        break;
-                    case (int) statusList.COMBAT:
-                        // ToDo: he should attack the player who is in combat with him
-                        // But he shouldnt move
-                        break;
-                }
-
-                mobUpdateTimer = new Timer(DoMobUpdate, this, nextMoveTime * 1000, 0);
-            }
-            
+            if (wandering || is_dead) return;
+            wandering = true;
+            if (moveState == MoveState.Standing) ScheduleNextWalk(random.Next(2, 8));
         }
+
+        /// <summary>Stops in place and faces the attacker - the fight must not move the mob.</summary>
+        public void EnterCombat(double faceX, double faceZ)
+        {
+            HaltMovement();
+            moveState = MoveState.Combat;
+            var dx = faceX - xPos;
+            var dz = faceZ - zPos;
+            if (Math.Abs(dx) > 0.01 || Math.Abs(dz) > 0.01) rotation = YawTowards(dx, dz);
+            BroadcastMovement(CharMvt.FlagAction | CharMvt.FlagYaw | CharMvt.FlagPosition, Animations.STAND);
+        }
+
+        /// <summary>The fight ended: dead mobs stay, living ones start wandering again after a pause.</summary>
+        public void LeaveCombat()
+        {
+            if (moveState != MoveState.Combat) return;
+            moveState = MoveState.Standing;
+            if (is_dead) return;
+            if (wandering) ScheduleNextWalk(random.Next(5, 15));
+        }
+
+        /// <summary>Stops a walk at the current (interpolated) position.</summary>
+        public void HaltMovement()
+        {
+            moveTimer?.Cancel();
+            moveTimer = null;
+            if (moveState != MoveState.Walking) return;
+            UpdateWalkPosition();
+            moveState = MoveState.Standing;
+            BroadcastMovement(CharMvt.FlagAction | CharMvt.FlagYaw | CharMvt.FlagPosition, Animations.STAND);
+        }
+
+        /// <summary>Movement for a client that just spawned the mob (the creation data has no action), or null.</summary>
+        public byte[] GetCurrentMovementUpdate()
+        {
+            return moveState == MoveState.Walking
+                ? BuildMovementUpdate(CharMvt.FlagAction | CharMvt.FlagYaw | CharMvt.FlagPosition, Animations.WALK)
+                : null;
+        }
+
+        private void ScheduleNextWalk(int seconds)
+        {
+            moveTimer?.Cancel();
+            moveTimer = Store.Loop.Schedule(TimeSpan.FromSeconds(seconds), StartWalk);
+        }
+
+        private void StartWalk()
+        {
+            moveTimer = null;
+            if (is_dead || moveState != MoveState.Standing) return;
+
+            // random point inside the wander circle, not too close to the current position
+            double x, z;
+            var tries = 0;
+            do
+            {
+                var angle = random.NextDouble() * Math.PI * 2;
+                var radius = WanderRadius * Math.Sqrt(random.NextDouble());
+                x = xBase + radius * Math.Cos(angle);
+                z = zBase + radius * Math.Sin(angle);
+            } while (Distance(x, z) < 100 && ++tries < 10);
+
+            walkStartX = xPos;
+            walkStartZ = zPos;
+            walkEndX = x;
+            walkEndZ = z;
+            walkStartMs = Environment.TickCount64;
+            walkDurationMs = Distance(x, z) / WalkSpeed * 1000.0;
+            rotation = YawTowards(x - xPos, z - zPos);
+            moveState = MoveState.Walking;
+
+            #if DEBUG
+            Output.WriteDebugLog("[Mob] " + name + " walks from (" + xPos.ToString("0") + "," + zPos.ToString("0") + ") to (" +
+                                 x.ToString("0") + "," + z.ToString("0") + ") yaw " + rotation + " in " + walkDurationMs.ToString("0") + " ms");
+            #endif
+
+            BroadcastMovement(CharMvt.FlagAction | CharMvt.FlagYaw | CharMvt.FlagPosition, Animations.WALK);
+            moveTimer = Store.Loop.Schedule(WalkUpdateInterval, WalkTick);
+        }
+
+        private void WalkTick()
+        {
+            moveTimer = null;
+            if (moveState != MoveState.Walking) return;
+
+            if (UpdateWalkPosition())
+            {
+                moveState = MoveState.Standing;
+                BroadcastMovement(CharMvt.FlagAction | CharMvt.FlagYaw | CharMvt.FlagPosition, Animations.STAND);
+                if (wandering) ScheduleNextWalk(random.Next(5, 15));
+                return;
+            }
+
+            BroadcastMovement(CharMvt.FlagPosition, Animations.WALK);
+            moveTimer = Store.Loop.Schedule(WalkUpdateInterval, WalkTick);
+        }
+
+        /// <summary>Moves the stored position along the walk; true when the destination is reached.</summary>
+        private bool UpdateWalkPosition()
+        {
+            var t = walkDurationMs <= 0 ? 1.0 : (Environment.TickCount64 - walkStartMs) / walkDurationMs;
+            if (t >= 1.0)
+            {
+                xPos = walkEndX;
+                zPos = walkEndZ;
+                return true;
+            }
+            xPos = walkStartX + (walkEndX - walkStartX) * t;
+            zPos = walkStartZ + (walkEndZ - walkStartZ) * t;
+            return false;
+        }
+
+        private double Distance(double x, double z) => Math.Sqrt((x - xPos) * (x - xPos) + (z - zPos) * (z - zPos));
+
+        /// <summary>NPC view update: component mask 0x02 (the char movement is the second component of NPCs).</summary>
+        public byte[] BuildMovementUpdate(byte flags, Animations action)
+        {
+            var mvt = new CharMvt {Flags = flags, Action = (byte) action, Yaw = (byte) rotation};
+            mvt.X = (float) xPos;
+            mvt.Y = (float) yPos;
+            mvt.Z = (float) zPos;
+            var writer = new WireWriter(20);
+            writer.WriteByte(0x02);
+            mvt.WriteToClient(writer, false);
+            return writer.ToArray();
+        }
+
+        private void BroadcastMovement(byte flags, Animations action)
+        {
+            Store.world?.SendViewUpdateToClientsWhoHasMobSpawned(BuildMovementUpdate(flags, action), this);
+        }
+
+        #endregion
 
         public void HitEnemyWithDamage(ushort hitValue, uint hitFxId)
         {
-            // Change to combat so that he isnt moving anymore
-            currentState = (int) statusList.COMBAT;
+            // a hit mob stops walking
+            HaltMovement();
             if (healthC - hitValue <= 0)
                 healthC = 0;
             else
@@ -432,22 +494,5 @@ namespace hds
             Store.world.SendViewUpdateToClientsWhoHasMobSpawned(hitPacket, this);
         }
 
-        public void updateAnimation(byte animationByte)
-        {
-            // Through Animation Packet here if you want to start / stop walking etc.
-            // aka 0x0e
-            var pak = new PacketContent();
-            pak.AddByte(0x02);
-            pak.AddByte(0x0e);
-            pak.AddByte(animationByte);
-            pak.AddByte((byte) rotation);
-            pak.AddFloatLtVector3f((float) getXPos(), (float) getYPos(), (float) getZPos());
-
-            Store.world.SendViewUpdateToClientsWhoHasMobSpawned(pak, this);
-        }
-
-        public void updateCombat()
-        {
-        }
     }
 }

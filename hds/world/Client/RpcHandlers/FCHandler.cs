@@ -9,6 +9,13 @@ namespace hds
 {
     class FCHandler
     {
+        private readonly WorldClient client;
+
+        public FCHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public void ProcessLoadFactionName(ref byte[] packet)
         {
 
@@ -17,8 +24,8 @@ namespace hds
 
             string factionName = Store.dbManager.WorldDbHandler.GetFactionNameById(factionId);
             
-            ServerPackets pak = new ServerPackets();
-            pak.SendFactionName(Store.currentClient, factionId, factionName);
+            ServerPackets pak = new ServerPackets(client);
+            pak.SendFactionName(client, factionId, factionName);
         }
 
 
@@ -39,9 +46,9 @@ namespace hds
             string crewName = pakRead.ReadSizedZeroTerminatedString().Trim();
             string playerHandle = pakRead.ReadSizedZeroTerminatedString().Trim();
             string crewCaptainHandle =
-                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+                StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
 
-            UInt32 crewId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
+            UInt32 crewId = NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(), 1);
 
             bool isCrewNameAvailable = Store.dbManager.WorldDbHandler.IsCrewNameAvailable(crewName);
             bool isNewCrew = false;
@@ -51,18 +58,18 @@ namespace hds
                 Store.dbManager.WorldDbHandler.AddCrew(crewName,crewCaptainHandle);
                 crewId = Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(crewCaptainHandle);
                 // We add ourself as captain to the crew
-                Store.dbManager.WorldDbHandler.AddMemberToCrew(Store.currentClient.playerData.getCharID(), crewId, 0, 1, 0  );
+                Store.dbManager.WorldDbHandler.AddMemberToCrew(client.playerData.getCharID(), crewId, 0, 1, 0  );
                 isNewCrew = true;
             }
             
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             if (isNewCrew || crewId != 0)
             {
                 pak.SendCrewInviteToPlayer(playerHandle, crewName);
             }
             else
             {
-                pak.sendSystemChatMessage(Store.currentClient,"Crewname was already taken - please choose a new one","BROADCAST");
+                pak.sendSystemChatMessage(client,"Crewname was already taken - please choose a new one","BROADCAST");
             }
 
         }
@@ -77,7 +84,7 @@ namespace hds
             string handleToInvite = reader.ReadSizedZeroTerminatedString();
 
             string masterHandle =
-                StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue());
+                StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue());
             
             if (Store.dbManager.WorldDbHandler.IsFactionnameAvailable(factionName) && Store.dbManager.WorldDbHandler.IsHandleCaptainOfACrew(handleToInvite) && Store.dbManager.WorldDbHandler.IsHandleCaptainOfACrew(masterHandle))
             {
@@ -86,7 +93,7 @@ namespace hds
                 Crew crewSecondCaptaint = Store.dbManager.WorldDbHandler.GetCrewData(Store.dbManager.WorldDbHandler.GetCrewIdByCrewMasterHandle(handleToInvite));
                 
                 UInt32 factionId = Store.dbManager.WorldDbHandler.createFaction(factionName, crewMaster, crewSecondCaptaint);
-                ServerPackets packets = new ServerPackets();
+                ServerPackets packets = new ServerPackets(client);
                 
                 if (factionId > 0)
                 {
@@ -101,37 +108,37 @@ namespace hds
                                   1) == crewSecondCaptaint.crewId
                         select crewMasterClients;
 
-                    foreach (var client in crewMembers)
+                    foreach (var member in crewMembers)
                     {
-                        client.Value.playerInstance.FactionID.setValue(factionId);
+                        member.Value.playerInstance.FactionID.setValue(factionId);
                     }
                     
                     packets.SendJoinedGroup(1, factionId, crewMaster.crewId, crewMaster.characterMasterName);
                     packets.SendJoinedGroup(1, factionId, crewSecondCaptaint.crewId, crewSecondCaptaint.characterMasterName);
-                    new FCHandler().ProcessFactionInfoUpdate(true);
+                    new FCHandler(client).ProcessFactionInfoUpdate(true);
                     
                     // Now selfView Updates
-                    foreach (var client in crewMembers)
+                    foreach (var member in crewMembers)
                     {
 
                         List<Attribute> updateAttributes = new List<Attribute>();
-                        updateAttributes.Add(client.Value.playerInstance.FactionID);
+                        updateAttributes.Add(member.Value.playerInstance.FactionID);
 
                         PacketContent viewStateData = new PacketContent();
                         PacketContent myselfStateData = new PacketContent();
-                        viewStateData.AddByteArray(client.Value.playerInstance.GetUpdateAttributes(updateAttributes));
-                        myselfStateData.AddByteArray(client.Value.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                        viewStateData.AddByteArray(member.Value.playerInstance.GetUpdateAttributes(updateAttributes));
+                        myselfStateData.AddByteArray(member.Value.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
                         
                         // OtherView
-                        Store.world.SendViewPacketToAllPlayers(viewStateData.ReturnFinalPacket(), client.Value.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(client.Value.playerInstance.GetGoid(),1), client.Value.playerData.getEntityId());
+                        Store.world.SendViewPacketToAllPlayers(viewStateData.ReturnFinalPacket(), member.Value.playerData.getCharID(), NumericalUtils.ByteArrayToUint16(member.Value.playerInstance.GetGoid(),1), member.Value.playerData.getEntityId());
                        
                         // SelfView
-                        client.Value.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
+                        member.Value.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
                 else
                 {
-                    packets.SendFactionCreationError(Store.currentClient);    
+                    packets.SendFactionCreationError(client);    
                 }
             }
         }
@@ -146,29 +153,29 @@ namespace hds
             PacketReader reader = new PacketReader(rpcData);
             uint groupType = reader.ReadUint8();
 
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             // ToDo: when we leave we don't sent it to ourself (but maybe to the crew?)
             switch (groupType)
             {
                 case 1:
                     // Leave Faction (remove crew from faction, tell it all others faction members that are online)
                     UInt32 factionId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
-                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), factionId);
+                        NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(), 1);
+                    pak.SendLeaveGroup(groupType, client.playerData.getCharID(), factionId);
                     break;
                 
                 case 2:
                     // Leave Group (announce it to all crew members)
                     UInt32 crewId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
-                    Store.dbManager.WorldDbHandler.RemoveMemberFromCrew(Store.currentClient.playerData.getCharID(), crewId);
-                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), crewId);
+                        NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(), 1);
+                    Store.dbManager.WorldDbHandler.RemoveMemberFromCrew(client.playerData.getCharID(), crewId);
+                    pak.SendLeaveGroup(groupType, client.playerData.getCharID(), crewId);
                     break;
                 case 3:
                     // ToDo: Leave Team can be done if we handle Teams :) 
                     UInt32 teamId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(), 1);
-                    pak.SendLeaveGroup(groupType, Store.currentClient.playerData.getCharID(), teamId);
+                        NumericalUtils.ByteArrayToUint32(client.playerInstance.MissionTeamID.getValue(), 1);
+                    pak.SendLeaveGroup(groupType, client.playerData.getCharID(), teamId);
                     break;
             }
         }
@@ -180,26 +187,26 @@ namespace hds
             UInt32 moneyToDepositOrTake = reader.ReadUInt32(1);
             uint IsGivingMoney = reader.ReadUint8();
 
-            ServerPackets packet = new ServerPackets();
+            ServerPackets packet = new ServerPackets(client);
             switch (type)
             {
                 case 1:
                     // This is too faction
                     if (IsGivingMoney==1)
                     {
-                        UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() - moneyToDepositOrTake;
+                        UInt32 newMoneyAmount = (UInt32) client.playerData.getInfo() - moneyToDepositOrTake;
                         // Update Info
-                        Store.dbManager.WorldDbHandler.IncreaseFactionMoney(NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.FactionID.getValue(),1), moneyToDepositOrTake);
-                        Store.dbManager.WorldDbHandler.SaveInfo(Store.currentClient,newMoneyAmount);
-                        Store.currentClient.playerData.setInfo(newMoneyAmount);
+                        Store.dbManager.WorldDbHandler.IncreaseFactionMoney(NumericalUtils.ByteArrayToUint16(client.playerInstance.FactionID.getValue(),1), moneyToDepositOrTake);
+                        Store.dbManager.WorldDbHandler.SaveInfo(client,newMoneyAmount);
+                        client.playerData.setInfo(newMoneyAmount);
                     }
                     else
                     {
-                        UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() + moneyToDepositOrTake;
+                        UInt32 newMoneyAmount = (UInt32) client.playerData.getInfo() + moneyToDepositOrTake;
                         // Update Info
-                        Store.dbManager.WorldDbHandler.DecreaseFactionMoney(NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.FactionID.getValue(),1), moneyToDepositOrTake);
-                        Store.dbManager.WorldDbHandler.SaveInfo(Store.currentClient,newMoneyAmount);
-                        Store.currentClient.playerData.setInfo(newMoneyAmount);
+                        Store.dbManager.WorldDbHandler.DecreaseFactionMoney(NumericalUtils.ByteArrayToUint16(client.playerInstance.FactionID.getValue(),1), moneyToDepositOrTake);
+                        Store.dbManager.WorldDbHandler.SaveInfo(client,newMoneyAmount);
+                        client.playerData.setInfo(newMoneyAmount);
                     }
 
                     //ProcessFactionInfoUpdate();
@@ -208,52 +215,52 @@ namespace hds
                     // This is to crew
                     if (IsGivingMoney==1)
                     {
-                        UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() - moneyToDepositOrTake;
+                        UInt32 newMoneyAmount = (UInt32) client.playerData.getInfo() - moneyToDepositOrTake;
                         // Update Info
-                        Store.dbManager.WorldDbHandler.IncreaseCrewMoney(NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.CrewID.getValue(),1), moneyToDepositOrTake);
-                        Store.dbManager.WorldDbHandler.SaveInfo(Store.currentClient,newMoneyAmount);
-                        Store.currentClient.playerData.setInfo(newMoneyAmount);
+                        Store.dbManager.WorldDbHandler.IncreaseCrewMoney(NumericalUtils.ByteArrayToUint16(client.playerInstance.CrewID.getValue(),1), moneyToDepositOrTake);
+                        Store.dbManager.WorldDbHandler.SaveInfo(client,newMoneyAmount);
+                        client.playerData.setInfo(newMoneyAmount);
                     }
                     else
                     {
-                        UInt32 newMoneyAmount = (UInt32) Store.currentClient.playerData.getInfo() + moneyToDepositOrTake;
+                        UInt32 newMoneyAmount = (UInt32) client.playerData.getInfo() + moneyToDepositOrTake;
                         // Update Info
-                        Store.dbManager.WorldDbHandler.DecreaseCrewMoney(NumericalUtils.ByteArrayToUint16(Store.currentClient.playerInstance.CrewID.getValue(),1), moneyToDepositOrTake);
-                        Store.dbManager.WorldDbHandler.SaveInfo(Store.currentClient,newMoneyAmount);
-                        Store.currentClient.playerData.setInfo(newMoneyAmount);
+                        Store.dbManager.WorldDbHandler.DecreaseCrewMoney(NumericalUtils.ByteArrayToUint16(client.playerInstance.CrewID.getValue(),1), moneyToDepositOrTake);
+                        Store.dbManager.WorldDbHandler.SaveInfo(client,newMoneyAmount);
+                        client.playerData.setInfo(newMoneyAmount);
                     }
                     //ProcessCrewInfoUpdate();
                     break;
             }
 
-            packet.SendMoneyUpdateFactionCrew(Store.currentClient, (ushort) type, moneyToDepositOrTake, (ushort) IsGivingMoney);
-            packet.SendInfoCurrent(Store.currentClient, (UInt32)Store.currentClient.playerData.getInfo());
+            packet.SendMoneyUpdateFactionCrew(client, (ushort) type, moneyToDepositOrTake, (ushort) IsGivingMoney);
+            packet.SendInfoCurrent(client, (UInt32)client.playerData.getInfo());
             
         }
 
         public void ProcessCrewInfoUpdate()
         {
             // ToDo: maybe we can remove this as we update money on the other way (but we need to check if this is the case)
-            UInt32 crewId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(), 1);
+            UInt32 crewId = NumericalUtils.ByteArrayToUint32(client.playerInstance.CrewID.getValue(), 1);
             Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
             List<CrewMember> members = Store.dbManager.WorldDbHandler.GetCrewMembersForCrewId(crewId);
-            ServerPackets packet = new ServerPackets();
-            packet.SendCrewInfo(Store.currentClient, crewData, members);
+            ServerPackets packet = new ServerPackets(client);
+            packet.SendCrewInfo(client, crewData, members);
         }
         
         public void ProcessFactionInfoUpdate(bool sendToAllMembers)
         {
             // ToDo: maybe we can remove this as we update money on the other way (but we need to check if this is the case)
-            UInt32 factionId = NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(), 1);
+            UInt32 factionId = NumericalUtils.ByteArrayToUint32(client.playerInstance.FactionID.getValue(), 1);
             
             Faction faction = Store.dbManager.WorldDbHandler.FetchFaction(factionId);
             faction.masterPlayerCharId =
                 Store.dbManager.WorldDbHandler.GetCharIdByHandle(faction.masterPlayerHandle);
             
-            ServerPackets packet = new ServerPackets();
+            ServerPackets packet = new ServerPackets(client);
             
-            packet.SendFactionInfo(Store.currentClient, faction, sendToAllMembers);
-            packet.SendFactionCrews(Store.currentClient, faction, sendToAllMembers);
+            packet.SendFactionInfo(client, faction, sendToAllMembers);
+            packet.SendFactionCrews(client, faction, sendToAllMembers);
         }
         
         

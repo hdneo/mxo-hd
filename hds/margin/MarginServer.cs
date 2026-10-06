@@ -31,7 +31,7 @@ namespace hds
             threadList = new List<Thread>();
             tcpListener = new TcpListener(IPAddress.Any, 10000);
             Output.WriteLine("Margin server set and ready at port 10000");
-            listenThread = new Thread(new ThreadStart(ListenForClients));
+            listenThread = new Thread(new ThreadStart(ListenForClients)) {IsBackground = true, Name = "MarginListener"};
         }
 
         public void StartServer()
@@ -58,8 +58,7 @@ namespace hds
                     tempThread.Interrupt();
                 }
             }
-
-            listenThread.Abort();
+            // tcpListener.Stop() makes AcceptTcpClient throw, which ends the listener thread
         }
 
 
@@ -70,7 +69,15 @@ namespace hds
             while (mainThreadWorking)
             {
                 // Create a new object when a client arrives
-                TcpClient client = this.tcpListener.AcceptTcpClient();
+                TcpClient client;
+                try
+                {
+                    client = this.tcpListener.AcceptTcpClient();
+                }
+                catch (SocketException)
+                {
+                    return; // listener stopped
+                }
                 MarginClient marClient = new MarginClient(client.GetHashCode());
 
                 // Define a new thread with the handling method as main loop and start it
@@ -80,8 +87,11 @@ namespace hds
                 clientThread.Start(client);
 
                 marClient.marginThreadId = clientThread.ManagedThreadId;
-                // Add it to the Margin clients list
-                clientList.Add(marClient);
+                // Add it to the Margin clients list (also read from the world thread)
+                lock (clientList)
+                {
+                    clientList.Add(marClient);
+                }
             }
         }
 
@@ -93,46 +103,54 @@ namespace hds
         public void SendUDPSessionReply(UInt32 charID)
         {
             // Search the Margin Client
-            foreach (MarginClient resultClient in clientList)
+            lock (clientList)
             {
-                if (resultClient.getCharID() == charID)
+                foreach (MarginClient resultClient in clientList)
                 {
-                    resultClient.EstablishUDPSessionReplyExternal();
-                    return;
+                    if (resultClient.getCharID() == charID)
+                    {
+                        resultClient.EstablishUDPSessionReplyExternal();
+                        return;
+                    }
                 }
             }
         }
 
         public bool IsAnotherClientActive(UInt32 charId)
         {
-            bool isActive = false;
-
-            foreach (MarginClient resultClient in clientList)
+            lock (clientList)
             {
-                if (resultClient.getCharID() == charId)
+                foreach (MarginClient resultClient in clientList)
                 {
-                    isActive = true;
-                    break;
+                    if (resultClient.getCharID() == charId)
+                    {
+                        return true;
+                    }
                 }
             }
-
-            return isActive;
+            return false;
         }
 
         public void RemoveClientsByCharId(UInt32 charId)
         {
-            MarginClient removeClient = null;
-            foreach (MarginClient resultClient in clientList)
+            lock (clientList)
             {
-                if (resultClient.getCharID() == charId)
+                MarginClient removeClient = null;
+                foreach (MarginClient resultClient in clientList)
                 {
-                    RemoveThreadFromThreadList(resultClient.marginThreadId);
-                    removeClient = resultClient;
-                    break;
+                    if (resultClient.getCharID() == charId)
+                    {
+                        RemoveThreadFromThreadList(resultClient.marginThreadId);
+                        removeClient = resultClient;
+                        break;
+                    }
+                }
+
+                if (removeClient != null)
+                {
+                    clientList.Remove(removeClient);
                 }
             }
-
-            clientList.Remove(removeClient);
         }
 
         private void RemoveThreadFromThreadList(int ThreadId)

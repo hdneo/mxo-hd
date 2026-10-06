@@ -1,26 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
 
 namespace hds
 {
     public partial class WorldThreads
     {
-        public void TimersThreadProcess()
+        public void TimersTick()
         {
-            Output.WriteLine("[WORLD SERVER]TimersThread started");
-            while (true)
-            {
-                // ToDo: This should update "timers" like Buffs, Skill Execution or something
-                Thread.Sleep(2000);
-                lock (WorldServer.Clients)
-                {
-                    CheckAndResendClients();
-                    SavePlayers();
-                }
-            }
+            SavePlayers();
         }
-        
-        private static void CheckAndResendClients()
+
+        /// <summary>Resends messages of packets the clients did not ack in time.</summary>
+        public void ResendTick()
         {
             foreach (string client in WorldServer.Clients.Keys)
             {
@@ -61,7 +51,7 @@ namespace hds
             {
                 thisclient.playerData.lastSaveTime = TimeUtils.getUnixTimeUint32();
                 // Save Player
-                new PlayerHelper().SavePlayerInfo(thisclient);
+                new PlayerHelper(thisclient).SavePlayerInfo(thisclient);
                 // Notify Player about save
                 ServerPackets pak = new ServerPackets();
                 pak.sendSaveCharDataMessage(thisclient,

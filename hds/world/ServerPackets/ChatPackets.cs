@@ -27,27 +27,27 @@ namespace hds
                 // 20 = Faction_Broadcast - never used ?
                 case 18:
                     UInt32 crewId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CrewID.getValue(),
+                        NumericalUtils.ByteArrayToUint32(Client.playerInstance.CrewID.getValue(),
                             1);
-                    Store.world.SendRPCToCrewMembers(crewId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToCrewMembers(crewId, Client, pak.ReturnFinalPacket(), false);
                     break;
                 case 19:
                 case 20:
                     UInt32 factionId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.FactionID.getValue(),
+                        NumericalUtils.ByteArrayToUint32(Client.playerInstance.FactionID.getValue(),
                             1);
-                    Store.world.SendRPCToFactionMembers(factionId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToFactionMembers(factionId, Client, pak.ReturnFinalPacket(), false);
                     break;
 
                 case 21:
                     UInt32 missionTeamId =
-                        NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.MissionTeamID.getValue(),
+                        NumericalUtils.ByteArrayToUint32(Client.playerInstance.MissionTeamID.getValue(),
                             1);
-                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Store.currentClient, pak.ReturnFinalPacket(), false);
+                    Store.world.SendRPCToMissionTeamMembers(missionTeamId, Client, pak.ReturnFinalPacket(), false);
                     break;
 
                 default:
-                    Store.world.SendRPCToAllOtherPlayers(Store.currentClient.playerData, pak.ReturnFinalPacket());
+                    Store.world.SendRPCToAllOtherPlayers(Client.playerData, pak.ReturnFinalPacket());
                     break;
             }
         }
@@ -55,7 +55,7 @@ namespace hds
         public void SendWhisperMesage(WorldClient client, string receiverHandle, string message)
         {
             string senderHandleStringWithPrefix = "SOE+MXO+" + Store.worldConfig.serverName + "+" +
-                                                  StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance
+                                                  StringUtils.charBytesToString_NZ(Client.playerInstance
                                                       .CharacterName.getValue());
             
             PacketContent pak = new PacketContent();

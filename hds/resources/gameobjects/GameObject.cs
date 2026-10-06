@@ -120,64 +120,79 @@ namespace hds
 			return din.getBytes();
 		}
 		
+		/// <summary>
+		/// View update of this object for other clients: component mask (attribute table) followed by the
+		/// table with the given attributes, in the order of the class update list.
+		/// </summary>
 		public byte[] GetUpdateAttributes(List<Attribute> attributesNeedsUpdate){
-			
-			DynamicArray din = new DynamicArray();
-			bool lastGroupEmpty = true;
-			int attribCounter = 0;
-			
-			for (int i = (updateGroups-1);i>=0;i--){
-				int attribOffset = i*7;
-				bool anyAttribEnabled = false;
-				byte tempHeader = 0x00;
-				
-				for (int j = 6;j>=0;j--){
-					int position = attribOffset+j;
-					// This verifies that the attribute is in a group but groups has not 7 attributes
-					if (position<attributesUpdate.Length){ 
-						Attribute temp = attributesUpdate[attribOffset+j];
+			var writer = new hds.Core.Wire.WireWriter();
+			writer.WriteByte(TableComponentBit(false));
+			WriteLegacyTable(writer, attributesUpdate, attribute => attribute.isActive() && Contains(attributesNeedsUpdate, attribute));
+			return writer.ToArray();
+		}
 
-						if (temp.isActive())
-						{
-							foreach (Attribute attribute in attributesNeedsUpdate)
-							{
-								if (attribute.getName().Equals(temp.getName()))
-								{
-									anyAttribEnabled = true;
-									attribCounter++;
-									tempHeader = (byte) (tempHeader + (1<<j)); // Displacement
-									din.insertBefore(temp.getValue());									
-								}
-							}
-						}
-					}
+		protected static bool Contains(List<Attribute> list, Attribute attribute){
+			foreach (var candidate in list){
+				if (ReferenceEquals(candidate, attribute) || candidate.getName() == attribute.getName()){
+					return true;
 				}
-
-				// Updating last attribute group, set it as 0b0XXXXXXX
-				if (i == (updateGroups-1)){
-					if (anyAttribEnabled){
-						din.insertBefore(tempHeader);
-						lastGroupEmpty = false;
-					}
-				}
-				// Updating other than last attribute group
-				else{
-					if (!lastGroupEmpty){
-						tempHeader = (byte) (tempHeader+0x80);
-						din.insertBefore(tempHeader);
-					}else{
-						if(anyAttribEnabled){
-							din.insertBefore(tempHeader);
-							lastGroupEmpty = false;
-						}
-					}				
-				}
-
 			}
-			
-			//add the counter of attributes sent
-			din.insertBefore((byte)attribCounter);
-			return din.getBytes();
+			return false;
+		}
+
+		/// <summary>Bit of the attribute table component in the view update mask of this object type.</summary>
+		protected byte TableComponentBit(bool selfView){
+			if (hds.Game.Objects.GoSchemaRegistry.Instance.TryGet(goid, out var type)){
+				var layout = hds.Protocol.View.ViewLayout.For(type, selfView);
+				return (byte) layout.BitOf(hds.Protocol.View.ViewComponentKind.AttributeTable);
+			}
+			return 0x01;
+		}
+
+		/// <summary>
+		/// Writes an attribute table (groups of 7 with presence masks). Strings are length prefixed like the
+		/// original server does in update tables. An empty table is written as a single empty group.
+		/// </summary>
+		protected void WriteLegacyTable(hds.Core.Wire.WireWriter writer, Attribute[] list, Func<Attribute, bool> include){
+			var last = -1;
+			for (var i = 0; i < list.Length; i++){
+				if (list[i] != null && include(list[i])) last = i;
+			}
+			if (last < 0){
+				writer.WriteByte(0x00);
+				return;
+			}
+
+			for (var groupStart = 0; groupStart <= last; groupStart += 7){
+				var maskPosition = writer.Length;
+				writer.WriteByte(0);
+				byte mask = 0;
+				for (var bit = 0; bit < 7 && groupStart + bit < list.Length; bit++){
+					var attribute = list[groupStart + bit];
+					if (attribute == null || !include(attribute)) continue;
+					mask |= (byte) (1 << bit);
+					var value = attribute.getValue();
+					if (IsStringAttribute(attribute)){
+						var length = Array.IndexOf(value, (byte) 0);
+						if (length < 0) length = value.Length;
+						writer.WriteByte((byte) length);
+						writer.WriteBytes(value.AsSpan(0, length));
+					}
+					else{
+						writer.WriteBytes(value);
+					}
+				}
+				if (groupStart + 7 <= last) mask |= 0x80;
+				writer.PatchByte(maskPosition, mask);
+			}
+		}
+
+		private bool IsStringAttribute(Attribute attribute){
+			if (hds.Game.Objects.GoSchemaRegistry.Instance.TryGet(goid, out var type)){
+				var index = type.Schema.CreateIndexOf(attribute.getName());
+				if (index >= 0) return type.Schema.Create[index].IsString;
+			}
+			return false;
 		}
 		
 		public void Debug(){

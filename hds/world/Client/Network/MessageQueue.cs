@@ -1,18 +1,16 @@
-﻿using System;
+using System;
 using System.Collections;
-using System.Linq;
-using System.Text;
 
 namespace hds
 {
-    // This Class holds all Queue Submessages
+    /// <summary>
+    /// Unacknowledged messages of one client: waiting ones and the ones in flight (see <see cref="OutgoingStream"/>).
+    /// </summary>
     public class MessageQueue
     {
         public ArrayList RPCMessagesQueue;
         public ArrayList ObjectMessagesQueue;
         public ArrayList rawMessages;
-        public ArrayList worldPackets; // These are final worldPackets to be resend
-        public int ackOnlyCount = 0;
 
         public MessageQueue()
         {
@@ -21,10 +19,7 @@ namespace hds
             rawMessages = new ArrayList();
         }
 
-        
-        /*
-         * Add a RPC Message with size byte automatically to the queue
-         */
+        /// <summary>Adds an RPC message (opcode + payload); the size prefix is added here.</summary>
         public void addRpcMessage(byte[] messageBlock)
         {
             byte[] rpcSizeByte;
@@ -40,19 +35,13 @@ namespace hds
             content.append(rpcSizeByte);
             content.append(messageBlock);
 
-            SequencedMessage message = new SequencedMessage(content.getBytes());
-            RPCMessagesQueue.Add(message);
+            RPCMessagesQueue.Add(new SequencedMessage(content.getBytes()));
         }
 
-        public void addObjectMessage(byte[]messageBlock,bool isTimed)
+        /// <summary>Adds a view message (u16 view id + update, or an admin view command).</summary>
+        public void addObjectMessage(byte[] messageBlock, bool isTimed)
         {
-            SequencedMessage message = new SequencedMessage(messageBlock);
-            message.isTimed = isTimed;
-            lock (ObjectMessagesQueue.SyncRoot)
-            {
-                ObjectMessagesQueue.Add(message);
-            }
-            
+            ObjectMessagesQueue.Add(new SequencedMessage(messageBlock) {isTimed = isTimed});
         }
 
         public void addRawMessage(byte[] messageBlock)
@@ -60,5 +49,11 @@ namespace hds
             rawMessages.Add(messageBlock);
         }
 
+        /// <summary>Drops everything - used when the channel is reset for a world change.</summary>
+        public void Clear()
+        {
+            RPCMessagesQueue.Clear();
+            ObjectMessagesQueue.Clear();
+        }
     }
 }

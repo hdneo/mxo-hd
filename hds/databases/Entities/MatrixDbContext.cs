@@ -41,7 +41,7 @@ namespace hds.databases.Entities
                 optionsBuilder.UseMySql(
                     "server=" + dbParams.Host + ";port=" + dbParams.Port + ";user=" + dbParams.Username + ";password=" +
                     dbParams.Password + ";database=" + dbParams.DatabaseName + ";ConvertZeroDateTime=True",
-                    ServerVersion.FromString("5.7.29-mysql"));
+                    ServerVersion.Parse("5.7.29-mysql"));
             }
         }
 

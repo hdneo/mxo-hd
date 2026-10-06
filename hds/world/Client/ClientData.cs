@@ -1,4 +1,4 @@
-using hds.world.Skill;
+﻿using hds.world.Skill;
 using System;
 using System.Collections.Generic;
 
@@ -12,11 +12,6 @@ namespace hds
 		
 		// MXO Client values (server data)
 		private string uniqueKey;
-		private UInt16 pss;
-		private UInt16 cseq;
-		private UInt16 sseq;
-		private UInt16 sseqACKBYCLIENT;
-		private UInt16 RPCCounter;
 		private UInt32 charID;
 		private UInt16 objectID;
         private UInt64 entityId;
@@ -32,7 +27,6 @@ namespace hds
 		public List<Mission> currentMissionList;
 		
 		private float clientSimTime;
-        public long lastSimTimeUpdate = 0; // Timer
         private bool UDPSessionEstablished;
 
         public UInt16 currentSelectedTargetViewId = 2;
@@ -55,9 +49,6 @@ namespace hds
 	    public ClientData ()
 		{
 			rsiValues = new int[22];
-			RPCCounter = 0;
-			
-			pss = 0x00;
 			onWorld = false;
 			SetupPlayerData();
 
@@ -149,64 +140,6 @@ namespace hds
             return UDPSessionEstablished;
         }
 
-        public UInt16 calculateNextPossibleSseq()
-        {
-            UInt16 futureSseq = sseq;
-            futureSseq++;
-            if(futureSseq==4096)
-            {
-               futureSseq=0;
-            }
-            return futureSseq;
-        }
-
-		public void IncrementSseq(){
-			sseq++;
-			if (sseq==4096){ //Safe way
-				sseq = 0;
-			}
-		}
-		
-		public UInt16 getPss(){
-			return pss;
-		}
-		
-		public UInt16 getCseq(){
-			return cseq;
-		}
-		
-		public UInt16 getSseq(){
-			return sseq;
-		}
-		
-		public UInt16 getACK(){
-			return sseqACKBYCLIENT;
-		}
-		
-		public void setPss(UInt16 pss){
-			this.pss = pss;
-		}
-		
-		public void setCseq(UInt16 cseq){
-			this.cseq = cseq;
-		}
-		
-		public void setSseq(UInt16 sseq){
-			this.sseq = sseq;
-		}
-		
-		public void setACK(UInt16 ack){
-			sseqACKBYCLIENT = ack;
-		}
-		
-		public void setRPCCounter(UInt16 rpc){
-			RPCCounter = rpc;
-		}
-		
-		public UInt16 getRPCCounter(){
-			return RPCCounter;
-		}
-		
 		public UInt32 getCharID(){
 			return charID;
 		}

@@ -15,7 +15,7 @@ namespace hds
             pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_VENDOR_OPEN,0);
             pak.AddByteArray(new byte[]{0x7c, 0xad, 0xd9, 0x43});
             // ToDo: Research what position should be here - Vendor or Player and why ?
-            pak.AddByteArray(Store.currentClient.playerInstance.Position.getValue());
+            pak.AddByteArray(Client.playerInstance.Position.getValue());
             pak.AddByteArray(new byte[]{0x20,0x00}); // Always 20 00 (i think its an offset)
 
             pak.AddUint16((UInt16)vendor.items.Length,1);

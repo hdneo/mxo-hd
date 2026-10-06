@@ -6,10 +6,13 @@ namespace hds
 {
     class RegionHandler
     {
-        public RegionHandler()
-        {
+        private readonly WorldClient client;
 
+        public RegionHandler(WorldClient client)
+        {
+            this.client = client;
         }
+
 
         public void ProcessRegionLoaded(ref byte[] packet)
         {
@@ -31,9 +34,9 @@ namespace hds
 
             UInt16 goId = NumericalUtils.ByteArrayToUint16(objectValues.type, 1);
             
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             #if DEBUG
-                pak.sendSystemChatMessage(Store.currentClient,"Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos,"BROADCAST");
+                pak.sendSystemChatMessage(client,"Region Object ID " + objectID + " (GoType ID: " + goId + ") in Sector ID" + sectorID + " X:" + xPos + "Y:" + yPos + "Z:" + zPos,"BROADCAST");
             #endif
 
             // TRy to spawn
@@ -76,7 +79,7 @@ namespace hds
                             String entityMxOHackString = "" + objectValues.metrId + "" + objectValues.mxoStaticId;
                             UInt64 entityId = UInt64.Parse(entityMxOHackString);
                     
-                            pak.SendSpawnGameObject(Store.currentClient,signpost,entityId);    
+                            pak.SendSpawnGameObject(client,signpost,entityId);    
                         }
                         
                     }

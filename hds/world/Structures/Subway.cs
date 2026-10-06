@@ -1,5 +1,4 @@
 using System;
-using System.Timers;
 using hds.shared;
 
 
@@ -50,15 +49,11 @@ namespace hds.world.Structures
 
         public void StartCountdown()
         {
-            Timer myTimer = new Timer(1000);
-            myTimer.AutoReset = true; // the key is here so it repeats
-            myTimer.Elapsed += DecreaseSeconds;
-            myTimer.Interval = 1000; // 1000 ms is one second
-            myTimer.Start();
+            Store.Loop.ScheduleRepeating(TimeSpan.FromSeconds(1), DecreaseSeconds);
             UpdateSubwayState();
         }
 
-        public void DecreaseSeconds(Object source, ElapsedEventArgs e)
+        public void DecreaseSeconds()
         {
             secondsLeft--;
             if (secondsLeft <= 0)

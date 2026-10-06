@@ -956,17 +956,64 @@ namespace hds.databases{
 		    
 	    }
 
-	    public void UpdateAbilityLoadOut(List<UInt16> abilitySlots, uint loaded)
-        {
-	        UInt32 charID = Store.currentClient.playerData.getCharID();
-            string sqlQuery = "";
-            foreach(ushort slot in abilitySlots)
-            {
-                sqlQuery += "UPDATE char_abilities SET is_loaded = " + loaded.ToString() + " WHERE char_id = " + charID.ToString() + " AND slot = " + slot.ToString() + ";";
-            }
+	    public void UpdateAbilityLoadOut(UInt32 charId, IEnumerable<UInt16> abilitySlots, bool loaded)
+	    {
+		    OpenConnection();
+		    try
+		    {
+			    foreach (ushort slot in abilitySlots)
+			    {
+				    var command = (MySqlCommand) conn.CreateCommand();
+				    command.CommandText = "UPDATE char_abilities SET is_loaded = @loaded WHERE char_id = @charId AND slot = @slot";
+				    command.Parameters.AddWithValue("@loaded", loaded ? 1 : 0);
+				    command.Parameters.AddWithValue("@charId", charId);
+				    command.Parameters.AddWithValue("@slot", slot);
+				    command.ExecuteNonQuery();
+			    }
+		    }
+		    finally
+		    {
+			    CloseConnection();
+		    }
+	    }
 
-			ExecuteNonResultQuery(sqlQuery);
-        }
+	    public List<hds.Game.Abilities.OwnedAbility> GetCharacterAbilities(UInt32 charId)
+	    {
+		    var result = new List<hds.Game.Abilities.OwnedAbility>();
+		    OpenConnection();
+		    try
+		    {
+			    var command = (MySqlCommand) conn.CreateCommand();
+			    command.CommandText = "SELECT slot, ability_id, level, is_loaded FROM char_abilities WHERE char_id = @charId";
+			    command.Parameters.AddWithValue("@charId", charId);
+			    using (var reader = command.ExecuteReader())
+			    {
+				    while (reader.Read())
+				    {
+					    long goId = Convert.ToInt64(reader.GetValue(1));
+					    if ((goId & 0x80000000L) == 0)
+					    {
+						    // ability GO ids always have bit 31 set - skip broken rows instead of inventing ability ids
+						    Output.WriteDebugLog("[Abilities] Ignoring invalid ability_id " + goId + " of char " + charId);
+						    continue;
+					    }
+					    result.Add(new hds.Game.Abilities.OwnedAbility
+					    {
+						    // level is INT UNSIGNED and is_loaded TINYINT - convert instead of relying on exact CLR types
+						    Slot = (ushort) Convert.ToInt32(reader.GetValue(0)),
+						    AbilityId = hds.Game.Abilities.PlayerAbilities.AbilityIdFromGoId(Convert.ToInt64(reader.GetValue(1))),
+						    Level = (ushort) Convert.ToUInt32(reader.GetValue(2)),
+						    Loaded = Convert.ToInt32(reader.GetValue(3)) != 0
+					    });
+				    }
+			    }
+		    }
+		    finally
+		    {
+			    CloseConnection();
+		    }
+		    return result;
+	    }
 
 	    public UInt16 GetCurrentAbilityLevel(Int32 abilityGoId, UInt32 charId)
 	    {
@@ -986,12 +1033,13 @@ namespace hds.databases{
 		    return level;
 	    }
 
-	    public ushort UpgradeAbilityLevel(Int32 abilityGoID, uint level)
+	    public ushort UpgradeAbilityLevel(UInt32 charId, Int32 abilityGoId, uint levelsToAdd)
 	    {
-		    UInt32 charID = Store.currentClient.playerData.getCharID();
-		    UInt16 currentLevel = GetCurrentAbilityLevel(abilityGoID, charID);
-		    ExecuteNonResultQuery("UPDATE char_abilities SET level = " + currentLevel + level + " WHERE char_id=" + charID + " AND ability_id=" + abilityGoID + " LIMIT 1");
-		    return (ushort) (currentLevel + level);
+		    UInt16 currentLevel = GetCurrentAbilityLevel(abilityGoId, charId);
+		    ushort newLevel = (ushort) (currentLevel + levelsToAdd);
+		    // was: "level = " + currentLevel + level, which concatenated the numbers as text (5 + 2 = "52")
+		    ExecuteNonResultQuery("UPDATE char_abilities SET level = " + newLevel + " WHERE char_id=" + charId + " AND ability_id=" + abilityGoId + " LIMIT 1");
+		    return newLevel;
 	    }
 
         public void SaveExperience(WorldClient client, long exp)

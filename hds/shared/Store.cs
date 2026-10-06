@@ -4,7 +4,6 @@ using System.Text;
 using hds.auth;
 using hds.databases;
 using hds.databases.Entities;
-using hds.world.scripting;
 
 namespace hds.shared{
     public class Store{
@@ -26,13 +25,20 @@ namespace hds.shared{
         public static DatabaseManager dbManager { get; set; }
         public static MatrixDbContext matrixDbContext { get; set; }
 
+        /* World thread - all game state is only modified from here */
+        public static hds.Core.WorldLoop Loop { get; set; }
+
         /* Protocol Handling */
+        /// <summary>
+        /// Client whose packet is currently processed on the world thread. Legacy code only - new code gets the
+        /// client passed explicitly.
+        /// </summary>
         public static WorldClient currentClient { get; set; }
-        public static MultiProtocolManager Mpm { get; set; }
+        public static ClientPacketProcessor PacketProcessor { get; set; }
+        public static hds.Protocol.Rpc.RpcDispatcher RpcDispatcher { get; set; }
 
-        /* Scripting Handling */
-
-        public static ScriptManager rpcScriptManager { get; set; }
+        /* Game systems */
+        public static hds.Game.Combat.CloseCombatService CloseCombat { get; set; }
 
     }
 }

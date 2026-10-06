@@ -9,6 +9,13 @@ namespace hds
 {
     class InventoryHandler
     {
+        private readonly WorldClient client;
+
+        public InventoryHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public void processItemMove(ref byte[] packet)
         {
             byte[] sourceSlot = {packet[0], packet[1]};
@@ -16,10 +23,10 @@ namespace hds
 
             UInt16 fromSlot =  NumericalUtils.ByteArrayToUint16(sourceSlot,1);
             UInt16 toSlot   = NumericalUtils.ByteArrayToUint16(destSlot,1);
-            Store.dbManager.WorldDbHandler.UpdateInventorySlot(fromSlot, toSlot, Store.currentClient.playerData.getCharID());
+            Store.dbManager.WorldDbHandler.UpdateInventorySlot(fromSlot, toSlot, client.playerData.getCharID());
 
-            ServerPackets pak = new ServerPackets();
-            pak.sendInventoryItemMove(fromSlot, toSlot, Store.currentClient);
+            ServerPackets pak = new ServerPackets(client);
+            pak.sendInventoryItemMove(fromSlot, toSlot, client);
         }
 
 
@@ -31,9 +38,9 @@ namespace hds
             UInt16 freeSlot = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
             Store.dbManager.WorldDbHandler.AddItemToInventory(freeSlot, itemID);
 
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             ushort amount = 0; // ToDo : make this dynamic lol
-            pak.sendInventoryItemAdd(freeSlot, itemID, amount, type, Store.currentClient);
+            pak.sendInventoryItemAdd(freeSlot, itemID, amount, type, client);
 
         }
 
@@ -107,27 +114,27 @@ namespace hds
 
             if (partModel != null)
             {
-                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partModel,0, Store.currentClient.playerData.getCharID());
+                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partModel,0, client.playerData.getCharID());
             }
 
             if (partColor != null && item.getColorId()>0)
             {
-                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partColor,0, Store.currentClient.playerData.getCharID());
+                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partColor,0, client.playerData.getCharID());
             }
             // Move slot
             UInt16 newSlotId = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
-            Store.dbManager.WorldDbHandler.UpdateInventorySlot(sourceSlot,newSlotId, Store.currentClient.playerData.getCharID());
+            Store.dbManager.WorldDbHandler.UpdateInventorySlot(sourceSlot,newSlotId, client.playerData.getCharID());
 
             // Send move packet
-            ServerPackets pak = new ServerPackets();
-            pak.sendInventoryItemMove(sourceSlot, newSlotId, Store.currentClient);
+            ServerPackets pak = new ServerPackets(client);
+            pak.sendInventoryItemMove(sourceSlot, newSlotId, client);
 
             Store.dbManager.WorldDbHandler.SetRsiValues();
 
-            int[] current = Store.currentClient.playerData.getRsiValues();
-            Store.currentClient.playerData.setRsiValues(current);
+            int[] current = client.playerData.getRsiValues();
+            client.playerData.setRsiValues(current);
             byte[] rsiData = PacketsUtils.getRSIBytes(current);
-            pak.sendAppeareanceUpdate(Store.currentClient, rsiData);
+            pak.sendAppeareanceUpdate(client, rsiData);
         }
 
 
@@ -207,32 +214,32 @@ namespace hds
 
             if (partModel != null)
             {
-                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partModel,item.getModelId(), Store.currentClient.playerData.getCharID());
+                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partModel,item.getModelId(), client.playerData.getCharID());
             }
 
             if (partColor != null)
             {
-                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partColor,item.getColorId(), Store.currentClient.playerData.getCharID());
+                Store.dbManager.WorldDbHandler.UpdateRsiPartValue(partColor,item.getColorId(), client.playerData.getCharID());
             }
             Store.dbManager.WorldDbHandler.SetRsiValues();
 
-            int[] current = Store.currentClient.playerData.getRsiValues();
-            Store.currentClient.playerData.setRsiValues(current);
+            int[] current = client.playerData.getRsiValues();
+            client.playerData.setRsiValues(current);
             byte[] rsiData = PacketsUtils.getRSIBytes(current);
 
 
             // Move the wear item from the wearing slot to the next new slot (but maybe doesnt work if inventory is full)
 
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             if (Store.dbManager.WorldDbHandler.IsSlotinUseByItem(toRealSlotId))
             {
                 UInt16 newSlotId = Store.dbManager.WorldDbHandler.GetFirstNewSlot();
-                Store.dbManager.WorldDbHandler.UpdateInventorySlot(toRealSlotId,newSlotId, Store.currentClient.playerData.getCharID());
-                pak.sendInventoryItemMove(toRealSlotId, newSlotId, Store.currentClient);
+                Store.dbManager.WorldDbHandler.UpdateInventorySlot(toRealSlotId,newSlotId, client.playerData.getCharID());
+                pak.sendInventoryItemMove(toRealSlotId, newSlotId, client);
             }
-            pak.sendAppeareanceUpdate(Store.currentClient, rsiData);
-            Store.dbManager.WorldDbHandler.UpdateInventorySlot(sourceSlot,toRealSlotId, Store.currentClient.playerData.getCharID());
-            pak.sendInventoryItemMove(sourceSlot, toRealSlotId, Store.currentClient);
+            pak.sendAppeareanceUpdate(client, rsiData);
+            Store.dbManager.WorldDbHandler.UpdateInventorySlot(sourceSlot,toRealSlotId, client.playerData.getCharID());
+            pak.sendInventoryItemMove(sourceSlot, toRealSlotId, client);
 
 
 

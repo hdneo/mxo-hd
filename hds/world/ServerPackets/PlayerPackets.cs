@@ -29,9 +29,9 @@ namespace hds
         public void sendEmotePerform(WorldClient client, UInt32 emoteID)
         {
             double x = 0; double y = 0; double z = 0;
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            byte[] Ltvector3d = Client.playerInstance.Position.getValue();
             NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-            int rotation = (int)Store.currentClient.playerInstance.YawInterval.getValue()[0];
+            int rotation = (int)Client.playerInstance.YawInterval.getValue()[0];
             float xPos = (float)x;
             float yPos = (float)y;
             float zPos = (float)z;
@@ -147,7 +147,7 @@ namespace hds
 
         public void SendPlayerFriendList(WorldClient client)
         {
-            ArrayList friends =  Store.dbManager.WorldDbHandler.FetchFriendList(Store.currentClient.playerData.getCharID());
+            ArrayList friends =  Store.dbManager.WorldDbHandler.FetchFriendList(Client.playerData.getCharID());
 
             if (friends.Count > 0)
             {
@@ -195,7 +195,7 @@ namespace hds
                7612 1276 = Stand_Abil_ProgLauSelectivePhage8s_A
              */
             Random rand = new Random();
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            byte[] Ltvector3d = Client.playerInstance.Position.getValue();
             double x = 0; 
             double y = 0; 
             double z = 0;

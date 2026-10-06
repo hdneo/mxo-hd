@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
@@ -15,14 +15,14 @@ namespace hds
     public class WorldServer
     {
 
+        public const int WorldPort = 10000;
         private IPEndPoint udplistener;
-        private Thread listenThread;
         private int serverport;
-        private bool mainThreadWorking;    
-        private Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        private readonly Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             
         public const int SIO_UDP_CONNRESET = -1744830452;
 
+        /// <summary>Connected clients by remote endpoint. Only accessed from the world thread.</summary>
         public static Dictionary<string, WorldClient> Clients { get; set; }
 
         // Collection to store the spawned npcs 
@@ -38,118 +38,114 @@ namespace hds
 
         public WorldServer()
         {
-
             Clients = new Dictionary<string, WorldClient>();
             objMan = new ObjectManager();
-
-            listenThread = new Thread(ListenForAllClients);
-            mainThreadWorking = true;
-            Output.WriteLine("[World Server] Set and ready at UDP port 10000");
         }
 
         public void StartServer()
         {
-            listenThread.Start();
-            mainThreadWorking = true;
+            ListenForAllClients();
+            Output.WriteLine("[World Server] Set and ready at UDP port " + WorldPort);
         }
 
         public void StopServer()
         {
-            mainThreadWorking = false;
+            socket.Close();
         }
         
         
+        /// <summary>Network thread: copy the datagram and hand it to the world thread.</summary>
         private void finalReceiveFrom(IAsyncResult iar)
         {
-            
-            Socket recvSocket = (Socket)iar.AsyncState;
-            EndPoint Remote = new IPEndPoint(IPAddress.Any, 0);
-            
-            int msgLen = 0;
-
+            EndPoint remote = new IPEndPoint(IPAddress.Any, 0);
             try
             {
-                msgLen = recvSocket.EndReceiveFrom(iar, ref Remote);
-                byte[] finalMessage = new byte[msgLen];
-                ArrayUtils.fastCopy(buffer, finalMessage, msgLen);
-
-                // TODO CLIENT CHECK AND HANDLING
-                lock (Clients)
-                {
-                    WorldClient value;
-                    if (Clients.ContainsKey(Remote.ToString()))
-                    {
-                        value = Clients[Remote.ToString()] as WorldClient;
-                        Store.currentClient = Clients[Remote.ToString()] as WorldClient;
-                    }
-                    else
-                    {
-
-                        objMan.PushClient(Remote.ToString()); // Push first, then create it
-                        value = new WorldClient(Remote, socket, Remote.ToString());
-                        gameServerEntities.Add(objMan.GetAssignedObject(Remote.ToString()));
-                        value.playerData.setEntityId(entityIdCounter++);
-
-                        Clients.Add(Remote.ToString(), value);
-                    }
-                    // Once one player enters, clean all 
-                    Store.currentClient = value; // BEFORE processing
-
-                    value.processPacket(finalMessage);
-                }
-                // Listening for a new message
-                EndPoint newClientEP = new IPEndPoint(IPAddress.Any, 0);
-                try
-                {
-                    socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, finalReceiveFrom, socket);
-                }
-                catch (SocketException ex)
-                {
-                    // if we get exception - remove the client
-                    // ToDo:
-                    if (ex.ErrorCode == 10054)
-                    {
-                        // Client got removed by timeout
-                        Store.currentClient.Alive = false;
-                    }
-                }
-
+                int msgLen = socket.EndReceiveFrom(iar, ref remote);
+                byte[] message = new byte[msgLen];
+                Buffer.BlockCopy(buffer, 0, message, 0, msgLen);
+                EndPoint sender = remote;
+                Store.Loop.Post(() => HandleDatagram(sender, message));
+            }
+            catch (ObjectDisposedException)
+            {
+                return; // socket closed on shutdown
             }
             catch (SocketException ex)
             {
                 Output.WriteLine("Exception thrown by socket " + ex.SocketErrorCode + " " + ex.Message);
-                if (ex.ErrorCode == 10054)
-                {
-                    // Client got removed by timeout
-                    Store.currentClient.Alive = false;
-                }
             }
-                
+
+            BeginReceive();
         }
 
-        
+        private void BeginReceive()
+        {
+            EndPoint any = new IPEndPoint(IPAddress.Any, 0);
+            try
+            {
+                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref any, finalReceiveFrom, socket);
+            }
+            catch (Exception ex)
+            {
+                Output.WriteDebugLog("Exception thrown in BeginReceive " + ex.Message);
+            }
+        }
+
+        /// <summary>World thread: find or create the session of the sender and process the packet.</summary>
+        private void HandleDatagram(EndPoint remote, byte[] message)
+        {
+            string key = remote.ToString();
+            if (!Clients.TryGetValue(key, out WorldClient client))
+            {
+                objMan.PushClient(key); // Push first, then create it
+                client = new WorldClient(remote, socket, key);
+                gameServerEntities.Add(objMan.GetAssignedObject(key));
+                client.playerData.setEntityId(entityIdCounter++);
+                Clients.Add(key, client);
+            }
+
+            // Legacy code still reads the "current" client - only valid on the world thread
+            Store.currentClient = client;
+            client.processPacket(message);
+        }
+
         private void ListenForAllClients()
         {
-            byte[] byteTrue = new byte[4];
-            byteTrue[byteTrue.Length - 1] = 1;
-            socket.IOControl(SIO_UDP_CONNRESET, byteTrue, null);
+            if (OperatingSystem.IsWindows())
+            {
+                // Ignore ICMP port unreachable, otherwise one disconnected client breaks the receive loop
+                byte[] byteTrue = new byte[4];
+                byteTrue[byteTrue.Length - 1] = 1;
+                socket.IOControl(SIO_UDP_CONNRESET, byteTrue, null);
+            }
 
-            serverport = 10000;
+            serverport = WorldPort;
             udplistener = new IPEndPoint(IPAddress.Any, serverport);
             buffer = new byte[4096];
             socket.Bind(udplistener);
-    
-            IPEndPoint sender = new IPEndPoint(IPAddress.Any, 0);
-            EndPoint Remote = sender;
-            try
+            BeginReceive();
+        }
+
+        /// <summary>
+        /// Sends a view update of <paramref name="subject"/> (component mask + data, without view id) to every
+        /// other client that currently has a view of it.
+        /// </summary>
+        public void SendViewUpdateToObservers(WorldClient subject, byte[] updateData)
+        {
+            ulong entityId = subject.playerData.getEntityId();
+            foreach (WorldClient observer in Clients.Values)
             {
-                socket.BeginReceiveFrom(buffer, 0, buffer.Length, SocketFlags.None, ref Remote, new AsyncCallback(finalReceiveFrom), socket);
-            }catch(Exception ex)
-            {
-                Output.WriteDebugLog("Exception Thrown ListenForAllClients " + ex.Message);
+                if (observer == subject) continue;
+                ClientView view = observer.viewMan.FindViewForEntity(entityId);
+                if (view == null || !view.viewCreated) continue;
+
+                var packet = new hds.Core.Wire.WireWriter(updateData.Length + 2);
+                packet.WriteUInt16(view.ViewID);
+                packet.WriteBytes(updateData);
+                observer.messageQueue.addObjectMessage(packet.ToArray(), false);
+                observer.FlushQueue();
             }
         }
-        
 
         /// <summary>
         /// Send a Message to One Player (like private Message)
@@ -344,61 +340,22 @@ namespace hds
         }
 
         /// <summary>
-        /// This sends a View Create/Update/Delete Packet to all Players 
+        /// Sends a view update (component mask + data, without view id) of the given player entity to all
+        /// other players that have a view of it. Views are created by the view visibility system.
         /// </summary>
-        /// <param name="data">Packet Stream without ViewID</param>
-        /// <param name="charId">from charId</param>
-        /// <param name="goId">from GoId</param>
-        public void SendViewPacketToAllPlayers(byte[] data,UInt32 charId, UInt32 goId, UInt64 entityId)
+        public void SendViewPacketToAllPlayers(byte[] data, UInt32 charId, UInt32 goId, UInt64 entityId)
         {
-            // Send a global message to all connected Players (like shut down Server announce or something)
-            lock (Clients)
+            foreach (WorldClient observer in Clients.Values)
             {
-                foreach (string clientKey in Clients.Keys)
-                {
-                    WorldClient client = Clients[clientKey] as WorldClient;
-                    if (client.playerData.getCharID() != charId)
-                    {
-                        #if DEBUG
-                        Output.Write("[ViewThread] Handle View For all Packet for charId : " + charId.ToString());
-                        #endif
-                        // Get or generate a View for the GoID 
-                        ClientView view = client.viewMan.GetViewForEntityAndGo(entityId, goId);
-                        PacketContent viewPacket = new PacketContent();
+                if (observer.playerData.getCharID() == charId) continue;
+                ClientView view = observer.viewMan.FindViewForEntity(entityId);
+                if (view == null || !view.viewCreated) continue;
 
-                        if (view.viewCreated == false)
-                        {
-                            // if view is new , add the viewId at the end (cause its creation)
-                            // Remove the 03 01 00 (as it was generate previosly)
-                            viewPacket.AddByteArray(data);
-                            viewPacket.AddUint16(view.ViewID,1);
-                            viewPacket.AddByte(0x00);
-
-                        }
-                        else
-                        {
-                            // Update View
-                            viewPacket.AddUint16(view.ViewID,1);
-                            viewPacket.AddByteArray(data);
-                            viewPacket.AddByte(0x00);  
-                        }
-
-                        if (view.viewNeedsToBeDeleted)
-                        {
-                            // Delete one View
-                            viewPacket.AddByte(0x01);
-                            viewPacket.AddByte(0x00);
-                            viewPacket.AddByte(0x01); // Comand (Delete)
-                            viewPacket.AddUint16(1,1); // NumViews to Delete
-                            viewPacket.AddUint16(view.ViewID,1);
-                            viewPacket.AddByte(0x00);
-                        }
-
-                        
-                        client.messageQueue.addObjectMessage(viewPacket.ReturnFinalPacket(), false);
-                        client.FlushQueue();
-                    }
-                }
+                PacketContent viewPacket = new PacketContent();
+                viewPacket.AddUint16(view.ViewID, 1);
+                viewPacket.AddByteArray(data);
+                observer.messageQueue.addObjectMessage(viewPacket.ReturnFinalPacket(), false);
+                observer.FlushQueue();
             }
         }
 
@@ -463,21 +420,27 @@ namespace hds
 
         public void SendViewUpdateToClientsWhoHasMobSpawned(PacketContent packet, Mob mob)
         {
+            SendViewUpdateToClientsWhoHasMobSpawned(packet.ReturnFinalPacket(), mob);
+        }
+
+        /// <summary>Sends a view update (without view id) to every client that has a view of the mob.</summary>
+        public void SendViewUpdateToClientsWhoHasMobSpawned(byte[] update, Mob mob)
+        {
             lock (Clients)
             {
                 foreach (string clientKey in Clients.Keys)
                 {
                     WorldClient client = Clients[clientKey] as WorldClient;
-                    ClientView mobView = client.viewMan.GetViewForEntityAndGo(mob.getEntityId(), NumericalUtils.ByteArrayToUint16(mob.getGoId(), 1));
-                    if (mobView.viewCreated == true && mob.getDistrict() == client.playerData.getDistrictId() && client.playerData.getOnWorld())
+                    // only look up: GetViewForEntityAndGo would create views for clients that never saw the mob
+                    ClientView mobView = client?.viewMan.FindViewForEntity(mob.getEntityId());
+                    if (mobView != null && mobView.viewCreated && mob.getDistrict() == client.playerData.getDistrictId() &&
+                        client.playerData.getOnWorld())
                     {
-                        ServerPackets pak = new ServerPackets();
-                        pak.SendNpcUpdateData(mobView.ViewID, client, packet.ReturnFinalPacket());
+                        new ServerPackets().SendNpcUpdateData(mobView.ViewID, client, update);
                     }
                 }
             }
         }
-
 
     }
 }

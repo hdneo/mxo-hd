@@ -218,9 +218,17 @@ namespace hds.auth
                     return;
                 }
             }
+            catch (InvalidOperationException)
+            {
+                // no user with this name and password (Single() found nothing)
+                Output.WriteLine("-> Login failed for user '" + wl.getUsername() + "': unknown user or wrong password");
+                SendAuthError((UInt32) AuthErrorCode.LTAS_ACCOUNTDOESNOTEXIST);
+                return;
+            }
             catch (Exception ex)
             {
-                SendAuthError((UInt32) AuthErrorCode.LTAS_ACCOUNTDOESNOTEXIST);
+                Output.WriteLine("-> Login failed for user '" + wl.getUsername() + "' because of a server error: " + ex);
+                SendAuthError((UInt32) AuthErrorCode.LT_EXCEPTION);
                 return;
             }
 
@@ -350,6 +358,8 @@ namespace hds.auth
         public void SendAuthError(UInt32 errorCode)
         {
             PacketContent packetContent = new PacketContent();
+            // every auth packet starts with its length (11 bytes follow) - it was missing, so the client waited forever
+            packetContent.AddByte(0x0b);
             packetContent.AddByte((byte) AuthOpcode.AS_AuthReply);
             packetContent.AddUint32(errorCode, 1);
             packetContent.AddInt32(0, 1);

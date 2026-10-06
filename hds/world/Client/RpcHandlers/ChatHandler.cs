@@ -7,6 +7,13 @@ namespace hds
 {
     public class ChatHandler
     {
+        private readonly WorldClient client;
+
+        public ChatHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
 
         private ChatCommandsHelper chatCommands;
 
@@ -36,7 +43,7 @@ namespace hds
                 
             }
             
-            chatCommands = new ChatCommandsHelper();
+            chatCommands = new ChatCommandsHelper(client);
             int offset = 0;
 
             //10 00 08 00 00 00 00 06 00 3f 53 61 76 65 00 
@@ -57,8 +64,8 @@ namespace hds
                 else
                 {
                     // Not a Param - lets distribute the Message throw our Area 
-                    ServerPackets pak = new ServerPackets();
-                    pak.SendChatMessage(Store.currentClient, text, Store.currentClient.playerData.getCharID(), StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()), typeId);
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.SendChatMessage(client, text, client.playerData.getCharID(), StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue()), typeId);
                     // ToDo: Send the ChatMessage to the Scope of Players
 
                     
@@ -80,8 +87,8 @@ namespace hds
 
             string cleanHandle = receiverHandleServerString.Replace("SOE+MXO+" + Store.worldConfig.serverName +"+", "");
             
-            ServerPackets packets = new ServerPackets();
-            packets.SendWhisperMesage(Store.currentClient, cleanHandle, receiverMessage);
+            ServerPackets packets = new ServerPackets(client);
+            packets.SendWhisperMesage(client, cleanHandle, receiverMessage);
         }
     }
 }

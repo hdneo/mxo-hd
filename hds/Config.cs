@@ -15,8 +15,19 @@ namespace hds{
         public ServerParams serverParams { get { return _serverParams; } }
 
 
+        public const string TemplateFileName = "ServerConfig.template.xml";
+
         public ServerConfig(string _filename){
             filename = _filename;
+            EnsureConfigExists();
+        }
+
+        // Config.xml holds credentials and is not versioned - create it from the template on first start
+        private void EnsureConfigExists(){
+            if (!System.IO.File.Exists(filename) && System.IO.File.Exists(TemplateFileName)){
+                System.IO.File.Copy(TemplateFileName, filename);
+                Output.WriteLine("[Config] Created " + filename + " from " + TemplateFileName + " - please review the database settings.");
+            }
         }
 
         public void LoadDbParams() {

@@ -25,20 +25,18 @@ namespace hds{
 			return result;
 		}
 
+        /// <summary>Simulation time in seconds as float (see <see cref="hds.Core.ServerClock"/>).</summary>
         public static byte[] getCurrentSimTime()
         {
-            
-            
-            TimeSpan ts = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0));
-             
-            //long timeSim = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-            //UInt32 simTimeTicks = (UInt32)timeSim;
-            float timeSimFloat = (UInt32)ts.TotalSeconds * (1.0f / 1000.0f);
-            byte[] result = NumericalUtils.floatToByteArray(timeSimFloat, 1);
-            return result;
+            // was: unix seconds / 1000, which made the client clock advance 1 ms per real second
+            return NumericalUtils.floatToByteArray(hds.Core.ServerClock.SimSecondsFloat, 1);
         }
 
-		
+        public static UInt32 getCurrentSimTimeMs()
+        {
+            return hds.Core.ServerClock.SimMilliseconds;
+        }
+
 		public static byte[] getUnixTime(int seconds){
 			TimeSpan ts = (DateTime.UtcNow - new DateTime(1970,1,1,0,0,0));
 			UInt32 unixTime = (UInt32)(ts.TotalSeconds+seconds);

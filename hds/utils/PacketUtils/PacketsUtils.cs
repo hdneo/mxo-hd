@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 
 namespace hds{
@@ -84,45 +84,7 @@ namespace hds{
 
 
 
-        public static byte[] createRpcPacket(ArrayList contents, bool timedRPC, WorldClient client)
-        {
-			
-			RPCPacket rpcp = new RPCPacket(client);
-			
-			for (int i = 0;i<contents.Count;i++){
-				rpcp.appendMsgBlock((byte[])contents[i]);
-			}
-					
-			return rpcp.getBytesWithHeader(timedRPC);
-		}
-		
-		public static byte[] createBigRpcPacket(ArrayList[] contents,bool timedRPC,WorldClient client){
-			RPCPacket rpcp = new RPCPacket(client);
-			
-			// Max size is 4
-			
-			for (int i = 0; i<contents.Length;i++){
-				RPCPacket temp = new RPCPacket(client);
-				for(int j = 0;j<contents[i].Count;j++){
-					temp.appendMsgBlock((byte[])contents[i][j]);
-				}
-				rpcp.appendRpc(temp);
-			}
-			
-			return rpcp.getBytesWithHeader(timedRPC);
-			
-		}
 
-        public static byte[] createVendorPacket(int id, WorldClient client)
-        {
-			//ToDo: Near check as it should contain the size if i am right
-			
-			ArrayList content = new ArrayList();
-			content.Add(StringUtils.hexStringToBytes("4a810d7cadd94300000000a0b7f6c000000000003c9440000000000051c8c020000a0000140080002000800018008000040080002c008000f41180009806800090078000c4068000640680"));
-            byte[] packet = createRpcPacket(content, false, client);
-					
-			return packet;
-		}
 		
 		public static byte[] createTeleportPacket(int x, int y, int z){
 			

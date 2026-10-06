@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using hds.Core;
 using hds.world.Structures;
 
 namespace hds
@@ -34,32 +35,32 @@ namespace hds
         {
             loadEmotes();
             LoadMissions();
-            loadNewRSIIDs("data\\newrsiIDs.csv");
-            loadGODB("data\\gameobjects.csv");
-#if !DEBUG
-            loadMobs("data\\mob.csv");
-            loadMobs("data\\mob_parsed.csv");
+            loadNewRSIIDs(ServerPaths.Data("newrsiIDs.csv"));
+            loadGODB(ServerPaths.Data("gameobjects.csv"));
+#if DEBUG
+            //loadMobs(ServerPaths.Data("mob.csv"));
+            loadMobs(ServerPaths.Data("mob_parsed.csv"));
 #else
-            loadMobs("data\\mob_just_some_and_winter.csv");
+            loadMobs(ServerPaths.Data("mob_just_some_and_winter.csv"));
 #endif
 
 
-            loadAbilityDB("data\\abilityIDs.csv");
-            loadClothingDB("data\\mxoClothing.csv");
+            loadAbilityDB(ServerPaths.Data("abilityIDs.csv"));
+            loadClothingDB(ServerPaths.Data("mxoClothing.csv"));
 
-            loadVendorItems("data\\vendor_items.csv");
-            loadNPCSignPosts("data\\npcsign_parsed.csv");
+            loadVendorItems(ServerPaths.Data("vendor_items.csv"));
+            loadNPCSignPosts(ServerPaths.Data("npcsign_parsed.csv"));
             // Disabled for Debugging
-            loadWorldObjectsDb("data\\staticObjects_slums_1.csv");
-            loadWorldObjectsDb("data\\staticObjects_slums_2.csv");
-            loadWorldObjectsDb("data\\staticObjects_it.csv");
-            loadWorldObjectsDb("data\\staticObjects_dt_1.csv");
-            loadWorldObjectsDb("data\\staticObjects_dt_2.csv");
+            loadWorldObjectsDb(ServerPaths.Data("staticObjects_slums_1.csv"));
+            loadWorldObjectsDb(ServerPaths.Data("staticObjects_slums_2.csv"));
+            loadWorldObjectsDb(ServerPaths.Data("staticObjects_it.csv"));
+            loadWorldObjectsDb(ServerPaths.Data("staticObjects_dt_1.csv"));
+            loadWorldObjectsDb(ServerPaths.Data("staticObjects_dt_2.csv"));
         }
 
         public void LoadMissions()
         {
-            string[] xmlMissionFiles = Directory.GetFiles(@".\data\missions", "*.xml");
+            string[] xmlMissionFiles = Directory.GetFiles(ServerPaths.Data("missions"), "*.xml");
 
             foreach (string file in xmlMissionFiles)
             {
@@ -292,7 +293,7 @@ namespace hds
                         // Init the Mob Update
                         if (!error)
                         {
-                            theMob.DoMobUpdate(theMob);
+                            // mobs start wandering when a client sees them (ViewVisibleThread)
                             WorldServer.mobs.Add(theMob);
                             WorldServer.gameServerEntities.Add(theMob);
                         }

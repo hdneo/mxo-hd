@@ -10,13 +10,20 @@ namespace hds
 {
     public class TeamHandler
     {
+        private readonly WorldClient client;
+
+        public TeamHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         // Checks and create a mission Team if you are not on a mission
         public void checkAndCreateMissionTeam(WorldClient client)
         {
             if (client.playerData.getMissionTeam() == null)
             {
                 string missionTeamName = StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue()) + "'s Mission Team";
-                ServerPackets packets = new ServerPackets();
+                ServerPackets packets = new ServerPackets(client);
                 packets.sendTeamCreation(client, missionTeamName);
 
                 // Add the Team to our global Team List
@@ -42,7 +49,7 @@ namespace hds
 
             // if it is 0 - then he has accepted the request - otherwise decline and ..we dont care
 
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             switch (type)
             {
                     // Team Invites
@@ -54,7 +61,7 @@ namespace hds
                             {
                                 if (team.characterMasterName.Equals(inviterCharacterName))
                                 {
-                                    team.addMember(StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+                                    team.addMember(StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue()));
                                 }
                             }
                         }
@@ -70,24 +77,24 @@ namespace hds
                         UInt32 crewId = Store.dbManager.WorldDbHandler.GetCrewIdByInviterHandle(inviterCharacterName);
                         Crew crewData = Store.dbManager.WorldDbHandler.GetCrewData(crewId);
                         UInt32 characterId =
-                            NumericalUtils.ByteArrayToUint32(Store.currentClient.playerInstance.CharacterID.getValue(),
+                            NumericalUtils.ByteArrayToUint32(client.playerInstance.CharacterID.getValue(),
                                 1);
                         if (crewId > 0)
                         {
                             Store.dbManager.WorldDbHandler.AddMemberToCrew(characterId, crewId, crewData.factionId,0,0 );
-                            Store.currentClient.playerInstance.CrewID.setValue(crewId);
-                            new FCHandler().ProcessCrewInfoUpdate();
+                            client.playerInstance.CrewID.setValue(crewId);
+                            new FCHandler(client).ProcessCrewInfoUpdate();
                         }
 
                         if (crewData.factionId > 0)
                         {
-                            Store.currentClient.playerInstance.FactionID.setValue(crewData.factionId);
-                            new FCHandler().ProcessFactionInfoUpdate(false);
+                            client.playerInstance.FactionID.setValue(crewData.factionId);
+                            new FCHandler(client).ProcessFactionInfoUpdate(false);
                         }
 
                         string characterName =
                             StringUtils.charBytesToString_NZ(
-                                Store.currentClient.playerInstance.CharacterName.getValue());
+                                client.playerInstance.CharacterName.getValue());
                         packets.SendJoinedGroup(type, characterId, crewId, characterName);
                         break;
             }

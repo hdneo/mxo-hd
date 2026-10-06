@@ -29,6 +29,12 @@ namespace hds
             return view;
         }
 
+        /// <summary>Existing view of an entity or null (does not create one).</summary>
+        public ClientView FindViewForEntity(UInt64 entityId)
+        {
+            return views.Find(cv => cv.entityId == entityId);
+        }
+
         public void removeViewByViewId(UInt16 viewId)
         {
             ClientView view = getViewById(viewId);

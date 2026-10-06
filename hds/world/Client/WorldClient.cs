@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using hds.Protocol.Mpm;
 using hds.shared;
 
 namespace hds
@@ -20,12 +21,19 @@ namespace hds
         private UInt32 lastUsedTime;
         private int deadSignals;
         private bool alive;
-        private bool flushingQueueInProgress = false;
+        private bool ackOwed;
+        private readonly OutgoingStream outgoing = new OutgoingStream();
+
+        /// <summary>Sequence / ack state of the reliable channel.</summary>
+        public ReliableChannel Channel { get; } = new ReliableChannel();
 
         public ClientData playerData { get; set; }
         public MessageQueue messageQueue;
         public ViewManager viewMan { get; set; }
         public PlayerCharacter playerInstance { get; set; }
+        public hds.Game.Abilities.PlayerAbilities Abilities { get; } = new hds.Game.Abilities.PlayerAbilities();
+        /// <summary>Interlock tactic the player selected (RPC 0x42).</summary>
+        public hds.Game.Combat.CombatTactic CombatTactic { get; set; } = hds.Game.Combat.CombatTactic.Speed;
 
         public WorldClient(EndPoint _Remote, Socket _socket, string _key)
         {
@@ -42,7 +50,6 @@ namespace hds
             viewMan = new ViewManager();
 
             playerData.setUniqueKey(key);
-            playerData.setRPCCounter((UInt16) 0); //not hardcoded, RPC server system its AWESOME now!
             playerInstance = Store.world.objMan.GetAssignedObject(key);
 
 
@@ -84,345 +91,182 @@ namespace hds
         }
 
 
-        // Resend packets that are not acked
+        /// <summary>Called by the world loop: resends messages of packets that were not acked in time.</summary>
         public void CheckAndResend()
         {
-            // First try to resent every packet
-            FlushQueue(true);
-            // And then clean Not Acked Packets
-            CleanNakPackets();
-        }
-
-        private void CleanNakPackets()
-        {
-            // ToDo: split flushQueue and resending 
-            UInt32 currentTime = TimeUtils.getUnixTimeUint32();
-            // Remove Packets that are resent more than 3 times and we didnt got an ack for it
-            ArrayList ackedObjectMessages = new ArrayList();
-            lock (messageQueue.ObjectMessagesQueue.SyncRoot)
+            if (Channel.Resetting)
             {
-                foreach (SequencedMessage message in messageQueue.ObjectMessagesQueue)
-                {
-                    if (message.sendCounter >= 10 && message.getResendTime() >= TimeUtils.getUnixTimeUint32())
-                    {
-                        ackedObjectMessages.Add(message);
-                    }
-                }
+                // keep asking until the client answers the reset
+                SendReliable(outgoing.BuildEmptyPacket(Channel, TimeUtils.getCurrentSimTimeMs(), hds.Core.ServerClock.SimSecondsFloat));
+                return;
             }
-
-
-            ArrayList ackedRPCMessages = new ArrayList();
-            lock (messageQueue.RPCMessagesQueue.SyncRoot)
+            if (outgoing.ResendTimedOut(TimeUtils.getCurrentSimTimeMs()) > 0)
             {
-                foreach (SequencedMessage message in messageQueue.RPCMessagesQueue)
-                {
-                    if (message.sendCounter >= 10  && message.getResendTime() >= TimeUtils.getUnixTimeUint32())
-                    {
-                        ackedRPCMessages.Add(message);
-                    }
-                }
-            }
-
-            // Now delete them finally
-            foreach (SequencedMessage deletedAckObject in ackedObjectMessages)
-            {
-                lock (messageQueue.ObjectMessagesQueue.SyncRoot)
-                {
-                    messageQueue.ObjectMessagesQueue.Remove(deletedAckObject);
-                }
-            }
-
-            foreach (SequencedMessage deletedAckRpc in ackedRPCMessages)
-            {
-                lock (messageQueue.RPCMessagesQueue.SyncRoot)
-                {
-                    messageQueue.RPCMessagesQueue.Remove(deletedAckRpc);
-                }
-            }
-        }
-
-        // Flush the MessageQueue Lists to the Client
-        public void FlushQueue(bool sent = false)
-        {
-            // This resend the MessageQueue - should be called after parsing or after sending something out
-            // or in a timed interval (keep alive for example)
-
-
-            // Sends RAW MEssages
-            SendRawMessages();
-            ArrayList worldPackets = new ArrayList();
-
-            WorldPacket packet = new WorldPacket(playerData);
-
-            // Init encrypted Packet if we have MPM Messages
-            if (messageQueue.RPCMessagesQueue.Count > 0 || messageQueue.ObjectMessagesQueue.Count > 0 && flushingQueueInProgress == false)
-            {
-                flushingQueueInProgress = true;
-                // we currently dont know if we send something out so we need to proove that in a way
-                if (messageQueue.ObjectMessagesQueue.Count > 0)
-                {
-                    UInt16 sendingSSeq = playerData.calculateNextPossibleSseq();
-                    lock (messageQueue.ObjectMessagesQueue.SyncRoot)
-                    {
-                        foreach (SequencedMessage messageObjects in messageQueue.ObjectMessagesQueue)
-                        {
-                            // Just append each message...
-                            if (messageObjects.getResendTime() >= TimeUtils.getUnixTimeUint32() ||
-                                messageObjects.getResendTime() == 0 && messageObjects.isSent==sent)
-                            {
-                                // Check if this really save the resendtime or not
-                                messageObjects.increaseResendTime();
-                                messageObjects.IncreaseSentCounter();
-                                messageObjects.isSent = true;
-                                bool canAddThePak = packet.addObjectContent(messageObjects);
-                                if (canAddThePak == false)
-                                {
-                                    packet.isFinal = true;
-                                    // if one sub has a timed param set, we just set it here too
-                                    worldPackets.Add(packet);
-                                    // Start new packet and add it to the queue 
-                                    packet = new WorldPacket(playerData);
-                                    packet.addRPCContent(messageObjects);
-                                }
-                                if (messageObjects.isTimed == true)
-                                {
-                                    packet.timed = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Workaround: complete the packet so we dont mix up
-                if (packet.ObjectMessages.Count > 0)
-                {
-                    packet.isFinal = true;
-                    worldPackets.Add(packet);
-                    packet = new WorldPacket(playerData);
-                    packet.timed = false;
-                }
-
-                if (messageQueue.RPCMessagesQueue.Count > 0)
-                {
-                    lock (messageQueue.RPCMessagesQueue.SyncRoot)
-                    {
-                        foreach (SequencedMessage messageRPC in messageQueue.RPCMessagesQueue)
-                        {
-                            // First do stuff on messages
-                            // Just append each message...
-                            if (messageRPC.getResendTime() >= TimeUtils.getUnixTimeUint32() ||
-                                messageRPC.getResendTime() == 0 && messageRPC.isSent==sent)
-                            {
-                                // Check if this really save the resendtime or not
-                                messageRPC.increaseResendTime();
-                                messageRPC.IncreaseSentCounter();
-                                if (packet.addRPCContent(messageRPC) == false)
-                                {
-                                    packet.isFinal = true;
-                                    worldPackets.Add(packet);
-                                    // Start new packet and add it to the queue 
-                                    packet = new WorldPacket(playerData);
-                                    packet.addRPCContent(messageRPC);
-                                }
-
-                                if (messageRPC.isTimed == true)
-                                {
-                                    packet.timed = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Check if the current not finalize packet has content and needs to be send
-                if ((packet.isFinal == false) && (packet.ObjectMessages.Count > 0 || packet.RPCMessages.Count > 0))
-                {
-                    worldPackets.Add(packet);
-                }
-            }
-
-            // We have nothing - but we should really ack this
-            if (messageQueue.ackOnlyCount > 0)
-            {
-                for (int i = 0; i < messageQueue.ackOnlyCount; i++)
-                {
-                    WorldPacket ackPacket = new WorldPacket(playerData);
-                    packet.isFinal = true;
-                    packet.timed = true;
-                    worldPackets.Add(ackPacket);
-                }
-                messageQueue.ackOnlyCount = 0;
-            }
-
-
-            // We have now PacketObjects - time to send them
-            if (worldPackets.Count > 0)
-            {
-                #if DEBUG
-                Output.WriteLine("[CLIENT] Flush the final Queue with " + worldPackets.Count.ToString() + " Packets");
-                #endif 
-                foreach (WorldPacket thePacket in worldPackets)
-                {
-                    playerData.IncrementSseq();
-
-                    byte[] finalData = thePacket.getFinalData(playerData);
-
-                    Stopwatch stopWatch = new Stopwatch();
-                    stopWatch.Start();
-
-                    byte[] encryptedData = cypher.encrypt(finalData, finalData.Length, playerData.getPss(),
-                        playerData.getCseq(), playerData.getSseq());
-                    sendPacket(encryptedData);
-
-                    stopWatch.Stop();
-                    TimeSpan ts = stopWatch.Elapsed;
-
-
-                    Output.WritePacketLog(this, finalData, "SERVER",
-                        playerData.getPss().ToString(), playerData.getCseq().ToString(),
-                        playerData.getSseq().ToString(), ts.TotalMilliseconds.ToString(), "ENCRYPT");
-                }
-            }
-
-            flushingQueueInProgress = false;
-        }
-
-        private void SendRawMessages()
-        {
-            lock (messageQueue.rawMessages.SyncRoot)
-            {
-                if (messageQueue.rawMessages.Count > 0)
-                {
-                    foreach (byte[] message in messageQueue.rawMessages)
-                    {
-                        Output.WriteUnencryptedPacketLog(message, "SERVER");
-                        sendPacket(message);
-                    }
-                }
-                messageQueue.rawMessages.Clear();
-            }
-        }
-
-        public void DeletedAckedPackets(UInt16 ackSeq)
-        {
-            // First identify which messages needs to be deleted from queue
-            ArrayList ackedObjectMessages = new ArrayList();
-            lock (messageQueue.ObjectMessagesQueue.SyncRoot)
-            {
-                foreach (SequencedMessage message in messageQueue.ObjectMessagesQueue)
-                {
-                    // Check first reality then packetstation for the correct way we handle this
-                    if (message.getNeededAck() <= ackSeq)
-                    {
-                        ackedObjectMessages.Add(message);
-                    }
-                }
-            }
-
-
-            ArrayList ackedRPCMessages = new ArrayList();
-            lock (messageQueue.RPCMessagesQueue.SyncRoot)
-            {
-                foreach (SequencedMessage message in messageQueue.RPCMessagesQueue)
-                {
-                    if (message.getNeededAck() <= ackSeq)
-                    {
-                        ackedRPCMessages.Add(message);
-                    }
-                }
-            }
-
-            // Now delete them finally
-            foreach (SequencedMessage deletedAckObject in ackedObjectMessages)
-            {
-                lock (messageQueue.ObjectMessagesQueue.SyncRoot)
-                {
-                    messageQueue.ObjectMessagesQueue.Remove(deletedAckObject);
-                }
-            }
-
-            foreach (SequencedMessage deletedAckRpc in ackedRPCMessages)
-            {
-                lock (messageQueue.RPCMessagesQueue.SyncRoot)
-                {
-                    messageQueue.RPCMessagesQueue.Remove(deletedAckRpc);
-                }
-            }
-        }
-
-
-        public byte[] DecryptReceivedPacket(byte[] packet)
-        {
-            byte[] processedPacket;
-            byte[] temp;
-
-            ArrayList decValues;
-
-            // Here we check if the first byte is "1" which means that the packet is encrypted or not
-
-            processedPacket = new byte[packet.Length - 1];
-            ArrayUtils.copy(packet, 1, processedPacket, 0, packet.Length - 1);
-            decValues = new ArrayList();
-            decValues = cypher.decrypt(packet, packet.Length);
-            processedPacket = (byte[]) decValues[0];
-
-
-            if (processedPacket[0] == 0x82) //It's a timed data packet
-            {
-                temp = new byte[processedPacket.Length - 4];
-                temp[0] = (byte) 0x02;
-                ArrayUtils.copy(processedPacket, 5, temp, 1, processedPacket.Length - 4);
-                processedPacket = temp;
-            }
-
-
-            //clData.setPss((UInt16) decValues[1]);
-            playerData.setPss((UInt16) decValues[1]);
-            playerData.setCseq((UInt16) decValues[2]);
-            playerData.setACK((UInt16) decValues[3]);
-
-            this.DeletedAckedPackets((UInt16) decValues[3]); // REMOVING FROM ACK QUEUE
-            return processedPacket;
-        }
-
-        public void processPacket(byte[] packet)
-        {
-            // Update the last time we are called
-            lastUsedTime = TimeUtils.getUnixTimeUint32();
-
-            // Decryption start
-            bool encrypted = false;
-
-            byte[] processedPacket = null;
-            Stopwatch stopwatch = new Stopwatch();
-            if (packet.Length > 0)
-            {
-                if (packet[0] == 0x00)
-                {
-                    // Plain text packet
-                    processedPacket = packet;
-                    Output.WritePacketLog(processedPacket, "CLIENT",
-                        playerData.getPss().ToString(), playerData.getCseq().ToString(),
-                        playerData.getACK().ToString());
-                }
-                else
-                {
-                    encrypted = true;
-                    stopwatch.Start();
-                    processedPacket = DecryptReceivedPacket(packet);
-                    stopwatch.Stop();
-                    TimeSpan ts = stopwatch.Elapsed;
-
-                    Output.WritePacketLog(this, processedPacket, "CLIENT",
-                        playerData.getPss().ToString(), playerData.getCseq().ToString(), playerData.getACK().ToString(),
-                        ts.TotalMilliseconds.ToString(), "DECRYPT");
-                }
-
-                Store.Mpm.Parse(encrypted, processedPacket);
                 FlushQueue();
             }
         }
 
+        /// <summary>
+        /// Sends all waiting messages. If nothing is waiting but the client sent us something, an ack only
+        /// packet is sent (the original server answered every client packet).
+        /// </summary>
+        public void FlushQueue()
+        {
+            SendRawMessages();
+
+            var now = TimeUtils.getCurrentSimTimeMs();
+            var simTime = hds.Core.ServerClock.SimSecondsFloat;
+            var packets = outgoing.BuildPackets(messageQueue, Channel, now, simTime);
+            if (packets.Count == 0 && ackOwed)
+            {
+                packets.Add(outgoing.BuildEmptyPacket(Channel, now, simTime));
+            }
+            ackOwed = false;
+
+            foreach (var packet in packets)
+            {
+                SendReliable(packet);
+            }
+        }
+
+        private void SendReliable(byte[] finalData)
+        {
+            var stopWatch = Stopwatch.StartNew();
+            byte[] encryptedData = cypher.encrypt(finalData, finalData.Length, Channel.ReceivedBits,
+                Channel.RemoteSequence, Channel.LocalSequence);
+            sendPacket(encryptedData);
+            stopWatch.Stop();
+
+            Output.WritePacketLog(this, finalData, "SERVER",
+                Channel.ReceivedBits.ToString("x2"), Channel.RemoteSequence.ToString(),
+                Channel.LocalSequence.ToString(), stopWatch.Elapsed.TotalMilliseconds.ToString(), "ENCRYPT");
+        }
+
+        private void SendRawMessages()
+        {
+            if (messageQueue.rawMessages.Count == 0) return;
+            foreach (byte[] message in messageQueue.rawMessages)
+            {
+                Output.WriteUnencryptedPacketLog(message, "SERVER");
+                sendPacket(message);
+            }
+            messageQueue.rawMessages.Clear();
+        }
+
+        /// <summary>
+        /// Starts a world change (client sent RPC 0x108 after our 0x107): the current stream ends, every packet
+        /// asks the client to reset until it confirms, see <see cref="hds.Protocol.Mpm.ReliableChannel"/>.
+        /// </summary>
+        public void BeginRccReset()
+        {
+            if (Channel.Resetting) return;
+            Output.WriteDebugLog("[RCC] world change: requesting channel reset");
+            Store.CloseCombat?.OnClientRemoved(this);
+            playerData.setRPCShutDown(true);
+            playerData.setOnWorld(false);
+            Channel.BeginReset();
+            messageQueue.Clear();
+            outgoing.Clear();
+            ackOwed = true;
+            FlushQueue();
+        }
+
+        /// <summary>The client confirmed the reset: restart both streams and load the world again.</summary>
+        private void CompleteRccReset()
+        {
+            Output.WriteDebugLog("[RCC] client confirmed the reset - loading the world");
+            Channel.CompleteReset();
+            messageQueue.Clear();
+            outgoing.Clear();
+            ResetIncomingRpcCounter();
+            viewMan = new ViewManager();
+            Abilities.ForgetSentBonuses();
+            playerData.setRPCShutDown(false);
+            playerData.setOnWorld(false);
+
+            var handler = new PlayerHandler(this);
+            handler.processPlayerSetup();
+            handler.processAttributes();
+        }
+
+        /// <summary>Decrypts a packet: returns the payload and the header (ack bits, ack, sequence).</summary>
+        private byte[] DecryptReceivedPacket(byte[] packet, out byte ackBits, out ushort sequence, out ushort ack)
+        {
+            ArrayList decValues = cypher.decrypt(packet, packet.Length);
+            ackBits = (byte) (UInt16) decValues[1];
+            sequence = (UInt16) decValues[2];
+            ack = (UInt16) decValues[3];
+            return (byte[]) decValues[0];
+        }
+
+        public void processPacket(byte[] packet)
+        {
+            lastUsedTime = TimeUtils.getUnixTimeUint32();
+            if (packet.Length == 0) return;
+
+            if (packet[0] == 0x00)
+            {
+                // plain packet (session setup and pings)
+                Output.WritePacketLog(packet, "CLIENT", Channel.ReceivedBits.ToString("x2"),
+                    Channel.RemoteSequence.ToString(), Channel.LocalSequence.ToString());
+                Store.PacketProcessor.Process(this, false, packet);
+                FlushQueue();
+                return;
+            }
+
+            var stopwatch = Stopwatch.StartNew();
+            var payload = DecryptReceivedPacket(packet, out var ackBits, out var sequence, out var ack);
+            stopwatch.Stop();
+            Output.WritePacketLog(this, payload, "CLIENT", ackBits.ToString("x2"), sequence.ToString(), ack.ToString(),
+                stopwatch.Elapsed.TotalMilliseconds.ToString(), "DECRYPT");
+            if (payload.Length == 0) return;
+
+            var status = payload[0];
+            if (Channel.Resetting)
+            {
+                // 0x40 = the client echoes our reset request, 0x20 = it already sends its new stream
+                if ((status & (ReliableChannel.StatusResetRcc | ReliableChannel.StatusClientResetDone)) == 0)
+                {
+                    ackOwed = true;
+                    FlushQueue();
+                    return;
+                }
+                CompleteRccReset();
+                if ((status & ReliableChannel.StatusClientResetDone) != 0) Channel.RegisterIncoming(sequence);
+                FlushQueue();
+                return;
+            }
+
+            if ((status & ReliableChannel.StatusResetRcc) != 0)
+            {
+                // late echo of a reset that is already done
+                return;
+            }
+
+            outgoing.OnAck(messageQueue, ack, ackBits);
+            ackOwed = true;
+            if (Channel.RegisterIncoming(sequence))
+            {
+                Store.PacketProcessor.Process(this, true, payload);
+            }
+            FlushQueue();
+        }
+
+        private readonly hds.Protocol.Rpc.IncomingRpcSequence incomingRpcs = new hds.Protocol.Rpc.IncomingRpcSequence();
+
+        /// <summary>False for RPCs that were already executed (see <see cref="hds.Protocol.Rpc.IncomingRpcSequence"/>).</summary>
+        public bool AcceptIncomingRpc(ushort counter) => incomingRpcs.Accept(counter);
+
+        public void ResetIncomingRpcCounter() => incomingRpcs.Reset();
+
+        /// <summary>Queues a server RPC (opcode without the 0x80 marker, e.g. 0xB2 for the old 0x80B2 header).</summary>
+        public void SendRpc(ushort opcode, byte[] payload)
+        {
+            var writer = new hds.Core.Wire.WireWriter(payload.Length + 2);
+            writer.WriteVarSize(opcode);
+            writer.WriteBytes(payload);
+            messageQueue.addRpcMessage(writer.ToArray());
+        }
 
         public bool Alive
         {

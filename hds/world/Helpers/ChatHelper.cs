@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +10,13 @@ namespace hds
 {
     public class ChatCommandsHelper
     {
+        private readonly WorldClient client;
+
+        public ChatCommandsHelper(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public void parseCommand(string data)
         {
             string[] commands = data.Split(' ');
@@ -18,19 +25,6 @@ namespace hds
 
             try
             {
-                if (command.Equals("?fix") && commands.Length > 1)
-                {
-                    int maxRPC = int.Parse(commands[1]);
-                    for (int i = 0; i < maxRPC; i++)
-                    {
-                        Store.currentClient.playerData.setRPCCounter((UInt16) i);
-
-                        ServerPackets pak = new ServerPackets();
-                        pak.sendSystemChatMessage(Store.currentClient, "Trying to fix!", "BROADCAST");
-                    }
-                }
-
-
                 if (command.Equals("?spawnobject") && commands.Length == 2)
                 {
                     // This works ! 
@@ -50,25 +44,25 @@ namespace hds
                             case "Position":
                                 hasFieldsEnabled = true;
                                 theAttribute.enable();
-                                theAttribute.setValue(Store.currentClient.playerInstance.Position.getValue());
+                                theAttribute.setValue(client.playerInstance.Position.getValue());
                                 break;
 
                             case "Orientation":
                                 hasFieldsEnabled = true;
                                 theAttribute.enable();
-                                theAttribute.setValue(Store.currentClient.playerInstance.YawInterval.getValue());
+                                theAttribute.setValue(client.playerInstance.YawInterval.getValue());
                                 break;
                         }
                     }
 
-                    ServerPackets packets = new ServerPackets();
+                    ServerPackets packets = new ServerPackets(client);
 
                     if (hasFieldsEnabled)
                     {
                         UInt64 currentEntityId = WorldServer.entityIdCounter;
                         WorldServer.entityIdCounter++;
                         WorldServer.gameServerEntities.Add(instance);
-                        packets.SendSpawnGameObject(Store.currentClient, instance, currentEntityId);
+                        packets.SendSpawnGameObject(client, instance, currentEntityId);
                     }
                 }
 
@@ -86,15 +80,15 @@ namespace hds
 
                     if (orgId < 6)
                     {
-                        Store.dbManager.WorldDbHandler.SetOrgId(Store.currentClient.playerData.getCharID(), orgId);
+                        Store.dbManager.WorldDbHandler.SetOrgId(client.playerData.getCharID(), orgId);
                         List<Attribute> updateAttributes = new List<Attribute>();
-                        Store.currentClient.playerInstance.OrganizationID.setValue(orgId);
-                        updateAttributes.Add(Store.currentClient.playerInstance.OrganizationID);
+                        client.playerInstance.OrganizationID.setValue(orgId);
+                        updateAttributes.Add(client.playerInstance.OrganizationID);
 
                         PacketContent myselfStateData = new PacketContent();
                         myselfStateData.AddByteArray(
-                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
-                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
+                            client.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                        client.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
 
@@ -117,24 +111,24 @@ namespace hds
                     {
                         case "zion":
                             changedReputation = true;
-                            Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),
+                            Store.dbManager.WorldDbHandler.SetReputation(client.playerData.getCharID(),
                                 "repZion", reputation);
-                            Store.currentClient.playerInstance.ReputationZionMilitary.setValue(reputation);
-                            updateAttributes.Add(Store.currentClient.playerInstance.ReputationZionMilitary);
+                            client.playerInstance.ReputationZionMilitary.setValue(reputation);
+                            updateAttributes.Add(client.playerInstance.ReputationZionMilitary);
                             break;
                         case "machine":
                             changedReputation = true;
-                            Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),
+                            Store.dbManager.WorldDbHandler.SetReputation(client.playerData.getCharID(),
                                 "repMachine", reputation);
-                            Store.currentClient.playerInstance.ReputationMachines.setValue(reputation);
-                            updateAttributes.Add(Store.currentClient.playerInstance.ReputationMachines);
+                            client.playerInstance.ReputationMachines.setValue(reputation);
+                            updateAttributes.Add(client.playerInstance.ReputationMachines);
                             break;
                         case "mero":
                             changedReputation = true;
-                            Store.dbManager.WorldDbHandler.SetReputation(Store.currentClient.playerData.getCharID(),
+                            Store.dbManager.WorldDbHandler.SetReputation(client.playerData.getCharID(),
                                 "repMero", reputation);
-                            Store.currentClient.playerInstance.ReputationMerovingian.setValue(reputation);
-                            updateAttributes.Add(Store.currentClient.playerInstance.ReputationMerovingian);
+                            client.playerInstance.ReputationMerovingian.setValue(reputation);
+                            updateAttributes.Add(client.playerInstance.ReputationMerovingian);
                             break;
                         default:
                             break;
@@ -144,46 +138,46 @@ namespace hds
                     {
                         PacketContent myselfStateData = new PacketContent();
                         myselfStateData.AddByteArray(
-                            Store.currentClient.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
-                        Store.currentClient.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
+                            client.playerInstance.GetSelfUpdateAttributes(updateAttributes, true));
+                        client.messageQueue.addObjectMessage(myselfStateData.ReturnFinalPacket(), false);
                     }
                 }
 
                 if (command.Equals("?gotopos") && commands.Length == 4)
                 {
                     // parse the coord parameters parameters as int
-                    Store.currentClient.messageQueue.addObjectMessage(
-                        new PlayerHelper().teleport(int.Parse(commands[1]), int.Parse(commands[2]),
+                    client.messageQueue.addObjectMessage(
+                        new PlayerHelper(client).teleport(int.Parse(commands[1]), int.Parse(commands[2]),
                             int.Parse(commands[3])), false);
 
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendSystemChatMessage(Store.currentClient, "Teleported!", "BROADCAST");
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.sendSystemChatMessage(client, "Teleported!", "BROADCAST");
                 }
 
                 if (command.Equals("?rsi") && commands.Length == 3)
                 {
                     //parse the rsi part and value
-                    Store.currentClient.messageQueue.addObjectMessage(
-                        new PlayerHelper().changeRsi(commands[1], int.Parse(commands[2])), false);
+                    client.messageQueue.addObjectMessage(
+                        new PlayerHelper(client).changeRsi(commands[1], int.Parse(commands[2])), false);
 
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendSystemChatMessage(Store.currentClient, "Rsi changed!", "BROADCAST");
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.sendSystemChatMessage(client, "Rsi changed!", "BROADCAST");
                 }
 
                 if (command.Contains("?updatersi"))
                 {
-                    int[] current = Store.currentClient.playerData.getRsiValues();
+                    int[] current = client.playerData.getRsiValues();
                     byte[] rsiData = PacketsUtils.getRSIBytes(current);
 
-                    ServerPackets packets = new ServerPackets();
-                    packets.sendAppeareanceUpdate(Store.currentClient, rsiData);
+                    ServerPackets packets = new ServerPackets(client);
+                    packets.sendAppeareanceUpdate(client, rsiData);
                 }
 
                 if (command.StartsWith("?spawndatanode"))
                 {
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendSystemChatMessage(Store.currentClient, "Spawn Datanode!", "BROADCAST");
-                    pak.spawnDataNodeView(Store.currentClient);
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.sendSystemChatMessage(client, "Spawn Datanode!", "BROADCAST");
+                    pak.spawnDataNodeView(client);
                 }
 
                 if (command.StartsWith("?message"))
@@ -198,9 +192,9 @@ namespace hds
                     byte[] moaRSI = StringUtils.hexStringToBytes(hexMoa);
                     Array.Reverse(moaRSI, 0, moaRSI.Length);
 
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendSystemChatMessage(Store.currentClient, "Changed MOA to hexMoa d!", "BROADCAST");
-                    pak.sendChangeChangeMoaRSI(Store.currentClient, moaRSI);
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.sendSystemChatMessage(client, "Changed MOA to hexMoa d!", "BROADCAST");
+                    pak.sendChangeChangeMoaRSI(client, moaRSI);
                 }
 
                 if (command.Equals("?playanim"))
@@ -208,8 +202,8 @@ namespace hds
                     string animId = commands[1];
                     if (animId.Length == 4)
                     {
-                        ServerPackets pak = new ServerPackets();
-                        pak.sendPlayerAnimation(Store.currentClient, animId);
+                        ServerPackets pak = new ServerPackets(client);
+                        pak.sendPlayerAnimation(client, animId);
                     }
                 }
 
@@ -221,8 +215,8 @@ namespace hds
                     if (animIdString.Length == 2)
                     {
                         byte animId = Byte.Parse(animIdString);
-                        ServerPackets pak = new ServerPackets();
-                        pak.sendPlayerMoveAnim(Store.currentClient, animId);
+                        ServerPackets pak = new ServerPackets(client);
+                        pak.sendPlayerMoveAnim(client, animId);
                     }
                 }
 
@@ -252,7 +246,7 @@ namespace hds
                     din.append(animationId);
                     din.append(updateCount);
 
-                    Store.currentClient.messageQueue.addObjectMessage(din.getBytes(), false);
+                    client.messageQueue.addObjectMessage(din.getBytes(), false);
                 }
 
                 if (command.Contains("?send"))
@@ -267,7 +261,7 @@ namespace hds
 
                     if (hexContent.Length > 0)
                     {
-                        Store.currentClient.messageQueue.addObjectMessage(StringUtils.hexStringToBytes(hexContent),
+                        client.messageQueue.addObjectMessage(StringUtils.hexStringToBytes(hexContent),
                             false);
                         Output.writeToLogForConsole("[SENDPACK FROM FILE] Content : " + hexContent);
                     }
@@ -292,7 +286,7 @@ namespace hds
                     double x = 0;
                     double y = 0;
                     double z = 0;
-                    byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+                    byte[] Ltvector3d = client.playerInstance.Position.getValue();
                     NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
 
                     byte[] xPos = NumericalUtils.floatToByteArray((float) x, 1);
@@ -306,7 +300,7 @@ namespace hds
                     Mob theMob = new Mob();
                     theMob.setEntityId(currentEntityId);
                     theMob.setDistrict(Convert.ToUInt16(data[0].ToString()));
-                    theMob.setDistrictName(Store.currentClient.playerData.getDistrict());
+                    theMob.setDistrictName(client.playerData.getDistrict());
                     theMob.setName("HD Protector");
                     theMob.setLevel(255);
                     theMob.setHealthM(UInt16.Parse(data[4].ToString()));
@@ -349,7 +343,7 @@ namespace hds
 
                     if (hexContent.Length > 0)
                     {
-                        Store.currentClient.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(hexContent));
+                        client.messageQueue.addRpcMessage(StringUtils.hexStringToBytes(hexContent));
                         Output.writeToLogForConsole("[SENDRPC FROM FILE] Content : " + hexContent);
                     }
                 }
@@ -359,27 +353,27 @@ namespace hds
                     DynamicArray din = new DynamicArray();
                     din.append(StringUtils.hexStringToBytes(
                         "2E1000FF7D020024000000310000000000000000000000000000000000000000000000000B0053796E61707A65373737001D004F6E2079656168204920646F2072656D656D62657220796F75203A2900"));
-                    Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+                    client.messageQueue.addRpcMessage(din.getBytes());
                 }
 
                 if (command.Contains("?testrpc"))
                 {
                     UInt16 maxRPC = 255;
                     // Just to reference 
-                    if (Store.currentClient.playerData.currentTestRPC <= maxRPC)
+                    if (client.playerData.currentTestRPC <= maxRPC)
                     {
                         // Only if it is below we send it - we test with a 5 size packet
                         DynamicArray din = new DynamicArray();
-                        if (Store.currentClient.playerData.currentTestRPC < 256)
+                        if (client.playerData.currentTestRPC < 256)
                         {
                             din.append(0x80);
-                            din.append(NumericalUtils.uint16ToByteArrayShort(Store.currentClient.playerData
+                            din.append(NumericalUtils.uint16ToByteArrayShort(client.playerData
                                 .currentTestRPC));
                         }
                         else
                         {
                             din.append(0x81);
-                            din.append(NumericalUtils.uint16ToByteArray(Store.currentClient.playerData.currentTestRPC,
+                            din.append(NumericalUtils.uint16ToByteArray(client.playerData.currentTestRPC,
                                 0));
                         }
 
@@ -387,31 +381,31 @@ namespace hds
                         din.append(StringUtils.hexStringToBytes(
                             "0C001C000000000000000E00416674657257686F72754E656F001D00416674657257686F72754E656F2773204D697373696F6E205465616D00"));
 
-                        Store.currentClient.messageQueue.addRpcMessage(din.getBytes());
+                        client.messageQueue.addRpcMessage(din.getBytes());
 
 #if DEBUG
-                        ServerPackets pak = new ServerPackets();
-                        pak.sendSystemChatMessage(Store.currentClient,
-                            "Test RPC Header : " + Store.currentClient.playerData.currentTestRPC.ToString(), "MODAL");
+                        ServerPackets pak = new ServerPackets(client);
+                        pak.sendSystemChatMessage(client,
+                            "Test RPC Header : " + client.playerData.currentTestRPC.ToString(), "MODAL");
 #endif
 
-                        Store.currentClient.playerData.currentTestRPC++;
+                        client.playerData.currentTestRPC++;
                     }
                 }
 
                 if (command.Equals("?save"))
                 {
-                    new PlayerHelper().SavePlayerInfo(Store.currentClient);
+                    new PlayerHelper(client).SavePlayerInfo(client);
 
-                    ServerPackets pak = new ServerPackets();
-                    pak.sendSaveCharDataMessage(Store.currentClient,
-                        StringUtils.charBytesToString_NZ(Store.currentClient.playerInstance.CharacterName.getValue()));
+                    ServerPackets pak = new ServerPackets(client);
+                    pak.sendSaveCharDataMessage(client,
+                        StringUtils.charBytesToString_NZ(client.playerInstance.CharacterName.getValue()));
                 }
             }
             catch (Exception e)
             {
-                Store.currentClient.messageQueue.addRpcMessage(
-                    PacketsUtils.createSystemMessage("Error parsing command!", Store.currentClient));
+                client.messageQueue.addRpcMessage(
+                    PacketsUtils.createSystemMessage("Error parsing command!", client));
 #if DEBUG
                 Output.WriteLine("[CHAT COMMAND PARSER] Error parsing request: " + data);
                 Output.WriteLine("[CHAT COMMAND PARSER] DEBUG: " + e.Message + "\n" + e.StackTrace);

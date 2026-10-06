@@ -5,20 +5,26 @@ namespace hds
 {
     class TeleportHandler
     {
+        private readonly WorldClient client;
+
+        public TeleportHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         // ToDo: ALL!
         public void processHardlineStatusRequest(ref byte[] packet)
         {
             // NEED TO BE DONE CORRECTLY
         }
 
+        /// <summary>
+        /// Client RPC 0x108: it unloaded the world after our 0x107. Now the channel is reset; the world is
+        /// loaded again (LOAD_WORLD) as first message of the new stream.
+        /// </summary>
         public void processTeleportReset(ref byte[] packet)
         {
-            Store.currentClient.playerData.setRPCShutDown(true);
-
-            // We want to reset
-            PacketContent pak = new PacketContent();
-            pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_LOAD_WORLD, 0);
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            client.BeginRccReset();
         }
 
         public void processHardlineTeleport(ref byte[] packet)
@@ -51,11 +57,11 @@ namespace hds
             // This should do the magic - we just catch
             Store.dbManager.WorldDbHandler.updateLocationByHL(destDIS, destHL);
             Store.dbManager.WorldDbHandler.updateSourceHlForObjectTracking(sourceDIS, sourceHL,
-                Store.currentClient.playerData.lastClickedObjectId);
+                client.playerData.lastClickedObjectId);
 
 #if DEBUG
-            ServerPackets serverPak = new ServerPackets();
-            serverPak.sendSystemChatMessage(Store.currentClient,
+            ServerPackets serverPak = new ServerPackets(client);
+            serverPak.sendSystemChatMessage(client,
                 "User wants teleport from : HL ID: " + sourceHL.ToString() + " (DIS: " + sourceDIS.ToString() +
                 " ) TO HL ID: " + destHL.ToString() + " (DIS: " + destDIS.ToString() + ") ", "MODAL");
 #endif
@@ -63,45 +69,45 @@ namespace hds
             // Tell client we want to unload the World
             PacketContent pak = new PacketContent();
             pak.AddUint16((UInt16) RPCResponseHeaders.SERVER_LOAD_RPC_RESET, 0);
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
-            Store.currentClient.FlushQueue();
+            client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            client.FlushQueue();
         }
 
         public void processHardlineExitConfirm(ref byte[] packet)
         {
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             switch (packet[0])
             {
                 case 0x01:
-                    ServerPackets serverPak = new ServerPackets();
+                    ServerPackets serverPak = new ServerPackets(client);
 #if DEBUG
-                    serverPak.sendSystemChatMessage(Store.currentClient, "Exit to LA init...", "MODAL");
+                    serverPak.sendSystemChatMessage(client, "Exit to LA init...", "MODAL");
 #endif
 
                     // Tell client we want to reset
                     byte[] response = {0x81, 0x07};
-                    Store.currentClient.messageQueue.addRpcMessage(response);
+                    client.messageQueue.addRpcMessage(response);
                     break;
 
                 case 0x02:
-                    Store.currentClient.playerData.isJackoutInProgress = true;
-                    Store.currentClient.playerData.jackoutStartTime = TimeUtils.getUnixTimeUint32();
-                    packets.sendJackoutEffect(Store.currentClient);
+                    client.playerData.isJackoutInProgress = true;
+                    client.playerData.jackoutStartTime = TimeUtils.getUnixTimeUint32();
+                    packets.sendJackoutEffect(client);
                     break;
             }
         }
 
         public void processHardlineExitRequest()
         {
-            ServerPackets packets = new ServerPackets();
-            packets.sendJackoutEffect(Store.currentClient);
+            ServerPackets packets = new ServerPackets(client);
+            packets.sendJackoutEffect(client);
         }
 
         public void processGameFinish()
         {
-            Store.dbManager.WorldDbHandler.SetOnlineStatus(Store.currentClient.playerData.getCharID(), 0);
-            ServerPackets packets = new ServerPackets();
-            packets.sendExitGame(Store.currentClient);
+            Store.dbManager.WorldDbHandler.SetOnlineStatus(client.playerData.getCharID(), 0);
+            ServerPackets packets = new ServerPackets(client);
+            packets.sendExitGame(client);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace hds
             pak.AddByte(0x00);
             pak.AddByte(0x01);
 
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            Client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
         public void SendInteractionSubway(WorldClient client, double x, double y, double z)
@@ -72,7 +72,7 @@ namespace hds
             PacketContent pak = new PacketContent();
             pak.AddUint16((UInt16)RPCResponseHeaders.SERVER_SUBWAY_MAP, 0);
             pak.AddUShort(10);
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            Client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
     }

@@ -38,7 +38,7 @@ namespace hds
                 string charname = StringUtils.charBytesToString_NZ(theClient.playerInstance.CharacterName.getValue());
                 pak.AddSizedTerminatedString(charname);
             }
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            Client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
 
         }
 
@@ -52,7 +52,7 @@ namespace hds
             pak.AddByte(0x07);
             pak.AddByte(0x01);
             pak.AddByte(0x00);
-            Store.currentClient.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
+            Client.messageQueue.addRpcMessage(pak.ReturnFinalPacket());
         }
 
     }

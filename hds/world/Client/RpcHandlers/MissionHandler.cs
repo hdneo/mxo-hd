@@ -8,6 +8,13 @@ namespace hds
 {
     public class MissionHandler
     {
+        private readonly WorldClient client;
+
+        public MissionHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public void ProcessMissionaccept(ref byte[] packet)
         {
             // ToDo: figure out if time and diffulty is in the packet
@@ -18,28 +25,28 @@ namespace hds
             #if DEBUG
             Output.WriteRpcLog("Mission Accept Data:" + StringUtils.bytesToString(packet));
             #endif
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
 
-            new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
+            new TeamHandler(client).checkAndCreateMissionTeam(client);
             
-            pak.sendMissionAccept(Store.currentClient, contactId, missionId);
+            pak.sendMissionAccept(client, contactId, missionId);
             
-            pak.SendSetMissionObjective(1, 0, "Follow the white Rabbit!", Store.currentClient);
-            pak.SendSetMissionObjective(2, 0, "Wake UP!", Store.currentClient);
-            pak.SendSetMissionObjective(3, 0, "Watch Matrix Resurrections", Store.currentClient);
-            Store.currentClient.FlushQueue();
+            pak.SendSetMissionObjective(1, 0, "Follow the white Rabbit!", client);
+            pak.SendSetMissionObjective(2, 0, "Wake UP!", client);
+            pak.SendSetMissionObjective(3, 0, "Watch Matrix Resurrections", client);
+            client.FlushQueue();
             
-            // pak.SendSetMissionObjective(2, 0, "Success", Store.currentClient);
-            // pak.SendSetMissionObjective(3, 1, "Talk to Morpheus", Store.currentClient);
-            // pak.SendSetMissionObjective(4, 1, "Talk to Niobe", Store.currentClient);
-            // pak.SendSetMissionObjective(5, 2, "Failed Remain", Store.currentClient);
-            // pak.SendSetMissionObjective(6, 0, "Failed Clear", Store.currentClient);
+            // pak.SendSetMissionObjective(2, 0, "Success", client);
+            // pak.SendSetMissionObjective(3, 1, "Talk to Morpheus", client);
+            // pak.SendSetMissionObjective(4, 1, "Talk to Niobe", client);
+            // pak.SendSetMissionObjective(5, 2, "Failed Remain", client);
+            // pak.SendSetMissionObjective(6, 0, "Failed Clear", client);
         }
 
         public void processMissionList(ref byte[] packet)
         {
             
-            new TeamHandler().checkAndCreateMissionTeam(Store.currentClient);
+            new TeamHandler(client).checkAndCreateMissionTeam(client);
             PacketReader reader = new PacketReader(packet);
             
             UInt16 contactId = reader.ReadUInt16(1);
@@ -51,10 +58,10 @@ namespace hds
             UInt16 contactId = NumericalUtils.ByteArrayToUint16(contactBytes,1);
             uint orgID = packet[2];
             */
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             
-            Store.currentClient.playerData.currentMissionList = DataLoader.getInstance().FindMissions(contactId, orgID); 
-            pak.sendMissionList(contactId, orgID, Store.currentClient.playerData.currentMissionList, Store.currentClient);
+            client.playerData.currentMissionList = DataLoader.getInstance().FindMissions(contactId, orgID); 
+            pak.sendMissionList(contactId, orgID, client.playerData.currentMissionList, client);
         }
 
         public void processInvitePlayerToMissionTeam(ref byte[] packet)
@@ -74,21 +81,21 @@ namespace hds
             // ToDo: we need to capture the mission index from list (which means we need to store the list in the session somewhere?)
             UInt16 missionIndexFromList = reader.ReadUInt16(1);
 
-            Mission theMission = Store.currentClient.playerData.currentMissionList[missionIndexFromList];
+            Mission theMission = client.playerData.currentMissionList[missionIndexFromList];
             
             uint missionTime = reader.ReadUint8();
             uint difficulty = reader.ReadUint8();
             
             uint unknownLastByte = reader.ReadUint8();
             
-            ServerPackets pak = new ServerPackets();
-            pak.sendMissionInfo(theMission, Store.currentClient);
+            ServerPackets pak = new ServerPackets(client);
+            pak.sendMissionInfo(theMission, client);
         }
 
         public void processAbortMission(ref byte[] packet)
         {
-            ServerPackets pak = new ServerPackets();
-            pak.SendMissionAbort(Store.currentClient);
+            ServerPackets pak = new ServerPackets(client);
+            pak.SendMissionAbort(client);
         }
     }
 }

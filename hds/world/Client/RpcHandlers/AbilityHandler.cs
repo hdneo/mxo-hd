@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
+using hds.Core;
 using hds.shared;
 using hds.world.Skill;
 
@@ -9,10 +9,17 @@ namespace hds
 {
     public class AbilityHandler
     {
+        private readonly WorldClient client;
+
+        public AbilityHandler(WorldClient client)
+        {
+            this.client = client;
+        }
+
         public AbilityItem currentAbility;
         public UInt16 currentTargetViewId;
-        public Timer damageTimer;
-        public Timer hyperjumpTimer;
+        public ScheduledTask damageTimer;
+        public ScheduledTask hyperjumpTimer;
         private List<JumpStep> Steps = new List<JumpStep>();
 
 
@@ -24,9 +31,9 @@ namespace hds
             uint levelToIncrease = reader.ReadUint8();
 
             AbilityItem abilityItem = DataLoader.getInstance().getAbilityByID(abilityId);
-            ushort currentLevel = Store.dbManager.WorldDbHandler.UpgradeAbilityLevel(abilityItem.getGOID(), levelToIncrease);
+            ushort currentLevel = Store.dbManager.WorldDbHandler.UpgradeAbilityLevel(client.playerData.getCharID(), abilityItem.getGOID(), levelToIncrease);
 
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             packets.SendUpgradeAbilityLevel(abilityId, currentLevel);
 
         }
@@ -43,8 +50,8 @@ namespace hds
             currentAbility = AbilityLoader.getAbilityByID(AbilityID);
 
             // lets create a message for the client - we will later execute the right AbilityScript for it 
-            ServerPackets pak = new ServerPackets();
-            pak.sendSystemChatMessage(Store.currentClient,
+            ServerPackets pak = new ServerPackets(client);
+            pak.sendSystemChatMessage(client,
                 "Ability ID is " + AbilityID.ToString() + " and the name is " + currentAbility.getAbilityName() +
                 " and Target ViewId Is " + currentTargetViewId, "BROADCAST");
 
@@ -55,7 +62,7 @@ namespace hds
         public void ProcessAbilityScript(AbilityItem abilityItem)
         {
             // Display Cast Bar if it is necessary
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             if (this.currentAbility.getCastingTime() > 0)
             {
                 pak.SendCastAbilityBar(currentAbility.getAbilityID(), currentAbility.getCastingTime());
@@ -75,12 +82,12 @@ namespace hds
                 pak.SendCodeWriterWindow();
             }
 
-            pak.sendISCurrent(Store.currentClient, 50);
+            pak.sendISCurrent(client, 50);
         }
 
         public void abilityAnimateTheTarget(object e)
         {
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             UInt32 targetAnim = this.currentAbility.getActivationFX();
             if (targetAnim == 0)
             {
@@ -92,7 +99,7 @@ namespace hds
 
         public void processCharacterAnimationSelf(UInt16 abilityID)
         {
-            ServerPackets pak = new ServerPackets();
+            ServerPackets pak = new ServerPackets(client);
             // 2904 0429 = Hacker_VirusLaunch_A
             // 2a04 042a = Hacker_VirusLaunch_D
             // see movementAnims.tx - its for codes something (0x31)
@@ -105,24 +112,24 @@ namespace hds
             {
                 byte[] castAnimStart = currentAbility.getCastAnimStart();
                 // Cast
-                pak.sendSystemChatMessage(Store.currentClient,
+                pak.sendSystemChatMessage(client,
                     "Animation Starts with Byte ID " + StringUtils.bytesToString(castAnimStart), "BROADCAST");
-                pak.sendPlayerAnimation(Store.currentClient, StringUtils.bytesToString_NS(castAnimStart));
+                pak.sendPlayerAnimation(client, StringUtils.bytesToString_NS(castAnimStart));
 
                 // And Time a "Damage" or "Buff" Animation
                 int castingTime = (int) currentAbility.getCastingTime() * 1000;
-                currentTargetViewId = Store.currentClient.playerData.currentSelectedTargetViewId;
-                damageTimer = new Timer(abilityAnimateTheTarget, this, castingTime, 0);
+                currentTargetViewId = client.playerData.currentSelectedTargetViewId;
+                damageTimer = Store.Loop.Schedule(TimeSpan.FromMilliseconds(castingTime), () => abilityAnimateTheTarget(null));
             }
         }
 
 
         public void processSelfAnimation(AbilityItem ability)
         {
-//            ServerPackets serverPackets = new ServerPackets();
+//            ServerPackets serverPackets = new ServerPackets(client);
 //            serverPackets.sendAbilitySelfAnimation(2, ability.getAbilityID(), (UInt32) ability.getAbilityExecutionFX());
 
-            ServerPackets serverPackets = new ServerPackets();
+            ServerPackets serverPackets = new ServerPackets(client);
             serverPackets.SendAbilitySelfAnimation(2, ability.getAbilityID(),
                 NumericalUtils.ByteArrayToUint32(ability.getCastAnimStart(), 1));
         }
@@ -147,9 +154,9 @@ namespace hds
             double x = 0;
             double y = 0;
             double z = 0;
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            byte[] Ltvector3d = client.playerInstance.Position.getValue();
             NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-            int rotation = (int) Store.currentClient.playerInstance.YawInterval.getValue()[0];
+            int rotation = (int) client.playerInstance.YawInterval.getValue()[0];
             float xPos = (float) x;
             float yPos = (float) y;
             float zPos = (float) z;
@@ -165,7 +172,7 @@ namespace hds
             UInt32 startTime = TimeUtils.getUnixTimeUint32();
             UInt32 endTime = startTime + duration;
             
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             packets.SendHyperJumpID(jumpId);
             packets.SendHyperJumpWithOneStep((float)xDest,(float)yDest,(float)zDest, peakHeight, endTime);
         }
@@ -184,27 +191,27 @@ namespace hds
             UInt32 startTime = TimeUtils.getUnixTimeUint32();
             UInt32 endTime = startTime + duration;
 
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             packets.SendHyperJumpID(clientJumpIdUnknown);
-            Store.currentClient.playerData.isJumping = true;
-            Store.currentClient.playerData.incrementJumpID();
+            client.playerData.isJumping = true;
+            client.playerData.incrementJumpID();
             UInt32 maybeTimeBasedValue = 40384248;
             foreach (LtVector3f currentJumpPos in JumpMovements)
             {
                 Steps.Add(new JumpStep(currentJumpPos, new LtVector3f((float) xDest, (float) yDest, (float) zDest),
-                    maybeMaxHeight, endTime, Store.currentClient.playerData.getJumpID(), maybeTimeBasedValue));
+                    maybeMaxHeight, endTime, client.playerData.getJumpID(), maybeTimeBasedValue));
                 //packets.SendHyperJumpStepUpdate(currentJumpPos, xDest, yDest, zDest, maybeMaxHeight, endTime);
                 maybeTimeBasedValue = maybeTimeBasedValue + 100;
             }
 
-            hyperjumpTimer = new Timer(ProcessJumpStep, this, 0, 0);
+            hyperjumpTimer = Store.Loop.Schedule(TimeSpan.Zero, () => ProcessJumpStep(null));
         }
 
         private void ProcessJumpStep(Object e)
         {
             JumpStep Step = Steps[0];
             Steps.RemoveAt(0);
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
 
             bool isLastStep = Steps.Count == 0;
 
@@ -213,11 +220,11 @@ namespace hds
 
             if (Steps.Count > 0)
             {
-                hyperjumpTimer = new Timer(ProcessJumpStep, this, 50, 0);
+                hyperjumpTimer = Store.Loop.Schedule(TimeSpan.FromMilliseconds(50), () => ProcessJumpStep(null));
             }
             else
             {
-                Store.currentClient.playerData.isJumping = false;
+                client.playerData.isJumping = false;
                 // ToDo: Check if we need to send some Message for the Clientview
             }    
         }
@@ -240,9 +247,9 @@ namespace hds
             double x = 0;
             double y = 0;
             double z = 0;
-            byte[] Ltvector3d = Store.currentClient.playerInstance.Position.getValue();
+            byte[] Ltvector3d = client.playerInstance.Position.getValue();
             NumericalUtils.LtVector3dToDoubles(Ltvector3d, ref x, ref y, ref z);
-            int rotation = (int) Store.currentClient.playerInstance.YawInterval.getValue()[0];
+            int rotation = (int) client.playerInstance.YawInterval.getValue()[0];
             float xPos = (float) x;
             float yPos = (float) y;
             float zPos = (float) z;
@@ -253,7 +260,7 @@ namespace hds
             UInt32 startTime = TimeUtils.getUnixTimeUint32();
             UInt32 endTime = startTime + duration;
 
-            ServerPackets packets = new ServerPackets();
+            ServerPackets packets = new ServerPackets(client);
             packets.SendHyperJumpID(clientJumpIdUnknown);
             packets.SendHyperJumpUpdate(xPos, yPos, zPos, (float) xDest, (float) yDest, (float) zDest, startTime,
                 endTime);

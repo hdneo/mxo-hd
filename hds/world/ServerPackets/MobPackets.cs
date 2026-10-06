@@ -35,22 +35,6 @@ namespace hds
             
         }
 
-        public void SendNpcUpdateAnimation(UInt16 viewId, WorldClient client, Mob theMob, byte animation )
-        {
-            PacketContent pak = new PacketContent();
-            pak.AddUint16(viewId, 1);
-            pak.AddByte(0x02);
-            pak.AddByte(0x0e);
-            pak.AddByte(animation);
-            pak.AddUShort((UInt16)theMob.getRotation());
-            pak.AddFloatLtVector3f((float)theMob.getXPos(), (float)theMob.getYPos(), (float)theMob.getZPos());
-
-
-            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
-            client.FlushQueue();
-
-        }
-
         public void SendNpcDies(UInt16 viewId, WorldClient client, Mob theMob)
         {
             // Falls to ground like dead lol
@@ -76,20 +60,6 @@ namespace hds
 
         }
 
-
-        public void SendNpcUpdatePos(UInt16 viewId, WorldClient client, Mob theMob)
-        {
-            PacketContent pak = new PacketContent();
-            pak.AddUint16(viewId, 1);
-            pak.AddByte(0x02);
-            pak.AddByte(0x0c);
-            pak.AddUShort((UInt16)theMob.getRotation());
-            pak.AddFloatLtVector3f((float)theMob.getXPos(), (float)theMob.getYPos(), (float)theMob.getZPos());
-
-
-            client.messageQueue.addObjectMessage(pak.ReturnFinalPacket(), false);
-            client.FlushQueue();
-        }
 
         public void SendLootWindow(UInt32 infoAmount, WorldClient client, UInt32[] objectIds)
         {
